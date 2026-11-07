@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.MediaStore;
+import androidx.core.content.FileProvider;
+import java.io.File;
 import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -24,6 +28,7 @@ public class MainActivity extends Activity {
     private static final int PICK_PHOTO = 7;
     private WebView web;
     private ValueCallback<Uri[]> pendingPhoto;
+    private Uri cameraUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +66,27 @@ public class MainActivity extends Activity {
                 Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
                 pick.addCategory(Intent.CATEGORY_OPENABLE);
                 pick.setType("image/*");
+                Intent chooser = Intent.createChooser(pick, "Photo of my drawing");
+                // Offer the camera too, so she can photograph her paper straight away.
+                cameraUri = null;
                 try {
-                    startActivityForResult(Intent.createChooser(pick, "Photo of my drawing"), PICK_PHOTO);
+                    File dir = new File(getCacheDir(), "photos");
+                    if (!dir.exists()) dir.mkdirs();
+                    File file = new File(dir, "drawing-" + System.currentTimeMillis() + ".jpg");
+                    cameraUri = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".photos", file);
+                    Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
+                    camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    if (camera.resolveActivity(getPackageManager()) != null) {
+                        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[]{camera});
+                    } else {
+                        cameraUri = null;
+                    }
+                } catch (Exception e) {
+                    cameraUri = null;
+                }
+                try {
+                    startActivityForResult(chooser, PICK_PHOTO);
                 } catch (ActivityNotFoundException e) {
                     pendingPhoto = null;
                     return false;
@@ -83,9 +107,14 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != PICK_PHOTO || pendingPhoto == null) return;
         Uri[] result = null;
-        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-            result = new Uri[]{data.getData()};
+        if (resultCode == RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                result = new Uri[]{data.getData()};
+            } else if (cameraUri != null) {
+                result = new Uri[]{cameraUri};
+            }
         }
+        cameraUri = null;
         pendingPhoto.onReceiveValue(result);
         pendingPhoto = null;
     }

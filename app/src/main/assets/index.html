@@ -480,7 +480,7 @@ const PEARL={name:'Ripe Pear',cat:'still',lvl:2,mins:25,clips:{p:PEAR},steps:[
  {type:'erase',t:'Erase the helper lines',h:'Keep the pear, lose the circles.'},
  {type:'line',t:'Table edge',h:'Only on each side of the pear.',d:['M30 340 L130 340','M272 340 L370 340'],w:1.5},
  {type:'tone',t:'Light base tone',h:'Shade the whole pear lightly. Leave the shiny spots white.',r:[{d:PEAR+' '+ell(160,252,14,24)+' '+ell(184,134,5,10),k:.6,c:'#DCD55C',rule:1}]},
- {type:'tone',t:'A rosy blush',h:'A soft orange-red patch on the sunny side.',r:[{d:ell(156,286,40,32),k:.32,c:'#E2793C'}],clip:'p'},
+ {type:'tone',t:'A rosy blush',h:'A soft orange-red patch on the sunny side.',r:[{d:PEAR,k:.3,c:'#E2793C',g:[120,310,196,236,0]}],clip:'p'},
  {type:'tone',t:'Middle tones',h:'A bit darker as the pear turns away from the light.',r:[{d:'M236 120 C250 190 296 230 290 290 C284 330 230 344 170 336 C240 320 272 280 264 236 C254 200 236 170 236 120 Z',k:.45,c:'#9BB53B',g:[230,150,270,330,.75]}],clip:'p'},
  {type:'tone',t:'The core shadow',h:'The darkest band on the right and bottom.',r:[{d:'M268 206 C298 245 296 300 262 326 C230 346 170 346 140 330 C200 336 252 310 266 262 C272 240 272 222 268 206 Z',k:.65,c:'#55691F'}],clip:'p'},
  {type:'light',t:'Reflected light',h:'A slightly lighter edge right at the bottom.',r:[{d:'M150 332 C200 344 250 336 276 306 C262 330 224 344 190 344 C172 344 160 340 150 332 Z',o:.5}]},
@@ -679,7 +679,6 @@ const TEAL={name:'Teacup',cat:'still',lvl:2,mins:30,clips:{},steps:[
  {type:'line',t:'The handle',h:'A loop on the side, with an inside line too.',d:['M278 194 C324 182 334 244 264 254','M276 208 C308 202 310 234 270 240'],w:1.8},
  {type:'line',t:'The saucer',h:'The big oval, a smaller oval inside, and the thick edge.',d:[ell(190,296,140,30),'M108 292 C140 304 240 304 272 292','M50 297 C62 322 318 322 330 297'],w:1.6},
  {type:'line',t:'The tea',h:'An oval inside the rim for the top of the tea.',d:[ell(190,178,76,16)],w:1.2},
- {type:'guide',t:'Steam',h:'Light wavy lines rising from the tea.',d:['M160 150 C150 128 172 116 160 92','M196 146 C186 122 210 110 198 80','M228 150 C220 130 240 118 230 96']},
  {type:'erase',t:'Erase the helper lines',h:'Keep the steam lines light. Rub out the rest.'},
  {type:'tone',t:'Dark tea',h:'Tea is dark. Darker near the far edge.',r:[{d:ell(190,178,76,16),k:.85,c:'#8A5426',g:[190,162,190,194,.6]},{d:ell(190,172,60,8),k:.4,c:'#3E220E'}]},
  {type:'tone',t:'Inside of the cup',h:'The inside wall above the tea is in shadow on the left.',r:[{d:ell(190,171,84,20)+' '+ell(190,178,76,16),k:.32,c:'#5D7FA8',g:[106,0,274,0,.08],rule:1}]},
@@ -689,7 +688,7 @@ const TEAL={name:'Teacup',cat:'still',lvl:2,mins:30,clips:{},steps:[
  {type:'tone',t:'Shadow on the table',h:'To the right of the saucer.',r:[{d:'M80 318 C160 336 330 336 372 314 C350 304 330 306 320 308 Z',k:.3,g:[150,320,372,316,.05]}]},
  {type:'blend',t:'Blend',h:'Smooth all the shading. China cups are very smooth!'},
  {type:'light',t:'Shiny reflections',h:'Lift a long light stripe on the cup and a shine on the rim.',r:[{d:'M126 200 Q130 240 150 266 Q140 236 136 200 Z',o:.95},{d:ell(130,168,14,2.5),o:.8},{d:ell(160,180,20,3),o:.35}]},
- {type:'fine',t:'Soft steam',h:'Very light, wiggly lines. Barely touch the paper.',d:['M160 150 C150 128 172 116 160 92','M196 146 C186 122 210 110 198 80','M228 150 C220 130 240 118 230 96'],o:.3}
+ {type:'fine',t:'Soft steam',h:'Very light, wiggly lines rising from the tea. Barely touch the paper.',d:['M160 150 C150 128 172 116 160 92','M196 146 C186 122 210 110 198 80','M228 150 C220 130 240 118 230 96'],o:.3}
 ]};
 
 /* ===== 12. Butterfly ===== */
@@ -707,7 +706,7 @@ const BUTTL={name:'Butterfly',cat:'animals',lvl:3,mins:40,clips:{w:WINGS.join(' 
  {type:'line',t:'Top wings',h:'Draw the outline firmly. Check both sides match.',d:[WINGS[0],WINGS[1]],w:1.8},
  {type:'line',t:'Bottom wings',h:'Rounder, tucked under the top wings.',d:[WINGS[2],WINGS[3]],w:1.8},
  {type:'line',t:'The wing border',h:'A second line inside each wing edge. This makes the dark border.',d:[fwing(1,0.8),fwing(-1,0.8),hwing(1,0.78),hwing(-1,0.78)],w:1.1},
- {type:'fine',t:'Wing veins',h:'Lines from the body out to the edges, like branches.',d:[wveins()],w:1.6,o:1,c:'#1E1A1A'},
+ {type:'fine',t:'Wing veins',h:'Lines from the body out to the edges, like branches.',d:[wveins()],w:1.6,o:1,c:'#1E1A1A',clip:'w'},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the centre line.'},
  {type:'tone',t:'Shade between the veins',h:'A medium tone inside the wings.',r:[{d:WINGS.join(' '),k:.85,c:'#F08A24'},{d:WINGS.join(' '),k:0,c:'#C1440E',g:[200,180,330,120,.6]}],clip:'w'},
  {type:'tone',t:'Dark borders',h:'Fill the border bands dark. Press hard.',r:BORDERS.map(d=>({d,k:.9,c:'#1E1A1A',rule:1}))},
@@ -717,7 +716,7 @@ const BUTTL={name:'Butterfly',cat:'animals',lvl:3,mins:40,clips:{w:WINGS.join(' 
  {type:'tone',t:'Cast shadow',h:'A soft shadow under the wings.',r:[{d:poly([[60,230],[200,350],[340,230],[300,350],[100,350]])+' Z',k:0},{d:ell(214,346,130,10),k:.18}]},
  {type:'blend',t:'Blend',h:'Smooth the wing tone, but keep the veins sharp.'},
  {type:'light',t:'White dots',h:'Lift little white dots along the dark borders.',r:[{d:wdots(),o:1}]},
- {type:'fine',t:'Sharpen the veins',h:'Go over the veins again so they stand out.',d:[wveins()],w:2,c:'#1E1A1A'}
+ {type:'fine',t:'Sharpen the veins',h:'Go over the veins again so they stand out.',d:[wveins()],w:2,c:'#1E1A1A',clip:'w'}
 ]};
 
 Object.assign(LESSONS,{pear:PEARL,shell:SHELLL,feather:FEATHERL,straw:STRAWL,cupcake:CUPL,mush:MUSHL,leaf:LEAFL,tea:TEAL,butterfly:BUTTL});
@@ -731,10 +730,11 @@ const lightGuide=y=>({type:'guide',t:'Light and table',h:'An arrow for the light
 
 /* 13. Cherries */
 const CH1=circ(152,268,56), CH2=circ(254,280,52);
-const CHERRYL={name:'Cherries',cat:'still',lvl:1,mins:20,clips:{c:CH1+' '+CH2},steps:[
+const CHERRYL={name:'Cherries',cat:'still',lvl:1,mins:20,clips:{c:CH1+' '+CH2},clipsOut:{front:'M152 216 C122 206 96 232 96 268 C96 306 124 324 152 324 C180 324 208 306 208 268 C208 232 182 206 152 216 Z'},steps:[
  {type:'guide',t:'Two light circles',h:'One a little lower and smaller than the other.',d:[CH1,CH2]},
  lightGuide(334),
- {type:'line',t:'Cherry outlines',h:'Round, with a small dip at the top of each.',d:['M152 216 C122 206 96 232 96 268 C96 306 124 324 152 324 C180 324 208 306 208 268 C208 232 182 206 152 216 Z','M254 232 C226 222 202 246 202 280 C202 314 228 332 254 332 C282 332 306 314 306 280 C306 246 280 222 254 232 Z'],w:1.6,o:.85},
+ {type:'line',t:'Front cherry',h:'Round, with a small dip at the top.',d:['M152 216 C122 206 96 232 96 268 C96 306 124 324 152 324 C180 324 208 306 208 268 C208 232 182 206 152 216 Z'],w:1.6,o:.85},
+ {type:'line',t:'Back cherry',h:'A little lower and to the right. Its left side hides behind the front cherry.',d:['M254 232 C226 222 202 246 202 280 C202 314 228 332 254 332 C282 332 306 314 306 280 C306 246 280 222 254 232 Z'],w:1.6,o:.85,clip:'front'},
  {type:'line',t:'Stems',h:'Two long curvy stems that meet at the top.',d:['M152 218 Q160 140 230 84','M156 218 Q166 142 234 86','M254 234 Q246 150 230 84','M258 234 Q250 150 234 86'],w:1.5},
  {type:'line',t:'A leaf',h:'A pointy leaf where the stems join.',d:['M232 86 Q270 50 326 58 Q292 100 232 86 Z','M234 85 Q276 70 322 60'],w:1.5},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and guides.'},
@@ -798,21 +798,21 @@ const ORANGEL={name:'Orange',cat:'still',lvl:2,mins:25,clips:{o:ORANGE},steps:[
 ]};
 
 /* 16. Watermelon slice */
-const WM='M200 64 L334 262 Q200 334 66 262 Z', WMF='M200 76 L322 256 Q200 316 78 256 Z', WMW='M200 70 L328 259 Q200 324 72 259 Z';
+const WM='M200 64 L334 262 Q200 334 66 262 Z', WMF='M200 67 L329 255 Q200 316 71 255 Z', WMW='M200 66 L332 259 Q200 324 68 259 Z';
 const wmSeeds=()=>{const out=[];const r=rng(161);[[200,130],[178,170],[222,170],[156,212],[200,206],[244,212],[132,248],[176,248],[224,250],[268,246]].forEach(([x,y])=>{const a=Math.atan2(y-64,x-200)-Math.PI/2;const s=8;out.push(`M${f(x)} ${f(y-s)} Q${f(x+5)} ${f(y)} ${f(x)} ${f(y+s)} Q${f(x-5)} ${f(y)} ${f(x)} ${f(y-s)} Z`);});return out.join(' ');};
 const WMSEEDS=wmSeeds();
 const WATERL={name:'Watermelon Slice',cat:'still',lvl:1,mins:20,clips:{f:WMF},steps:[
  {type:'guide',t:'A light triangle',h:'Point at the top, wide at the bottom.',d:['M200 64 L334 262 L66 262 Z']},
  {type:'guide',t:'Curve the bottom',h:'The bottom edge bends down like a smile.',d:['M66 262 Q200 334 334 262']},
  {type:'line',t:'The slice outline',h:'Straight sides, curved bottom.',d:[WM],w:1.6,o:.85},
- {type:'line',t:'The rind',h:'Two curves inside the bottom: one for the white, one for the green.',d:['M78 256 Q200 316 322 256','M72 259 Q200 324 328 259'],w:1.2},
+ {type:'line',t:'The rind',h:'Two curves inside the bottom: one for the white, one for the green.',d:['M71 255 Q200 316 329 255','M68 259 Q200 324 332 259'],w:1.2},
  {type:'line',t:'Seeds',h:'Teardrop seeds in rows, pointing down.',d:[WMSEEDS],w:1.1},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the triangle.'},
  {type:'tone',t:'Red flesh',h:'Bright pinky-red all over the inside. Go around the seeds.',r:[{d:WMF+' '+WMSEEDS,k:.85,c:'#F2545B',rule:1}]},
  {type:'tone',t:'Deeper red',h:'Darker red near the middle and on the right side.',r:[{d:WMF,k:0,c:'#C42B38',g:[140,200,300,240,.6]}],clip:'f'},
  {type:'fine',t:'Juicy texture',h:'Tiny short strokes all over the red part.',d:[speckle(WMF,140,163,6,6)],w:1.2,o:.45,c:'#A31A28'},
- {type:'tone',t:'White rind',h:'A pale green-white band.',r:[{d:'M78 256 Q200 316 322 256 L328 259 Q200 324 72 259 Z',k:.6,c:'#D9F0B0'}]},
- {type:'tone',t:'Green skin',h:'Dark green at the very bottom.',r:[{d:'M72 259 Q200 324 328 259 L334 262 Q200 334 66 262 Z',k:.95,c:'#2F7A2C'}]},
+ {type:'tone',t:'White rind',h:'A pale green-white band.',r:[{d:'M71 255 Q200 316 329 255 L332 259 Q200 324 68 259 Z',k:.6,c:'#D9F0B0'}]},
+ {type:'tone',t:'Green skin',h:'Dark green at the very bottom.',r:[{d:'M68 259 Q200 324 332 259 L334 262 Q200 334 66 262 Z',k:.95,c:'#2F7A2C'}]},
  {type:'tone',t:'Black seeds',h:'Fill the seeds dark. Leave a tiny shine on each.',r:[{d:WMSEEDS,k:.95,c:'#1E1414'}]},
  {type:'tone',t:'Cast shadow',h:'The slice lies on a plate. Shadow at the bottom right.',r:[{d:'M80 270 Q200 350 344 268 L352 284 Q200 362 70 286 Z',k:.3,g:[200,290,350,280,.05]}]},
  {type:'blend',t:'Blend',h:'Blend the red so it looks juicy.'},
@@ -826,13 +826,13 @@ const PET_B=Array.from({length:16},(_,i)=>petal(i/16*2*Math.PI+0.2,40,112,15));
 const PET_F=Array.from({length:16},(_,i)=>petal(i/16*2*Math.PI,38,104,16));
 const SEEDHEAD=circ(200,180,46);
 const phyllo=()=>{const out=[];for(let i=1;i<170;i++){const r=3.4*Math.sqrt(i),a=i*2.39996;if(r>44)break;out.push(circ(+f(200+Math.cos(a)*r),+f(180+Math.sin(a)*r),1.5));}return out.join(' ');};
-const SUNL={name:'Sunflower',cat:'nature',lvl:3,mins:40,clips:{h:SEEDHEAD},steps:[
+const SUNL={name:'Sunflower',cat:'nature',lvl:3,mins:40,clips:{h:SEEDHEAD},clipsOut:{flower:circ(200,180,98)},steps:[
  {type:'guide',t:'Two light circles',h:'A small one for the seed head and a big one for the petal tips.',d:[SEEDHEAD,circ(200,180,110)]},
  {type:'guide',t:'Stem line',h:'A gentle curve down from the flower.',d:['M200 226 Q190 310 204 392']},
  {type:'line',t:'Seed head',h:'A circle in the middle.',d:[SEEDHEAD],w:1.6},
  {type:'line',t:'Back petals',h:'Pointy petals between the front ones. Draw only what you can see.',d:PET_B,w:1.1,o:.7},
  {type:'line',t:'Front petals',h:'Long pointy petals all around, like a sun.',d:PET_F,w:1.4},
- {type:'line',t:'The stem',h:'Two lines for a thick stem.',d:['M194 226 Q184 310 198 392','M208 226 Q198 310 212 392'],w:1.6},
+ {type:'line',t:'The stem',h:'Two lines for a thick stem.',d:['M194 226 Q184 310 198 392','M208 226 Q198 310 212 392'],w:1.6,clip:'flower'},
  {type:'line',t:'A big leaf',h:'A heart-shaped leaf on the side of the stem.',d:['M200 310 Q150 270 104 296 Q130 346 198 322 Z','M198 316 Q150 300 110 298'],w:1.4},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and the stem line.'},
  {type:'tone',t:'Yellow petals',h:'Bright yellow on every petal.',r:[{d:PET_B.join(' '),k:.85,c:'#F5B81C'},{d:PET_F.join(' '),k:.85,c:'#FFD12E'}]},
@@ -843,7 +843,7 @@ const SUNL={name:'Sunflower',cat:'nature',lvl:3,mins:40,clips:{h:SEEDHEAD},steps
  {type:'tone',t:'Green stem and leaf',h:'Medium green, darker on the right.',r:[{d:'M194 226 Q184 310 198 392 L212 392 Q198 310 208 226 Z',k:.85,c:'#5A9E34'},{d:'M200 310 Q150 270 104 296 Q130 346 198 322 Z',k:.85,c:'#4E9A2E'},{d:'M198 316 Q150 300 110 298 Q130 346 198 322 Z',k:.55,c:'#245A16'},{d:'M204 226 Q194 310 206 392 L212 392 Q198 310 208 226 Z',k:.5,c:'#245A16'}]},
  {type:'tone',t:'Shadows under the petals',h:'Front petals cast a shadow on the back ones.',r:[{d:PET_B.join(' '),k:.35,c:'#B5650A'}]},
  {type:'blend',t:'Blend',h:'Blend the petals from orange in the middle to yellow at the tips.'},
- {type:'light',t:'Highlights',h:'Light on the top petals and a few shiny seeds.',r:[{d:dots(SEEDHEAD,18,171,1.4,6),o:.6},{d:PET_F.slice(10,14).join(' '),o:.25}]}
+ {type:'light',t:'Highlights',h:'Light on the top petals and a few shiny seeds.',r:[{d:dots(SEEDHEAD,18,171,1.4,6),o:.6},{d:PET_F.slice(10,14).join(' '),o:.14}]}
 ]};
 
 /* 18. Tulip */
@@ -954,7 +954,7 @@ const LIPSL={name:'Lips',cat:'faces',lvl:3,mins:35,clips:{u:LIPU,l:LIPL},steps:[
  {type:'tone',t:'Shade the bottom lip',h:'Darker near the mouth line and at the bottom edge.',r:[{d:LIPL,k:.6,c:'#B8545C',g:[200,216,200,246,.0]},{d:'M110 238 C150 268 250 268 290 238 C260 276 140 276 110 238 Z',k:.4,c:'#9E4048'}],clip:'l'},
  {type:'fine',t:'Lip lines',h:'Thin vertical lines that follow the curve of the lips.',d:[lipLines()],o:.45,c:'#8E3440'},
  {type:'tone',t:'Corners of the mouth',h:'Small dark shadows in each corner.',r:[{d:ell(94,212,10,5),k:.7,c:'#6E2A30'},{d:ell(306,212,10,5),k:.7,c:'#6E2A30'}]},
- {type:'tone',t:'Skin around the lips',h:'Light peach skin, with a shadow under the bottom lip.',r:[{d:ell(200,222,150,90)+' '+LIPU+' '+LIPL,k:.35,c:'#F2C4A8',rule:1},{d:ell(200,284,70,10),k:.4,c:'#C98E78'},{d:'M186 150 Q192 168 196 182 L204 182 Q208 168 214 150 Z',k:.25,c:'#C98E78'}]},
+ {type:'tone',t:'Skin around the lips',h:'Light peach skin, with a shadow under the bottom lip.',r:[{d:ell(200,222,150,92)+' '+LIPU+' '+LIPL,k:.1,c:'#F2C4A8',rule:1},{d:ell(200,222,128,76)+' '+LIPU+' '+LIPL,k:.12,c:'#F2C4A8',rule:1},{d:ell(200,222,106,62)+' '+LIPU+' '+LIPL,k:.14,c:'#F2C4A8',rule:1},{d:ell(200,284,70,10),k:.4,c:'#C98E78'},{d:'M186 150 Q192 168 196 182 L204 182 Q208 168 214 150 Z',k:.25,c:'#C98E78'}]},
  {type:'blend',t:'Blend',h:'Blend everything softly. Lips have no hard edges.'},
  {type:'light',t:'Glossy highlights',h:'Lift shiny spots on the bottom lip and a soft one on the top.',r:[{d:'M160 236 Q190 228 214 236 Q190 246 160 240 Z',o:.9},{d:ell(240,240,12,4),o:.7},{d:ell(170,196,14,3),o:.45},{d:ell(234,194,12,3),o:.45}]}
 ]};
@@ -1027,11 +1027,11 @@ const HLEAF1='M128 150 C100 104 60 96 24 116 C40 160 84 182 128 168 Z', HLEAF2='
 const HSTAM='M210 174 Q262 128 300 98 L304 104 Q266 136 214 180 Z';
 const pollen=()=>{const out=[];const r=rng(301);for(let i=0;i<11;i++){const a=r()*Math.PI*2,rr=6+r()*12;out.push(circ(+f(306+Math.cos(a)*rr),+f(92+Math.sin(a)*rr),3.2));}return out;};
 const POLL=pollen();
-const HIBISCUS={name:'Hibiscus',cat:'pick',pick:1,lvl:2,mins:35,clips:{p:HPET.join(' ')},clipsOut:{behind:HPET.join(' ')},steps:[
+const HIBISCUS={name:'Hibiscus',cat:'pick',pick:1,lvl:2,mins:35,clips:{p:HPET.join(' ')},clipsOut:{behind:HPET.join(' '),stam:HSTAM},steps:[
  {type:'guide',t:'A light circle',h:'The flower fits in a big circle.',d:[ell(208,176,140,122)]},
  {type:'guide',t:'Five light lines',h:'Like a star from the centre. One petal goes on each line.',d:[-1.5,-0.25,1.0,2.25,3.5].map(a=>{const e=hp(a,130);return `M208 176 L${f(e[0])} ${f(e[1])}`;})},
- {type:'line',t:'Five round petals',h:'Each petal is like a wide fan with a wavy edge. They overlap a little.',d:HPET,w:1.6},
- {type:'line',t:'The long stamen',h:'A thin tube coming out of the centre toward the top right.',d:[HSTAM],w:1.3},
+ {type:'line',t:'The long stamen',h:'Start in the middle: a thin tube reaching to the top right.',d:[HSTAM],w:1.3},
+ {type:'line',t:'Five round petals',h:'Each petal is like a wide fan. Stop your line where it meets the stamen.',d:HPET,w:1.6,clip:'stam'},
  {type:'line',t:'Pollen',h:'Tiny circles in a little bunch at the end.',d:POLL,w:1.1},
  {type:'line',t:'Two leaves',h:'Pointy leaves peeking out from behind on the left.',d:[HLEAF1,HLEAF2],w:1.5,clip:'behind'},
  {type:'fine',t:'Leaf veins',h:'A middle line with small side veins.',d:['M128 160 C96 136 60 122 30 118 M100 146 l-6 -14 M76 134 l-4 -12 M98 148 l-4 14 M72 136 l-8 12','M140 240 C110 260 84 290 68 314 M120 256 l-14 -2 M100 276 l-14 0 M120 258 l4 14 M100 280 l6 12'],o:.7,clip:'behind'},
@@ -1068,9 +1068,9 @@ const CATBERET={name:'Cat in a Beret',cat:'pick',pick:1,lvl:2,mins:35,clips:{h:K
  {type:'guide',t:'A wide oval for the head',h:'Wider than it is tall, tilted a little.',d:[kEll(250,320,170,120)]},
  {type:'guide',t:'A pear shape for the body',h:'Under the head, round at the bottom.',d:[kEll(300,540,140,100)]},
  {type:'guide',t:'Eye line',h:'A slanted line: the left eye sits a bit lower.',d:[KT('M140 370 L380 318')]},
- {type:'line',t:'Head and ears',h:'Big soft cheeks. The left ear points out, the right ear points up.',d:[KHEAD],w:1.6,clip:'noBeret'},
+ {type:'line',t:'The beret',h:'Start with the cap: a soft shape tilted on the right of the head oval, with a rim at the front.',d:[KBERET,KT('M220 180 C220 224 240 266 274 286')],w:1.6},
+ {type:'line',t:'Head and ears',h:'Big soft cheeks. The left ear points out, the right ear peeks up behind the beret.',d:[KHEAD],w:1.6,clip:'noBeret'},
  {type:'line',t:'Inside the ears',h:'A smaller triangle inside each ear.',d:[KEARIN,KEARIN2],w:1.1,o:.7,clip:'noBeret'},
- {type:'line',t:'The beret',h:'A soft cap tilted on the right side, with a rim at the front.',d:[KBERET,KT('M220 180 C220 224 240 266 274 286')],w:1.6},
  {type:'line',t:'Big almond eyes',h:'The right eye is a little higher and rounder.',d:[KEYEL,KEYER,KPUPL,KPUPR],w:1.4},
  {type:'line',t:'Eyelashes',h:'A thick top line with a little flick on the outside.',d:[KT('M138 344 C158 326 212 324 232 350'),KT('M150 350 L132 342'),KT('M296 332 C300 300 346 290 364 314')],w:2.4},
  {type:'line',t:'Nose and mouth',h:'A tiny triangle nose and a small "w" mouth.',d:[KT('M254 374 L280 374 L267 388 Z'),KT('M267 388 L267 396'),KT('M244 395 C252 406 262 404 267 396 C272 404 282 406 290 395')],w:1.4},
@@ -1092,7 +1092,7 @@ const CATBERET={name:'Cat in a Beret',cat:'pick',pick:1,lvl:2,mins:35,clips:{h:K
  {type:'fine',t:'A little heart',h:'A tiny orange heart and two little marks next to the cat.',d:[KHEART,KT('M455 182 L461 190 L467 182'),KT('M56 352 L66 346 M60 362 L70 359')],w:1.6,c:'#E89A30'},
  {type:'tone',t:'Soft shadow',h:'A light grey shadow under the cat.',r:[{d:kEll(310,640,150,14),k:.35,c:'#8A8070'}]},
  {type:'blend',t:'Blend',h:'Blend the fur gently with a tissue.'},
- {type:'light',t:'Sparkly eyes',h:'Lift bright spots in the eyes and a soft shine on the beret.',r:[{d:kCirc(205,350,6)+' '+kCirc(342,316,6)+' '+kCirc(190,376,2.6)+' '+kCirc(326,342,2.6),o:1},{d:KT('M260 190 C300 172 345 175 375 192 C340 186 300 188 268 202 Z'),o:.45},{d:kEll(270,500,40,30),o:.25}]}
+ {type:'light',t:'Sparkly eyes',h:'Lift bright spots in the eyes and a soft shine on the beret.',r:[{d:kCirc(205,350,6)+' '+kCirc(342,316,6)+' '+kCirc(190,376,2.6)+' '+kCirc(326,342,2.6),o:1},{d:KT('M260 190 C300 172 345 175 375 192 C340 186 300 188 268 202 Z'),o:.45}]}
 ]};
 
 /* Puppy on a log (traced from Najmal's picture) */
@@ -1107,6 +1107,7 @@ const PEYEL=qCirc(277,180,28), PEYER=qCirc(418,170,28), PPUPL=qCirc(277,182,17),
 const PNOSE=QT('M322 230 C322 216 368 216 368 230 C368 245 352 255 345 255 C338 255 322 245 322 230 Z');
 const PTONGUE=QT('M324 282 C322 316 368 320 372 282 C362 290 334 290 324 282 Z');
 const PBODY=QT('M212 256 C170 282 130 310 106 350 C96 378 100 400 112 412 L560 340 C556 300 522 270 470 250 L340 330 Z');
+const PBODYLINE=QT('M212 256 C170 282 130 310 106 350 C96 378 100 400 112 412')+' '+QT('M560 340 C556 300 522 270 470 250');
 const PSHOULDER=QT('M138 302 C175 276 215 280 232 302 C222 342 190 362 160 362 C134 356 124 330 138 302 Z');
 const PTAIL=QT('M112 362 C82 330 56 262 66 198 C72 186 82 200 88 214 C100 250 116 290 136 318 C142 326 148 332 156 336 Z');
 const LOG=QT('M0 428 C200 394 450 340 700 300 L700 600 L0 600 Z');
@@ -1118,13 +1119,13 @@ const PUPPY={name:'Puppy on a Log',cat:'pick',pick:1,lvl:2,mins:40,clips:{h:PHEA
  {type:'guide',t:'A big circle for the head',h:'In the middle near the top. The head is big!',d:[qEll(345,170,140,150)]},
  {type:'guide',t:'Face helper lines',h:'Across for the eyes, down the middle for the nose.',d:[QT('M200 178 L490 172'),QT('M345 20 L345 320')]},
  {type:'guide',t:'The log',h:'A wide band slanting up to the right.',d:[QT('M0 428 L700 300')]},
- {type:'line',t:'Head shape',h:'Round forehead and full cheeks.',d:[PHEAD],w:1.5,clip:'ears'},
- {type:'line',t:'Fluffy top',h:'Little flicks of fur sticking up on top.',d:[QT('M262 34 L256 18 M282 24 L280 6 M304 16 L306 0 M330 12 L326 -4 M356 12 L360 -4 M382 16 L388 0 M406 24 L414 8 M428 34 L438 20')],w:1.1,o:.7,c:'#7A4216'},
  {type:'line',t:'Floppy ears',h:'Big rounded ears hanging down each side, a little wavy at the bottom.',d:[PUPEARL,PUPEARR],w:1.5},
+ {type:'line',t:'Head shape',h:'Round forehead and full cheeks, between the ears.',d:[PHEAD],w:1.5,clip:'ears'},
+ {type:'line',t:'Fluffy top',h:'Little flicks of fur sticking up on top.',d:[QT('M262 34 L256 18 M282 24 L280 6 M304 16 L306 0 M330 12 L326 -4 M356 12 L360 -4 M382 16 L388 0 M406 24 L414 8 M428 34 L438 20')],w:1.1,o:.7,c:'#7A4216'},
  {type:'line',t:'Big shiny eyes',h:'Round eyes with big pupils, on the helper line.',d:[PEYEL,PEYER,PPUPL,PPUPR],w:1.5},
  {type:'line',t:'Nose, smile and tongue',h:'A round nose, a wide happy smile and the tongue sticking out.',d:[PNOSE,QT('M345 255 L345 270'),QT('M272 262 C290 290 320 292 345 270 C370 292 400 290 426 254'),PTONGUE,QT('M348 288 L348 306')],w:1.5},
  {type:'line',t:'Patches',h:'Light lines for the brown patches. A white stripe goes up the middle.',d:[PPATCHL,PPATCHR],w:1,o:.5,clip:'ears'},
- {type:'line',t:'Body and tail',h:'The body is behind the head. A fluffy tail sticks up on the left.',d:[PBODY,PTAIL],w:1.5,clip:'body'},
+ {type:'line',t:'Body and tail',h:'The body is behind the head. A fluffy tail sticks up on the left.',d:[PBODYLINE,PTAIL],w:1.5,clip:'body'},
  {type:'line',t:'Paws',h:'One paw hangs over the front of the log. The other rests on top.',d:[PPAWL,PPAWR,QT('M336 498 L333 482 M360 500 L360 484 M386 490 L389 476'),QT('M484 414 L484 400 M512 418 L512 402 M538 410 L538 396')],w:1.5},
  {type:'line',t:'The log',h:'The top edge of the log, behind the paws.',d:[QT('M0 428 C200 394 450 340 700 300')],w:1.6,clip:'front'},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and lines.'},
@@ -1140,7 +1141,7 @@ const PUPPY={name:'Puppy on a Log',cat:'pick',pick:1,lvl:2,mins:40,clips:{h:PHEA
  {type:'fine',t:'Fur strokes',h:'Short strokes all around the edges and on the chest.',d:[QT('M210 120 L196 126 M206 160 L192 166 M204 200 L190 206 M480 120 L494 124 M484 160 L498 164 M478 200 L492 206'),QT('M300 40 L306 58 M330 30 L332 50 M360 30 L358 50 M390 40 L384 58'),QT('M250 330 L256 346 M420 320 L414 336 M200 360 L210 374 M440 300 L446 316')],o:.5,c:'#7A4216'},
  {type:'tone',t:'The log',h:'Light brown first, then darker brown lower down.',r:[{d:LOG,k:.75,c:'#C08048'},{d:LOG,k:0,c:'#6E3F1C',g:[0,QY(380),0,QY(600),.8]}],clip:'log'},
  {type:'fine',t:'Wood grain',h:'Long wavy lines along the log.',d:[grain()],w:1.2,o:.6,c:'#5A3216',clip:'log'},
- {type:'tone',t:'Shadow under the paws',h:'Dark brown on the log right next to each paw.',r:[{d:QT('M290 440 C300 470 330 500 380 500 C420 496 420 470 410 440 L430 450 C440 490 410 520 360 518 C320 514 296 480 290 440 Z'),k:.5,c:'#4A2A12'},{d:qEll(510,420,60,12),k:.55,c:'#4A2A12'}],clip:'log'},
+ {type:'tone',t:'Shadow under the paws',h:'Dark brown on the log just below each paw.',r:[{d:qEll(352,512,48,9)+' '+qEll(505,420,56,10),k:.5,c:'#4A2A12'}],clip:'log'},
  {type:'blend',t:'Blend',h:'Blend the fur, then the log.'},
  {type:'light',t:'Sparkly highlights',h:'Big white shines in the eyes and on the nose.',r:[{d:qCirc(268,170,7)+' '+qCirc(409,160,7)+' '+qCirc(287,194,3)+' '+qCirc(428,184,3),o:1},{d:qEll(338,226,8,4),o:.8}]}
 ]};
@@ -1181,7 +1182,7 @@ const CACT='M172 252 L172 196 C140 196 126 188 126 160 L126 122 C126 106 148 106
 const CRIM='M142 248 L258 248 L258 274 L142 274 Z', CPOT='M150 274 L250 274 L238 354 L162 354 Z';
 const CFLOW=[0,1,2,3,4].map(i=>{const a=-Math.PI/2+i*2*Math.PI/5,x=200+Math.cos(a)*12,y=76+Math.sin(a)*9;return ell(+f(x),+f(y),8,6);}).join(' ');
 const cSpines=()=>{const out=[];const r=rng(77);const ribs=[[186,100,250],[200,84,250],[214,100,250],[137,116,180],[263,92,140]];ribs.forEach(([x,y0,y1])=>{for(let y=y0+6;y<y1;y+=14){const s=r()<.5?-1:1;out.push(`M${x} ${y} l${s*5} -3 M${x} ${y} l${-s*4} -4`);}});return out.join(' ');};
-const CACTUS={name:'Cactus in a Pot',cat:'nature',lvl:1,mins:25,clipsOut:{rim:CRIM,flow:CFLOW},steps:[
+const CACTUS={name:'Cactus in a Pot',cat:'nature',lvl:1,mins:25,clips:{cin:CACT},clipsOut:{rim:CRIM,flow:CFLOW},steps:[
  lightGuide(354),
  {type:'guide',t:'Pot and cactus blocks',h:'A box for the pot and a tall rounded shape for the cactus.',d:['M142 248 L258 248 L238 354 L162 354 Z','M172 252 L172 80 L228 80 L228 252']},
  {type:'line',t:'Pot rim',h:'A wide band at the top of the pot.',d:[CRIM],w:1.6},
@@ -1192,7 +1193,7 @@ const CACTUS={name:'Cactus in a Pot',cat:'nature',lvl:1,mins:25,clipsOut:{rim:CR
  {type:'erase',t:'Erase the helper lines',h:'Rub out the blocks.'},
  tableLine(354,162,238),
  {type:'tone',t:'Cactus green',h:'A fresh green all over the cactus.',r:[{d:CACT,k:.8,c:'#5FA65A'}],clip:'rim'},
- {type:'tone',t:'Dark green side',h:'Darker green on the right of the body and each arm.',r:[{d:CACT,k:0,c:'#1F5A2A',g:[176,0,232,0,.8]},{d:'M138 110 L148 110 L148 196 L138 196 Z',k:.45,c:'#1F5A2A'},{d:'M264 84 L274 84 L274 156 L264 156 Z',k:.45,c:'#1F5A2A'}],clip:'rim'},
+ {type:'tone',t:'Dark green side',h:'Darker green on the right of the body and each arm.',r:[{d:CACT,k:0,c:'#1F5A2A',g:[176,0,232,0,.8]},{d:'M138 110 L148 110 L148 196 L138 196 Z',k:.45,c:'#1F5A2A'},{d:'M264 84 L274 84 L274 156 L264 156 Z',k:.45,c:'#1F5A2A'}],clip:['cin','rim']},
  {type:'tone',t:'Pink flower',h:'Pink petals, a yellow middle.',r:[{d:CFLOW,k:.75,c:'#F0709A'},{d:circ(200,76,4),k:.9,c:'#F2C230'}]},
  {type:'tone',t:'Terracotta pot',h:'Orange-brown, darker on the right and under the rim.',r:[{d:CPOT+' '+CRIM,k:.8,c:'#D9733F'},{d:CPOT,k:0,c:'#7A2E12',g:[170,0,240,0,.75]},{d:'M150 274 L250 274 L248 288 L152 288 Z',k:.5,c:'#7A2E12'},{d:CRIM,k:0,c:'#7A2E12',g:[180,0,258,0,.5]}]},
  {type:'fine',t:'Spines',h:'Tiny V-shapes along every rib.',d:[cSpines()],w:1,o:.8,c:'#2E3A1E',clip:'rim'},
@@ -1364,19 +1365,19 @@ const SC2='M156 150 C148 118 170 90 200 88 C232 88 252 116 244 150 C236 160 222 
 const CHER=circ(206,80,13);
 const waffle=()=>{const o=[];for(let k=-6;k<=6;k++){o.push(`M${150+k*18} 210 L${250+k*18} 370`);o.push(`M${250-k*18} 210 L${150-k*18} 370`);}return o.join(' ');};
 const SPR=(()=>{const r=rng(51);const o=[];for(let i=0;i<22;i++){const x=166+r()*70,y=100+r()*48;if(!inside(SC2,x,y,4)||Math.hypot(x-206,y-80)<16)continue;const a=r()*Math.PI;o.push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*6)} ${f(Math.sin(a)*6)}`);}return o;})();
-const ICECREAM={name:'Ice Cream Cone',cat:'still',lvl:1,mins:25,clips:{cone:CONE},clipsOut:{s1:SC2+' '+CHER,cone:SC1,top:CHER},steps:[
+const ICECREAM={name:'Ice Cream Cone',cat:'still',lvl:1,mins:25,clips:{coneIn:CONE},clipsOut:{s1:SC2+' '+CHER,noScoop:SC1,top:CHER},steps:[
  {type:'guide',t:'A triangle and two circles',h:'Cone at the bottom, scoops stacked on top.',d:['M150 220 L250 220 L200 360 Z',circ(200,196,58),circ(200,124,46)]},
  {type:'line',t:'Cherry',h:'A round cherry on the very top.',d:[CHER,'M206 67 Q210 50 226 42'],w:1.5},
  {type:'line',t:'Top scoop',h:'Bumpy wavy edge at the bottom where it melts.',d:[SC2],w:1.5,clip:'top'},
  {type:'line',t:'Bottom scoop',h:'Bigger, with drips over the cone.',d:[SC1],w:1.5,clip:'s1'},
- {type:'line',t:'Cone',h:'A long triangle. Only the part below the scoop.',d:[CONE],w:1.5,clip:'cone'},
- {type:'fine',t:'Waffle pattern',h:'Criss-cross lines on the cone.',d:[waffle()],w:1,o:.7,c:'#8A5A2A',clip:'cone'},
+ {type:'line',t:'Cone',h:'A long triangle. Only the part below the scoop.',d:[CONE],w:1.5,clip:'noScoop'},
+ {type:'fine',t:'Waffle pattern',h:'Criss-cross lines on the cone.',d:[waffle()],w:1,o:.7,c:'#8A5A2A',clip:['coneIn','noScoop']},
  {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and triangle.'},
- {type:'tone',t:'Cone colour',h:'Golden brown, darker on the right.',r:[{d:CONE,k:.75,c:'#D9A35A'},{d:CONE,k:0,c:'#7A4A1A',g:[170,0,236,0,.75]}],clip:'cone'},
+ {type:'tone',t:'Cone colour',h:'Golden brown, darker on the right.',r:[{d:CONE,k:.75,c:'#D9A35A'},{d:CONE,k:0,c:'#7A4A1A',g:[170,0,236,0,.75]}],clip:['coneIn','noScoop']},
  {type:'tone',t:'Strawberry scoop',h:'Pink, with darker pink on the right and underneath.',r:[{d:SC1,k:.75,c:'#F29BB0'},{d:SC1,k:0,c:'#B03A5E',g:[170,170,262,232,.75]}],clip:'s1'},
  {type:'tone',t:'Chocolate scoop',h:'Brown, very dark on the right and bottom.',r:[{d:SC2,k:.85,c:'#8A5634'},{d:SC2,k:0,c:'#2E180C',g:[176,100,248,160,.8]}],clip:'top'},
- {type:'tone',t:'Shadows under the scoops',h:'Each scoop casts a shadow on what is below.',r:[{d:'M140 224 C150 244 250 244 260 224 L260 246 L140 246 Z',k:.5,c:'#5A3010'}],clip:'cone'},
- {type:'tone',t:'Shadow on the pink scoop',h:'Dark pink right under the chocolate scoop.',r:[{d:'M156 150 C170 172 236 172 244 150 L244 178 L156 178 Z',k:.4,c:'#8A1E40'}],clip:'s1'},
+ {type:'tone',t:'Shadows under the scoops',h:'Each scoop casts a shadow on what is below.',r:[{d:'M140 224 C150 244 250 244 260 224 L260 252 L140 252 Z',k:.55,c:'#5A3010',g:[0,230,0,252,0]}],clip:['coneIn','noScoop']},
+ {type:'tone',t:'Shadow on the pink scoop',h:'Dark pink right under the chocolate scoop.',r:[{d:'M156 150 C170 172 236 172 244 150 L244 180 L156 180 Z',k:.45,c:'#8A1E40',g:[0,156,0,180,0]}],clip:'s1'},
  {type:'tone',t:'Red cherry',h:'Bright red, dark on the right.',r:[{d:CHER,k:.9,c:'#E0303F'},{d:CHER,k:0,c:'#5A0712',g:[200,76,218,90,.8]},{d:'M206 67 Q210 50 226 42 L228 44 Q212 52 208 67 Z',k:.8,c:'#5A7A2A'}]},
  {type:'fine',t:'Sprinkles',h:'Short dashes in lots of colours.',d:SPR,cs:SPR.map((_,i)=>['#F7C71E','#2E86DE','#FFFFFF','#2EAD5B','#F06AA0'][i%5]),w:3,o:1},
  {type:'blend',t:'Blend',h:'Blend the scoops so they look creamy.'},
@@ -1391,41 +1392,56 @@ let custom=null;
 /* ---------- renderer ---------- */
 let uid=0;
 function el(tag,parent,attrs){const e=document.createElementNS(NS,tag);if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+let GRAIN_URL=null;
+function grainUrl(){
+  if(GRAIN_URL) return GRAIN_URL;
+  const N=256, c=document.createElement('canvas'); c.width=c.height=N; const x=c.getContext('2d');
+  const r=rng(4), C=32, grid=Array.from({length:(C+1)*(C+1)},()=>r());
+  const coarse=(i,j)=>{const gx=i/N*C, gy=j/N*C, x0=Math.floor(gx)%C, y0=Math.floor(gy)%C, fx=gx-Math.floor(gx), fy=gy-Math.floor(gy);
+    const g=(a,b)=>grid[(b%C)*(C+1)+(a%C)];
+    return (g(x0,y0)*(1-fx)+g(x0+1,y0)*fx)*(1-fy)+(g(x0,y0+1)*(1-fx)+g(x0+1,y0+1)*fx)*fy;};
+  const img=x.createImageData(N,N);
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+    const a=0.62*r()+0.38*coarse(i,j);
+    const v=Math.max(0,Math.min(1,1.62-1.55*a));
+    const k=(j*N+i)*4; img.data[k]=img.data[k+1]=img.data[k+2]=Math.round(v*255); img.data[k+3]=255;}
+  x.putImageData(img,0,0); GRAIN_URL=c.toDataURL('image/png'); return GRAIN_URL;
+}
 function makeRenderer(svg,lesson){
   const p='r'+(uid++)+'-';svg.innerHTML='';
   const defs=el('defs',svg);
-  defs.innerHTML=`<filter id="${p}grain" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.45" result="a"/><feComposite in="SourceGraphic" in2="a" operator="in"/></filter>
-  <filter id="${p}blur" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="0"/></filter>
-  <filter id="${p}soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
-  <filter id="${p}graph" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.4"/></filter>`;
+  defs.innerHTML=`<pattern id="${p}grainPat" patternUnits="userSpaceOnUse" width="128" height="128"><image href="${grainUrl()}" width="128" height="128"/></pattern>
+  <mask id="${p}grain" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400"><rect width="400" height="400" fill="url(#${p}grainPat)"/><rect class="smooth" width="400" height="400" fill="#fff" opacity="0"/></mask>
+  <filter id="${p}soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>`;
   for(const k in (lesson.clips||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clips[k]});}
   for(const k in (lesson.clipsEO||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clipsEO[k],'clip-rule':'evenodd'});}
   for(const k in (lesson.clipsOut||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:'M-20 -20 H420 V420 H-20 Z '+lesson.clipsOut[k],'clip-rule':'evenodd'});}
   const ctx={svg,p,defs,lesson,gi:0,mi:0};
   ctx.guide=el('g',svg,{fill:'none',stroke:'#A3A8C0','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round'});
-  ctx.tone=el('g',svg);
-  ctx.line=el('g',svg,{fill:'none',stroke:'#30303B','stroke-width':lesson.lw||2.4,'stroke-linecap':'round','stroke-linejoin':'round',filter:`url(#${p}graph)`});
+  ctx.tone=el('g',svg,{mask:`url(#${p}grain)`});
+  ctx.line=el('g',svg,{fill:'none',stroke:'#30303B','stroke-width':lesson.lw||2.4,'stroke-linecap':'round','stroke-linejoin':'round'});
   ctx.fine=el('g',svg,{fill:'none',stroke:'#2E2E38','stroke-width':1.1,'stroke-linecap':'round','stroke-linejoin':'round'});
   ctx.light=el('g',svg,{fill:'#FFFEFA',filter:`url(#${p}soft)`});
   ctx.tool=el('g',svg);
   return ctx;
 }
-function clipAttr(ctx,step){return step.clip?{'clip-path':`url(#${ctx.p}clip-${step.clip})`}:{};}
+function clipAttr(ctx,step){return step.clip&&!Array.isArray(step.clip)?{'clip-path':`url(#${ctx.p}clip-${step.clip})`}:{};}
+function clipParent(ctx,step,parent){if(!Array.isArray(step.clip))return parent;let g=parent;step.clip.forEach(k=>{g=el('g',g,{'clip-path':`url(#${ctx.p}clip-${k})`});});return g;}
 function addStrokes(ctx,step,i){
-  const parent= step.type==='guide'?ctx.guide : step.type==='fine'?ctx.fine : ctx.line;
+  const parent=clipParent(ctx,step, step.type==='guide'?ctx.guide : step.type==='fine'?ctx.fine : ctx.line);
   return (step.d||[]).map((d,j)=>{const a={d,'data-s':i,...clipAttr(ctx,step)};if(step.w)a['stroke-width']=step.w;if(step.o)a['stroke-opacity']=step.o;const c=(step.cs&&step.cs[j])||step.c;if(c)a.stroke=c;return el('path',parent,a);});
 }
 function addTones(ctx,step,i){
-  const g=el('g',ctx.tone,{'data-s':i});
+  const g=el('g',clipParent(ctx,step,ctx.tone),{'data-s':i});
   step.r.forEach(reg=>{const col=reg.c||'#34343F';let fill=col,op=reg.k;
     if(reg.g){const id=ctx.p+'g'+(ctx.gi++);const lg=el('linearGradient',ctx.defs,{id,gradientUnits:'userSpaceOnUse',x1:reg.g[0],y1:reg.g[1],x2:reg.g[2],y2:reg.g[3]});
       el('stop',lg,{offset:0,'stop-color':col,'stop-opacity':reg.k});el('stop',lg,{offset:1,'stop-color':col,'stop-opacity':reg.g[4]});fill=`url(#${id})`;op=1;}
-    el('path',g,{d:reg.d,fill,'fill-opacity':op,style:'mix-blend-mode:multiply','fill-rule':reg.rule?'evenodd':'nonzero',filter:`url(#${ctx.p}grain)`,...clipAttr(ctx,step)});});
+    el('path',g,{d:reg.d,fill,'fill-opacity':op,style:'mix-blend-mode:multiply','fill-rule':reg.rule?'evenodd':'nonzero',...clipAttr(ctx,step)});});
   return g;
 }
 function addLights(ctx,step){return step.r.map(reg=>el('path',ctx.light,{d:reg.d,'fill-opacity':reg.o==null?1:reg.o}));}
 function eraseGuides(ctx,i){[...ctx.guide.querySelectorAll('path')].filter(p=>+p.dataset.s<i).forEach(p=>p.remove());}
-function setBlend(ctx,v){ctx.tone.setAttribute('filter',`url(#${ctx.p}blur)`);ctx.defs.querySelector(`#${CSS.escape(ctx.p+'blur')} feGaussianBlur`).setAttribute('stdDeviation',v);}
+function setBlend(ctx,v){ctx.defs.querySelector('.smooth').setAttribute('opacity',(v/0.9*0.55).toFixed(3));}
 function applyStatic(ctx,step,i){
   if(step.type==='guide'||step.type==='line'||step.type==='fine') addStrokes(ctx,step,i);
   else if(step.type==='tone') addTones(ctx,step,i);
@@ -1576,6 +1592,7 @@ function finished(){ unlocked.add(lessonId); store.set('done',[...unlocked]); $(
 function showDone(){
   const lesson=L||LESSONS[ORDER[0]];
   putFinal($('doneRef'),lesson); putFinal($('doneSticker'),lesson,{width:46,height:46});
+  { const ph=$('donePhoto'), im=ph.querySelector('img'); if(im) im.remove(); ph.querySelector('label').hidden=false; $('photoIn').value=''; }
   $('stars').innerHTML='<svg viewBox="0 0 24 24"><use href="#star"/></svg>'.repeat(3);
   confetti();
 }
