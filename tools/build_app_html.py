@@ -57,9 +57,27 @@ ART_VIEW = """
               <p style="margin:0;font-weight:700;color:var(--a-soft);font-size:14px">Photos of your paper drawings. Add one when you finish a lesson.</p>
               <div class="agrid" id="agrid"></div>
             </div>
+            <div class="artview" id="artView" hidden role="dialog" aria-label="My drawing">
+              <div class="avtop">
+                <button class="avbtn" type="button" id="avClose" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                <div class="avcap"><b id="avName"></b><span id="avDate"></span></div>
+                <span class="avnum" id="avNum"></span>
+              </div>
+              <div class="avstage">
+                <button class="avbtn avnav" type="button" id="avPrev" aria-label="Previous drawing"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+                <img id="avImg" alt="">
+                <button class="avbtn avnav" type="button" id="avNext" aria-label="Next drawing"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+              </div>
+              <div class="avfoot">
+                <div class="avref"><div id="avRef"></div><span>The pencil's</span></div>
+                <button class="avdel" type="button" id="avDel">Remove</button>
+              </div>
+            </div>
           </section>
 """
 rep("          <!-- STICKERS -->", ART_VIEW + "\n          <!-- STICKERS -->")
+rep('<div class="sgrid" id="sgrid"></div>',
+    '<div class="sgrid" id="sgrid"></div>\n              <div class="resetbox"><button class="resetbtn" type="button" id="resetStickers">Reset stickers</button><small id="resetNote">Starts all 35 lessons fresh. Photos in My art are kept.</small></div>')
 
 # Script: remove the preview's change-request box code.
 a = h.index("/* ---------- change requests (shared db) ---------- */")
@@ -68,7 +86,7 @@ h = h[:a] + "/*APP_JS*/\n" + h[b:]
 
 rep("t.textContent=msg+' (In the full app.)';", "t.textContent=msg;")
 rep("const VIEWS=['home','watch','done','stickers'];", "const VIEWS=['home','watch','done','stickers','art'];")
-rep("  if(v==='stickers') renderStickers();", "  if(v==='stickers') renderStickers();\n  if(v==='art') renderArt();\n  if(v==='home') refreshHome();")
+rep("  if(v==='stickers') renderStickers();", "  if(v==='stickers') renderStickers();\n  if(v==='art') renderArt();\n  if(v!=='art') closeArt();\n  if(v==='home') refreshHome();")
 rep("const unlocked=new Set();", "const unlocked=new Set(store.get('done',[]));")
 rep("function finished(){ unlocked.add(lessonId); $('starCount').textContent=String(14+unlocked.size*3); go('done'); }",
     "function finished(){ unlocked.add(lessonId); store.set('done',[...unlocked]); $('starCount').textContent=String(unlocked.size*3); go('done'); }")
@@ -113,12 +131,49 @@ function renderArt(){
     const im=document.createElement('img'); im.src=a.data; im.alt=a.name?('My '+a.name):'My drawing';
     const cap=document.createElement('figcaption');
     cap.textContent=(a.name||'Drawing')+' · '+new Date(a.date).toLocaleDateString();
-    const del=document.createElement('button'); del.type='button'; del.className='artdel'; del.textContent='Remove'; del.setAttribute('aria-label','Remove this photo');
-    del.addEventListener('click',()=>{ if(!confirm('Remove this photo?')) return; const all=loadArt(); all.splice(i,1); store.set('art',all); renderArt(); });
-    fig.append(im,cap,del); g.appendChild(fig);
+    const open=document.createElement('button'); open.type='button'; open.className='artopen'; open.setAttribute('aria-label','Open '+(a.name||'drawing'));
+    open.addEventListener('click',()=>openArt(i));
+    fig.append(im,cap,open); g.appendChild(fig);
   });
 }
+let artIdx=-1, delArm=false;
+function openArt(i){
+  const art=loadArt(); if(!art.length){ closeArt(); return; }
+  artIdx=Math.max(0,Math.min(i,art.length-1)); const a=art[artIdx];
+  $('avImg').src=a.data; $('avImg').alt=a.name?('My '+a.name):'My drawing';
+  $('avName').textContent=a.name||'My drawing';
+  $('avDate').textContent=new Date(a.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+  $('avNum').textContent=(artIdx+1)+' / '+art.length;
+  $('avPrev').disabled=artIdx===0; $('avNext').disabled=artIdx===art.length-1;
+  const les=LESSONS[a.lesson]; const ref=$('avRef'); ref.innerHTML=''; $('avRef').parentElement.hidden=!les;
+  if(les) putFinal(ref,les);
+  delArm=false; $('avDel').textContent='Remove'; $('avDel').classList.remove('armed');
+  $('artView').hidden=false;
+}
+function closeArt(){ $('artView').hidden=true; artIdx=-1; }
+$('avClose').addEventListener('click',closeArt);
+$('avPrev').addEventListener('click',()=>openArt(artIdx-1));
+$('avNext').addEventListener('click',()=>openArt(artIdx+1));
+$('avDel').addEventListener('click',()=>{
+  if(!delArm){ delArm=true; $('avDel').textContent='Tap again to remove'; $('avDel').classList.add('armed'); return; }
+  const all=loadArt(); all.splice(artIdx,1); store.set('art',all); renderArt();
+  if(all.length) openArt(Math.min(artIdx,all.length-1)); else closeArt();
+});
+(()=>{ let x0=null; const st=document.querySelector('.avstage');
+  st.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+  st.addEventListener('touchend',e=>{ if(x0==null) return; const dx=e.changedTouches[0].clientX-x0; x0=null;
+    if(dx<-50) openArt(artIdx+1); else if(dx>50) openArt(artIdx-1); },{passive:true}); })();
+$('screen').appendChild($('homeToast'));
+let resetArm=false, resetT=null;
+$('resetStickers').addEventListener('click',()=>{
+  const b=$('resetStickers');
+  if(!resetArm){ resetArm=true; b.textContent='Tap again to reset'; b.classList.add('armed');
+    clearTimeout(resetT); resetT=setTimeout(()=>{ resetArm=false; b.textContent='Reset stickers'; b.classList.remove('armed'); },4000); return; }
+  clearTimeout(resetT); resetArm=false; b.textContent='Reset stickers'; b.classList.remove('armed');
+  unlocked.clear(); store.set('done',[]); renderStickers(); refreshHome(); soon('Stickers reset. Ready for a fresh start!');
+});
 window.appBack=function(){
+  if(!$('artView').hidden){ closeArt(); return true; }
   if(!$('bigPeek').hidden){ $('bigPeek').hidden=true; return true; }
   if(current==='home') return false;
   go('home'); return true;
@@ -187,7 +242,30 @@ body{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-selec
 .artcard{margin:0;background:#fff;border:2px solid var(--a-line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:6px}
 .artcard img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#F4F1EA}
 .artcard figcaption{font:700 12px var(--body);color:var(--a-soft)}
-.artdel{align-self:flex-start;border:0;background:none;color:#C0392B;font:800 12px var(--body);padding:2px 0;cursor:pointer}
+.htoast{z-index:40}
+.resetbox{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0 8px;text-align:center}
+.resetbtn{border:2px solid var(--a-line);background:#fff;color:#C0392B;font:800 14px var(--body);border-radius:999px;padding:10px 18px;cursor:pointer}
+.resetbtn.armed{background:#C0392B;border-color:#C0392B;color:#fff}
+.resetbox small{font:700 12px var(--body);color:var(--a-soft)}
+.artcard{position:relative}
+.artopen{position:absolute;inset:0;border:0;background:none;cursor:pointer;border-radius:16px}
+.artview{position:absolute;inset:0;z-index:30;background:#1F1E2E;color:#fff;display:flex;flex-direction:column;padding:12px 12px 16px;gap:10px}
+.artview[hidden]{display:none!important}
+.avtop{display:flex;align-items:center;gap:10px}
+.avcap{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.avcap b{font:800 18px var(--display)}
+.avcap span{font:700 13px var(--body);opacity:.75}
+.avnum{font:800 13px var(--body);opacity:.75}
+.avbtn{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
+.avbtn:disabled{opacity:.25}
+.avstage{flex:1;min-height:0;display:flex;align-items:center;gap:8px}
+.avstage img{flex:1;min-width:0;max-height:100%;object-fit:contain;border-radius:12px;background:#2B2A3D;align-self:stretch}
+.avfoot{display:flex;align-items:center;gap:12px}
+.avref{display:flex;align-items:center;gap:8px;flex:1;font:700 13px var(--body);opacity:.9}
+.avref>div{width:64px;height:64px;border-radius:10px;background:#FFFDF8;overflow:hidden;flex:none}
+.avref>div svg{width:100%;height:100%}
+.avdel{border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#FFB4A8;font:800 14px var(--body);padding:10px 16px;cursor:pointer}
+.avdel.armed{background:#C0392B;color:#fff}
 .empty{grid-column:1/-1;font-weight:700;color:var(--a-soft);text-align:center;padding:24px 8px}
 """
 
