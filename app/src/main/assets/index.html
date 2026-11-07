@@ -1444,21 +1444,22 @@ function grainUrl(){
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){
     const a=0.62*r()+0.38*coarse(i,j);
     const v=Math.max(0,Math.min(1,1.62-1.55*a));
-    const k=(j*N+i)*4; img.data[k]=img.data[k+1]=img.data[k+2]=Math.round(v*255); img.data[k+3]=255;}
+    const k=(j*N+i)*4; img.data[k]=255; img.data[k+1]=254; img.data[k+2]=250; img.data[k+3]=Math.round((1-v)*255);}
   x.putImageData(img,0,0); GRAIN_URL=c.toDataURL('image/png'); return GRAIN_URL;
 }
 function makeRenderer(svg,lesson){
   const p='r'+(uid++)+'-';svg.innerHTML='';
   const defs=el('defs',svg);
-  defs.innerHTML=`<pattern id="${p}grainPat" patternUnits="userSpaceOnUse" width="128" height="128"><image href="${grainUrl()}" width="128" height="128"/></pattern>
-  <mask id="${p}grain" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400"><rect width="400" height="400" fill="url(#${p}grainPat)"/><rect class="smooth" width="400" height="400" fill="#fff" opacity="0"/></mask>
-  <filter id="${p}soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>`;
+  defs.innerHTML=`<filter id="${p}soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>`;
   for(const k in (lesson.clips||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clips[k]});}
   for(const k in (lesson.clipsEO||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clipsEO[k],'clip-rule':'evenodd'});}
   for(const k in (lesson.clipsOut||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:'M-20 -20 H420 V420 H-20 Z '+lesson.clipsOut[k],'clip-rule':'evenodd'});}
   const ctx={svg,p,defs,lesson,gi:0,mi:0};
   ctx.guide=el('g',svg,{fill:'none',stroke:'#A3A8C0','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round'});
-  ctx.tone=el('g',svg,{mask:`url(#${p}grain)`});
+  ctx.tone=el('g',svg);
+  /* pencil grain: paper-coloured speckles laid over the colour (no SVG mask or filter, which some phone GPUs drop) */
+  ctx.grain=el('g',svg,{'pointer-events':'none'});
+  {const g=grainUrl();for(let y=0;y<400;y+=128)for(let x=0;x<400;x+=128)el('image',ctx.grain,{href:g,x,y,width:128,height:128,preserveAspectRatio:'none'});}
   ctx.line=el('g',svg,{fill:'none',stroke:'#30303B','stroke-width':lesson.lw||2.4,'stroke-linecap':'round','stroke-linejoin':'round'});
   ctx.fine=el('g',svg,{fill:'none',stroke:'#2E2E38','stroke-width':1.1,'stroke-linecap':'round','stroke-linejoin':'round'});
   ctx.light=el('g',svg,{fill:'#FFFEFA',filter:`url(#${p}soft)`});
@@ -1472,16 +1473,19 @@ function addStrokes(ctx,step,i){
   return (step.d||[]).map((d,j)=>{const a={d,'data-s':i,...clipAttr(ctx,step)};if(step.w)a['stroke-width']=step.w;if(step.o)a['stroke-opacity']=step.o;const c=(step.cs&&step.cs[j])||step.c;if(c)a.stroke=c;return el('path',parent,a);});
 }
 function addTones(ctx,step,i){
-  const g=el('g',clipParent(ctx,step,ctx.tone),{'data-s':i});
+  /* multiply sits on an outer group, clips on inner groups: phone GPUs drop colour when one element has both */
+  const outer=el('g',ctx.tone,{style:'mix-blend-mode:multiply','data-s':i});
+  const g=el('g',outer); let inner=g;
+  (step.clip?[].concat(step.clip):[]).forEach(k=>{inner=el('g',inner,{'clip-path':`url(#${ctx.p}clip-${k})`});});
   step.r.forEach(reg=>{const col=reg.c||'#34343F';let fill=col,op=reg.k;
     if(reg.g){const id=ctx.p+'g'+(ctx.gi++);const lg=el('linearGradient',ctx.defs,{id,gradientUnits:'userSpaceOnUse',x1:reg.g[0],y1:reg.g[1],x2:reg.g[2],y2:reg.g[3]});
       el('stop',lg,{offset:0,'stop-color':col,'stop-opacity':reg.k});el('stop',lg,{offset:1,'stop-color':col,'stop-opacity':reg.g[4]});fill=`url(#${id})`;op=1;}
-    el('path',g,{d:reg.d,fill,'fill-opacity':op,style:'mix-blend-mode:multiply','fill-rule':reg.rule?'evenodd':'nonzero',...clipAttr(ctx,step)});});
+    el('path',inner,{d:reg.d,fill,'fill-opacity':op,'fill-rule':reg.rule?'evenodd':'nonzero'});});
   return g;
 }
 function addLights(ctx,step){return step.r.map(reg=>el('path',ctx.light,{d:reg.d,'fill-opacity':reg.o==null?1:reg.o}));}
 function eraseGuides(ctx,i){[...ctx.guide.querySelectorAll('path')].filter(p=>+p.dataset.s<i).forEach(p=>p.remove());}
-function setBlend(ctx,v){ctx.defs.querySelector('.smooth').setAttribute('opacity',(v/0.9*0.55).toFixed(3));}
+function setBlend(ctx,v){ctx.grain.setAttribute('opacity',(1-v/0.9*0.55).toFixed(3));}
 function applyStatic(ctx,step,i){
   if(step.type==='guide'||step.type==='line'||step.type==='fine') addStrokes(ctx,step,i);
   else if(step.type==='tone') addTones(ctx,step,i);
