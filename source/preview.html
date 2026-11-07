@@ -1,0 +1,1651 @@
+<title>Sketch Sprout Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grandstander:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: a clickable tablet-style app on the left, a "how it works + request a change" desk on the right; stacks on phones. */
+:root{
+  --ground:#ECEEF8; --surface:#FFFFFF; --ink:#26244A; --muted:#66658A; --line:#D9DBEE;
+  --accent:#FF7F3F; --accent-ink:#FFFFFF; --leaf:#2FA866; --bezel:#2C2A52;
+  --display:"Grandstander","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* in-app palette: the app itself is always a bright sketchbook */
+  --a-paper:#FFFDF8; --a-sky:#E4F3FF; --a-ink:#2B2A4C; --a-soft:#7F7E9E; --a-line:#E6E3F0;
+  --a-orange:#FF7F3F; --a-sun:#FFC93C; --a-leaf:#3BB273; --a-berry:#E8507A; --a-blue:#4D8DF7;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#17162B; --surface:#22213D; --ink:#EDECFA; --muted:#A9A8C9; --line:#36355A;
+  --accent:#FF915A; --accent-ink:#1B1A30; --leaf:#5CCB8D; --bezel:#0D0C1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#17162B; --surface:#22213D; --ink:#EDECFA; --muted:#A9A8C9; --line:#36355A;
+  --accent:#FF915A; --accent-ink:#1B1A30; --leaf:#5CCB8D; --bezel:#0D0C1C; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--ground)}
+body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:22px}
+header.top h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+header.top p{margin:6px 0 0;color:var(--muted);max-width:66ch}
+.stage{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.jump button{font:700 13px var(--body);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.jump button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,label.card:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+
+/* ---------- device ---------- */
+.device{background:var(--bezel);border-radius:34px;padding:12px;box-shadow:0 18px 50px rgba(30,28,70,.25);max-width:440px;width:100%}
+.screen{position:relative;background:var(--a-paper);border-radius:24px;overflow:hidden;aspect-ratio:9/16.5;color:var(--a-ink);font-family:var(--body)}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
+.scroll{overflow-y:auto;flex:1;padding:16px 16px 12px;display:flex;flex-direction:column;gap:14px}
+.scroll>*{flex-shrink:0}
+.app-display{font-family:var(--display)}
+.hello{display:flex;align-items:center;gap:10px}
+.hello .who{flex:1;min-width:0}
+.hello h2{margin:0;font:800 22px/1.1 var(--display)}
+.hello small{color:var(--a-soft);font-weight:700}
+.pill{display:inline-flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--a-line);border-radius:999px;padding:3px 9px;font-weight:800;font-size:13px;white-space:nowrap}
+.today{background:linear-gradient(135deg,#FFE7D6,#FFF3C9);border-radius:22px;padding:12px;display:flex;gap:12px;align-items:center;border:2px solid #FFD9BF}
+.today .thumb{width:100px;height:100px;flex:none;background:#fff;border-radius:16px;display:grid;place-items:center;overflow:hidden}
+.today .thumb svg{width:100%;height:100%}
+.today h3{margin:0;font:800 19px/1.15 var(--display)}
+.today p{margin:2px 0 8px;font-size:13px;color:#7A5B45}
+.eyebrow{font-weight:800;color:#C9672E;letter-spacing:.06em;font-size:11px}
+.btn{font:800 15px var(--display);border:0;border-radius:16px;padding:9px 16px;cursor:pointer;background:var(--a-orange);color:#fff;box-shadow:0 4px 0 #D9612A;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #D9612A}
+.btn.ghost{background:#fff;color:var(--a-ink);box-shadow:0 4px 0 var(--a-line);border:2px solid var(--a-line)}
+.btn.green{background:var(--a-leaf);box-shadow:0 4px 0 #2A8B57}
+.btn[disabled]{opacity:.45;cursor:default}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin-top:2px}
+.sec h3{margin:0;font:800 17px var(--display)}
+.sec small{color:var(--a-soft);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border:2px solid var(--a-line);border-radius:18px;padding:8px;cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;gap:3px}
+.card .art{background:#FFFEFA;border:1px solid #F0ECE2;border-radius:12px;aspect-ratio:1.15;display:grid;place-items:center;overflow:hidden}
+.card .art svg{width:100%;height:100%}
+.card b{font:800 15px var(--display)}
+.card.mine{border-style:dashed;border-color:var(--a-blue);background:#F3F8FF}
+.card.mine .art{background:#fff;border-color:#D7E6FF;color:var(--a-blue);font:800 13px var(--body);text-align:center;padding:8px}
+.card.mine .art svg{width:38px;height:38px}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--a-soft);font-weight:700}
+.lvl{border-radius:999px;padding:0 7px;font-size:11px;font-weight:800}
+.lvl.pick{background:#E7EEFF;color:#3756A8}.lvl.l1{background:#E3F6EA;color:#23784A}.lvl.l2{background:#FFF1D1;color:#9A6400}.lvl.l3{background:#FDE3EA;color:#B0284F}
+.more{display:flex;flex-wrap:wrap;gap:6px}
+.more span{background:#fff;border:2px solid var(--a-line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;color:var(--a-ink)}
+.more span i{font-style:normal;color:var(--a-soft);font-weight:700}
+.tabbar{display:flex;border-top:2px solid var(--a-line);background:#fff}
+.tabbar button{flex:1;border:0;background:none;padding:8px 0 10px;font:800 11px var(--body);color:var(--a-soft);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabbar button.on{color:var(--a-orange)}
+.tabbar svg{width:24px;height:24px}
+.htoast{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);background:var(--a-ink);color:#fff;font:700 14px var(--body);padding:9px 14px;border-radius:14px;width:84%;text-align:center;opacity:0;transition:opacity .2s;pointer-events:none}
+.htoast.show{opacity:1}
+
+/* watch screen */
+.drawtop{display:flex;align-items:center;gap:8px;padding:12px 14px 6px}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:2px solid var(--a-line);background:#fff;display:grid;place-items:center;cursor:pointer;flex:none;color:var(--a-ink)}
+.steps{flex:1;display:flex;gap:3px;min-width:0}
+.steps i{flex:1;height:8px;border-radius:9px;background:var(--a-line)}
+.steps i.done{background:var(--a-leaf)}
+.steps i.now{background:var(--a-sun)}
+.coach{display:flex;gap:8px;align-items:center;padding:2px 14px 8px}
+.bubble{flex:1;background:#fff;border:2px solid var(--a-line);border-radius:16px 16px 16px 4px;padding:7px 11px;min-width:0}
+.bubble b{display:block;font:800 16px/1.2 var(--display)}
+.bubble span{font-size:13px;color:var(--a-soft);font-weight:700;display:block}
+.tag{display:inline-block!important;font:800 10px var(--body)!important;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:1px 6px;margin-bottom:2px}
+.tag.guide{background:#EEF0F7;color:#6B7194!important}.tag.line{background:#2B2A4C;color:#fff!important}.tag.erase{background:#FDE3EA;color:#B0284F!important}.tag.colour{background:linear-gradient(90deg,#FFE0E5,#FFF1C9,#DDF5E3);color:#9C2A3A!important}.tag.tone{background:#E9E9EE;color:#4A4A58!important}.tag.fine{background:#E7EEFF;color:#3756A8!important}.tag.blend{background:#EAF4EC;color:#2F7A4B!important}.tag.light{background:#FFF4D1;color:#8A6200!important}
+.paper{position:relative;margin:0 14px;aspect-ratio:1;border-radius:6px;background:#FFFEFA;
+  box-shadow:0 1px 0 #E9E3D5,0 3px 0 #F4EFE3,0 4px 0 #E9E3D5,0 8px 18px rgba(43,42,76,.12)}
+.paper::before{content:"";position:absolute;inset:0;border-radius:6px;opacity:.5;
+  background-image:radial-gradient(rgba(120,110,80,.08) 1px,transparent 1.2px);background-size:7px 7px}
+.paper svg{position:absolute;inset:0;width:100%;height:100%}
+.peek{position:absolute;right:8px;top:8px;width:64px;height:64px;border-radius:10px;background:#fff;border:2px solid var(--a-line);cursor:pointer;padding:0;overflow:hidden}
+.peek svg{position:static!important}
+.big-peek svg,.peek svg{position:static!important;width:100%;height:100%}
+.big-peek{position:absolute;inset:0;background:rgba(255,254,250,.97);display:grid;place-items:center;border-radius:6px;cursor:pointer}
+.big-peek small{position:absolute;bottom:8px;font-weight:800;color:var(--a-soft)}
+.ctrl{display:flex;gap:8px;align-items:center;padding:12px 14px 2px;flex-wrap:wrap}
+.ctrl .grow{flex:1}
+.seg{display:inline-flex;border:2px solid var(--a-line);border-radius:12px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;font:800 13px var(--body);padding:6px 10px;cursor:pointer;color:var(--a-soft)}
+.seg button.on{background:var(--a-ink);color:#fff}
+.nowtry{margin:8px 14px 0;font:800 14px var(--body);color:#23784A;background:#E3F6EA;border-radius:12px;padding:7px 10px;text-align:center;opacity:0;transition:opacity .3s}
+.nowtry.show{opacity:1}
+.footer{margin-top:auto;padding:8px 14px 14px;display:flex;gap:8px}
+.footer .btn{flex:1}
+.pulse{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.04)}}
+
+/* my picture */
+.upl{display:flex;flex-direction:column;gap:10px}
+.drop{border:2.5px dashed #B9D2FF;border-radius:18px;background:#F3F8FF;padding:16px;text-align:center;display:grid;gap:8px;place-items:center}
+.tipbox{background:#fff;border:2px solid var(--a-line);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;color:var(--a-soft)}
+.tipbox b{color:var(--a-ink)}
+.srcimg{max-height:150px;border-radius:12px;border:2px solid var(--a-line);object-fit:contain;background:#fff;max-width:100%;align-self:center}
+
+/* done */
+.done-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;text-align:center;background:linear-gradient(180deg,#E4F3FF,#FFFDF8 60%);overflow-y:auto}
+.done-wrap h2{margin:0;font:800 28px/1.05 var(--display)}
+.done-wrap p{margin:0;font-weight:700;color:var(--a-soft);font-size:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.frame{background:#fff;padding:8px 8px 22px;border-radius:5px;box-shadow:0 6px 16px rgba(43,42,76,.16);margin:0}
+.frame:first-child{transform:rotate(-2deg)}.frame:last-child{transform:rotate(2deg)}
+.frame .ph{aspect-ratio:1;border-radius:3px;background:#FFFEFA;display:grid;place-items:center;overflow:hidden;position:relative}
+.frame .ph svg,.frame .ph img{width:100%;height:100%;object-fit:cover}
+.frame figcaption{font:700 13px var(--display);margin-top:5px}
+.addphoto{display:grid;place-items:center;gap:4px;width:100%;height:100%;cursor:pointer;color:var(--a-blue);font:800 12px var(--body);border:2px dashed #B9D2FF;border-radius:4px;padding:6px}
+.stars{display:flex;gap:6px}
+.stars svg{width:38px;height:38px;animation:pop .5s cubic-bezier(.3,1.7,.5,1) both}
+.stars svg:nth-child(2){animation-delay:.15s}.stars svg:nth-child(3){animation-delay:.3s}
+@keyframes pop{from{transform:scale(0) rotate(-40deg)}}
+#confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* stickers */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sticker{background:#fff;border:2px solid var(--a-line);border-radius:18px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 12px var(--body);text-align:center}
+.sticker .disc{width:100%;aspect-ratio:1;border-radius:50%;background:#FFF3C9;border:4px solid #fff;box-shadow:0 0 0 2px var(--a-line);overflow:hidden}
+.sticker .disc svg{width:100%;height:100%}
+.sticker.locked .disc{background:#F1F0F6}
+.sticker.locked .disc svg{opacity:.12}
+.sticker.locked{color:var(--a-soft)}
+
+/* ---------- desk panel ---------- */
+.desk{display:grid;gap:18px;min-width:0}
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:18px 20px}
+.panel h2{font:800 21px/1.2 var(--display);margin:0 0 4px;text-wrap:balance}
+.panel .sub{color:var(--muted);margin:0 0 12px}
+.ways{display:grid;gap:12px}
+.way{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.way b{display:block;font-weight:800;margin-bottom:2px}
+.way p{margin:0;color:var(--muted);font-size:14px}
+.way .best{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--leaf);margin-bottom:2px}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 18px;margin:0;padding:0;list-style:none}
+.feat li{min-width:0}
+.feat b{display:block;font-weight:800}
+.feat span{color:var(--muted);font-size:14px}
+.req label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;letter-spacing:.02em}
+.req textarea,.req select{width:100%;font:15px var(--body);color:var(--ink);background:var(--ground);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.req textarea{min-height:92px;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.send{font:800 15px var(--display);background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:10px 18px;cursor:pointer}
+.send[disabled]{opacity:.5;cursor:default}
+.status{color:var(--muted);font-size:14px}
+.list{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.list li{border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;display:grid;gap:2px}
+.list .where{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.list .st{justify-self:start;font-size:12px;font-weight:800;border-radius:999px;padding:1px 9px;background:var(--ground)}
+.list .st.done{color:var(--leaf)}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Sketch Sprout: draw like a real artist</h1>
+    <p>Version 3 of the preview. Every lesson is now a realistic pencil study with 20 to 27 steps: light guide shapes, clean outlines, fine detail, soft shading, blending and highlights. The pencil shows each step on screen, then she copies it on paper and taps "I drew it!".</p>
+  </header>
+
+  <div class="stage">
+    <div>
+      <div class="jump" role="group" aria-label="Jump to a screen">
+        <button type="button" data-go="home" aria-pressed="true">Home</button>
+        <button type="button" data-go="watch" aria-pressed="false">Pencil lesson</button>
+                <button type="button" data-go="done" aria-pressed="false">All done!</button>
+        <button type="button" data-go="stickers" aria-pressed="false">Sticker book</button>
+      </div>
+      <div class="device">
+        <div class="screen" id="screen">
+
+          <!-- HOME -->
+          <section class="view" id="v-home">
+            <div class="scroll">
+              <div class="hello">
+                <svg width="46" height="46" viewBox="0 0 60 60" aria-hidden="true"><use href="#pip"/></svg>
+                <div class="who"><h2>Hi, Dua!</h2><small>Grab some paper and your pencils</small></div>
+                <span class="pill" title="Stars earned"><svg width="16" height="16" viewBox="0 0 24 24"><use href="#star"/></svg><span id="starCount">14</span></span>
+              </div>
+              <div class="today">
+                <div class="thumb" id="todayThumb"></div>
+                <div>
+                  <div class="eyebrow">TODAY'S DRAWING</div>
+                  <h3>Red Apple</h3>
+                  <p>21 steps · coloured pencils · 30 min</p>
+                  <button class="btn" type="button" data-lesson="red">Let's draw!</button>
+                </div>
+              </div>
+              <div class="sec"><h3>Pick a drawing</h3><small>Tap to start</small></div>
+              <div class="grid" id="lessonGrid"></div>
+              <div class="sec"><h3>More lessons</h3><small>All 35 are ready</small></div>
+              <div class="more"><span>Send Claude a new picture any time <i>· it becomes a lesson</i></span></div>
+            </div>
+            <nav class="tabbar" aria-label="App sections">
+              <button type="button" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19l4-1 10-10-3-3L5 15z"/><path d="M13 7l3 3"/></svg>Lessons</button>
+              
+              <button type="button" data-go="stickers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4"/></svg>Stickers</button>
+              <button type="button" data-soon="My art keeps photos of her paper drawings in a little gallery."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg>My art</button>
+            </nav>
+            <div class="htoast" id="homeToast"></div>
+          </section>
+
+          <!-- WATCH -->
+          <section class="view" id="v-watch" hidden>
+            <div class="drawtop">
+              <button class="iconbtn" type="button" data-go="home" aria-label="Back to lessons"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <div class="steps" id="stepBar" aria-hidden="true"></div>
+              <span class="pill" id="stepLbl">1/12</span>
+            </div>
+            <div class="coach">
+              <svg width="42" height="42" viewBox="0 0 60 60" aria-hidden="true"><use href="#pip"/></svg>
+              <div class="bubble" aria-live="polite"><span class="tag" id="stepTag">Light line</span><b id="stepTitle"></b><span id="stepHint"></span></div>
+            </div>
+            <div class="paper" id="paper">
+              <svg id="stage" viewBox="0 0 400 400" aria-label="Pencil demonstration"></svg>
+              <button class="peek" type="button" id="peekBtn" aria-label="See the finished picture"><span id="peekSvg" style="display:block;width:100%;height:100%"></span></button>
+              <div class="big-peek" id="bigPeek" hidden><div id="bigPeekSvg" style="width:88%;aspect-ratio:1"></div><small>This is what it will look like. Tap to close.</small></div>
+            </div>
+            <div class="nowtry" id="nowTry">Your turn! Draw this step on your paper.</div>
+            <div class="ctrl">
+              <button class="btn ghost" type="button" id="replay">Watch again</button>
+              <span class="grow"></span>
+              <div class="seg" role="group" aria-label="Pencil speed"><button type="button" data-speed="0.5">Slow</button><button type="button" data-speed="1" class="on">Normal</button></div>
+            </div>
+            <div class="footer">
+              <button class="btn ghost" type="button" id="prev" style="flex:0 0 auto">Back</button>
+              <button class="btn green" type="button" id="next">I drew it!</button>
+            </div>
+          </section>
+
+          
+
+          <!-- DONE -->
+          <section class="view" id="v-done" hidden>
+            <div class="done-wrap">
+              <h2 class="app-display">You drew it!</h2>
+              <div class="stars" id="stars"></div>
+              <p>Hold your paper next to the screen. How did it go?</p>
+              <div class="pair">
+                <figure class="frame"><div class="ph" id="doneRef"></div><figcaption>The pencil's</figcaption></figure>
+                <figure class="frame"><div class="ph" id="donePhoto">
+                  <label class="addphoto" for="photoIn"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg>Add a photo of my paper</label>
+                  <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+                </div><figcaption>Mine!</figcaption></figure>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;background:#fff;border:2px dashed var(--a-sun);border-radius:16px;padding:6px 12px;text-align:left">
+                <div style="width:46px;height:46px;border-radius:50%;background:#FFF3C9;overflow:hidden;flex:none" id="doneSticker"></div>
+                <div><b class="app-display">New sticker!</b><br><span style="font-size:12px;color:var(--a-soft);font-weight:700">It's in your sticker book</span></div>
+              </div>
+              <div style="display:flex;gap:8px;width:100%;margin-top:auto">
+                <button class="btn ghost" type="button" data-go="stickers" style="flex:1">Stickers</button>
+                <button class="btn" type="button" data-go="home" style="flex:1">Draw another</button>
+              </div>
+            </div>
+            <canvas id="confetti"></canvas>
+          </section>
+
+          <!-- STICKERS -->
+          <section class="view" id="v-stickers" hidden>
+            <div class="drawtop">
+              <button class="iconbtn" type="button" data-go="home" aria-label="Back home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <h2 class="app-display" style="margin:0;font-size:22px;flex:1">My sticker book</h2>
+              <span class="pill"><span id="stickCount">0</span>/9</span>
+            </div>
+            <div class="scroll" style="padding-top:6px">
+              <p style="margin:0;font-weight:700;color:var(--a-soft);font-size:14px">Finish a drawing to unlock its sticker.</p>
+              <div class="sgrid" id="sgrid"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="desk">
+      <section class="panel req" aria-labelledby="reqH">
+        <h2 id="reqH">Request a change</h2>
+        <p class="sub">Colours, lessons, wording, anything. Each request is saved here and I read them before building.</p>
+        <form id="reqForm">
+          <label for="reqScreen">Which part?</label>
+          <select id="reqScreen">
+            <option>Home / lesson picker</option><option>Pencil lesson</option><option>All done / rewards</option><option>Sticker book</option><option>Whole app</option>
+          </select>
+          <label for="reqText">What should change?</label>
+          <textarea id="reqText" placeholder="e.g. Use her name on the home screen. Add a horse lesson. Make the pencil slower."></textarea>
+          <div class="row"><button class="send" id="reqSend" type="submit">Save request</button><span class="status" id="reqStatus" aria-live="polite"></span></div>
+        </form>
+        <ul class="list" id="reqList"></ul>
+        <p class="note">You can also just reply to me in the chat.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="ownH">
+        <h2 id="ownH">Adding her own pictures later</h2>
+        <p class="sub">When she has finished the 35 lessons and finds something new she wants to draw, attach the picture in this project chat and say "make a lesson". I'll turn it into a realistic step-by-step lesson in the same style and add it to the app. Nothing needs to be uploaded inside the app.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="buildH">
+        <h2 id="buildH">What the full app would include</h2>
+        <p class="sub">She draws on real paper. The screen only shows how.</p>
+        <ul class="feat">
+          <li><b>Pencil shows every step</b><span>An animated pencil draws one step, then waits while she copies it. Watch again or slow it down any time.</span></li>
+          <li><b>Real artist method</b><span>Light guide shapes, clean outlines, fine detail, soft shading, blending with a tissue and lifting highlights with an eraser.</span></li><li><b>Light and shadow</b><span>Lessons teach highlight, mid-tone, core shadow, reflected light and cast shadow, the basics art classes start with.</span></li>
+          <li><b>Peek at the finish</b><span>The small picture in the corner shows what she's working towards.</span></li>
+          <li><b>Three levels</b><span>Starter, Explorer and Artist, so lessons get more realistic as she improves.</span></li>
+          <li><b>New lessons on request</b><span>Send Claude any picture and it becomes a new step-by-step lesson.</span></li>
+          <li><b>Photo of her paper</b><span>At the end she snaps her drawing next to the pencil's. It goes into "My art".</span></li>
+          <li><b>Stars and stickers</b><span>A sticker for every finished drawing and a "days in a row" counter.</span></li>
+          <li><b>Tablet or phone</b><span>Big pictures that are easy to see while she draws at the table.</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="graphite" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>
+    <symbol id="star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.4l1.3-6.5L2.5 9.3l6.6-.8z" fill="#FFC93C" stroke="#E9A400" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+    <symbol id="pip" viewBox="0 0 60 60">
+      <g transform="rotate(-18 30 30)">
+        <rect x="18" y="6" width="24" height="36" rx="6" fill="#FFC93C" stroke="#2B2A4C" stroke-width="2.5"/>
+        <rect x="18" y="6" width="24" height="8" rx="4" fill="#E8507A" stroke="#2B2A4C" stroke-width="2.5"/>
+        <path d="M18 42 L30 57 L42 42z" fill="#FBE3C4" stroke="#2B2A4C" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M26.5 52.5 L30 57 L33.5 52.5z" fill="#2B2A4C"/>
+        <circle cx="25" cy="25" r="2.6" fill="#2B2A4C"/><circle cx="35" cy="25" r="2.6" fill="#2B2A4C"/>
+        <path d="M25 31 q5 5 10 0" fill="none" stroke="#2B2A4C" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="22" cy="30" r="2.2" fill="#FF9DB4"/><circle cx="38" cy="30" r="2.2" fill="#FF9DB4"/>
+      </g>
+    </symbol>
+    <g id="pencilTool">
+      <g transform="rotate(32)">
+        <path d="M0 0 L-3 -8 L3 -8z" fill="#2E2E36"/>
+        <path d="M-3 -8 L-9 -24 L9 -24 L3 -8z" fill="#F2D3A6" stroke="#2B2A4C" stroke-width="1.6" stroke-linejoin="round"/>
+        <rect x="-9" y="-96" width="18" height="72" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.6"/>
+        <path d="M-3 -96 V-24 M3 -96 V-24" stroke="#E5A82A" stroke-width="1.4"/>
+        <rect x="-9.5" y="-108" width="19" height="12" fill="#BFC3D4" stroke="#2B2A4C" stroke-width="1.6"/>
+        <rect x="-9" y="-121" width="18" height="13" rx="4" fill="#F08BA6" stroke="#2B2A4C" stroke-width="1.6"/>
+      </g>
+    </g>
+    <g id="stumpTool"><g transform="rotate(30)"><path d="M0 0 L-6 -16 L6 -16 Z" fill="#9A9AA6" stroke="#2B2A4C" stroke-width="1.6" stroke-linejoin="round"/><rect x="-6" y="-80" width="12" height="64" rx="3" fill="#EDE6D6" stroke="#2B2A4C" stroke-width="1.6"/><path d="M-6 -60 L6 -66 M-6 -44 L6 -50 M-6 -28 L6 -34" stroke="#C9BFA8" stroke-width="1.4"/></g></g>
+    <g id="eraserTool">
+      <g transform="rotate(-25)">
+        <rect x="-16" y="-34" width="32" height="34" rx="6" fill="#F08BA6" stroke="#2B2A4C" stroke-width="1.8"/>
+        <rect x="-16" y="-34" width="32" height="13" rx="4" fill="#5B8DEF" stroke="#2B2A4C" stroke-width="1.8"/>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<script>
+(() => {
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const f=n=>(+n).toFixed(1);
+
+/* ---------- geometry helpers ---------- */
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function circ(cx,cy,r){return `M${cx-r} ${cy} A${r} ${r} 0 1 1 ${cx+r} ${cy} A${r} ${r} 0 1 1 ${cx-r} ${cy}Z`;}
+function ell(cx,cy,rx,ry){return `M${cx-rx} ${cy} A${rx} ${ry} 0 1 1 ${cx+rx} ${cy} A${rx} ${ry} 0 1 1 ${cx-rx} ${cy}Z`;}
+const bz=(p,t)=>{const u=1-t;return [0,1].map(k=>u*u*u*p[0][k]+3*u*u*t*p[1][k]+3*u*t*t*p[2][k]+t*t*t*p[3][k]);};
+const bzD=(p,t)=>{const u=1-t;return [0,1].map(k=>3*u*u*(p[1][k]-p[0][k])+6*u*t*(p[2][k]-p[1][k])+3*t*t*(p[3][k]-p[2][k]));};
+const qb=(p,t)=>{const u=1-t;return [0,1].map(k=>u*u*p[0][k]+2*u*t*p[1][k]+t*t*p[2][k]);};
+const qbD=(p,t)=>{const u=1-t;return [0,1].map(k=>2*u*(p[1][k]-p[0][k])+2*t*(p[2][k]-p[1][k]));};
+const norm=v=>{const l=Math.hypot(v[0],v[1])||1;return [v[0]/l,v[1]/l];};
+function hairs(list){return list.join(' ');}
+
+/* ---------- lesson 1: realistic eye ---------- */
+const UL1=[[88,216],[130,160],[200,128],[255,150]], UL2=[[255,150],[285,162],[305,185],[312,200]], LL=[[96,220],[140,255],[230,262],[308,204]];
+const EYE_CLIP='M88 216 C130 160 200 128 255 150 C285 162 305 185 312 200 L308 204 C230 262 140 255 96 220 Z';
+const BT=[[80,110],[170,50],[320,95]], BB=[[90,122],[180,78],[318,103]];
+function upperLashes(){const out=[];const r=rng(11);for(let i=0;i<30;i++){const g=i/29;const seg=g<0.66?UL1:UL2;const t=g<0.66?0.1+(g/0.66)*0.9:(g-0.66)/0.34*0.92;
+  const P=bz(seg,t),T=norm(bzD(seg,t)),N=[T[1],-T[0]];const L=9+24*Math.pow(g,1.2)+r()*4, tilt=0.2+0.45*g;
+  const c=[P[0]+N[0]*L*0.55+T[0]*L*tilt*0.15,P[1]+N[1]*L*0.55+T[1]*L*tilt*0.15], e=[P[0]+N[0]*L+T[0]*L*tilt,P[1]+N[1]*L+T[1]*L*tilt];
+  out.push(`M${f(P[0])} ${f(P[1])} Q${f(c[0])} ${f(c[1])} ${f(e[0])} ${f(e[1])}`);}return hairs(out);}
+function lowerLashes(){const out=[];const r=rng(12);for(let i=0;i<15;i++){const t=0.28+i/14*0.66;const P=bz(LL,t),T=norm(bzD(LL,t)),N=[-T[1],T[0]];const L=5+9*(i/14)+r()*2,tilt=0.35;
+  out.push(`M${f(P[0]+N[0]*3)} ${f(P[1]+N[1]*3)} Q${f(P[0]+N[0]*L*0.6)} ${f(P[1]+N[1]*L*0.6)} ${f(P[0]+N[0]*L+T[0]*L*tilt)} ${f(P[1]+N[1]*L+T[1]*L*tilt)}`);}return hairs(out);}
+function browHairs(seed,n){const out=[];const r=rng(seed);for(let i=0;i<n;i++){const u=Math.pow(r(),0.85),v=0.1+r()*0.8;const a=qb(BB,u),b=qb(BT,u);
+  const P=[a[0]+(b[0]-a[0])*v,a[1]+(b[1]-a[1])*v];const T=norm(qbD([BB[0].map((x,k)=>(x+BT[0][k])/2),BB[1].map((x,k)=>(x+BT[1][k])/2),BB[2].map((x,k)=>(x+BT[2][k])/2)],u));
+  const ang=Math.atan2(T[1],T[0])-0.75*(1-u)+(r()-.5)*0.35;const L=9+r()*9;const s=[P[0]-Math.cos(ang)*L*0.5,P[1]-Math.sin(ang)*L*0.5],e=[P[0]+Math.cos(ang)*L*0.5,P[1]+Math.sin(ang)*L*0.5];
+  out.push(`M${f(s[0])} ${f(s[1])} Q${f(P[0]-Math.sin(ang)*1.5)} ${f(P[1]+Math.cos(ang)*1.5)} ${f(e[0])} ${f(e[1])}`);}return hairs(out);}
+function irisFibers(cx,cy,r0,r1,n,seed){const out=[];const r=rng(seed);for(let k=0;k<n;k++){const a=k/n*2*Math.PI+(r()-.5)*0.06;const a2=a+(r()-.5)*0.12;const R0=r0+r()*3,R1=r1-r()*(r1-r0)*0.45;
+  out.push(`M${f(cx+Math.cos(a)*R0)} ${f(cy+Math.sin(a)*R0)} Q${f(cx+Math.cos(a2)*(R0+R1)/2)} ${f(cy+Math.sin(a2)*(R0+R1)/2)} ${f(cx+Math.cos(a)*R1)} ${f(cy+Math.sin(a)*R1)}`);}return hairs(out);}
+const EYE={name:'Blue Eye',cat:'faces',lvl:3,mins:40,clips:{eye:EYE_CLIP},steps:[
+ {type:'guide',t:'Measure the eye',h:'A light line across for the width and one down the middle.',d:['M70 210 L330 210','M196 120 L196 292']},
+ {type:'guide',t:'Sketch a light almond',h:'Very light. Pointy at both corners, taller on top.',d:['M90 214 Q170 118 310 200','M90 214 Q190 272 310 200']},
+ {type:'guide',t:'A light circle for the iris',h:'It touches the top lid and nearly the bottom one.',d:[circ(196,198,56)]},
+ {type:'line',t:'The upper eyelid',h:'One smooth, confident line. Thicker towards the outside.',d:['M88 216 C130 160 200 128 255 150 C285 162 305 185 312 200'],w:3},
+ {type:'line',t:'The lower eyelid',h:'Softer and thinner than the top lid.',d:['M96 220 C140 255 230 262 308 204'],w:1.8},
+ {type:'fine',t:'The waterline',h:'A second thin line just inside the lower lid.',d:['M104 223 C150 250 226 254 300 211']},
+ {type:'line',t:'The tear duct',h:'A tiny pink corner shape on the inside.',d:['M88 216 Q97 205 109 213 Q101 223 96 220'],w:1.6},
+ {type:'line',t:'The eyelid crease',h:'Follow the shape of the top lid, higher up.',d:['M100 200 C150 135 230 112 300 165'],w:1.8},
+ {type:'line',t:'The iris',h:'Only the part you can see. The lid hides the top.',d:[circ(196,198,56)],clip:'eye',w:2},
+ {type:'line',t:'The pupil',h:'A circle right in the middle of the iris.',d:[circ(196,198,20)],clip:'eye',w:2},
+ {type:'erase',t:'Erase the helper lines',h:'Gently rub out the light lines you started with.'},
+ {type:'guide',t:'Plan the shine',h:'Draw a tiny light circle. Keep this spot white!',d:[circ(214,178,9)]},
+ {type:'tone',t:'Fill the pupil',h:'Press hard and make it very dark. Go around the shine.',r:[{d:circ(196,198,20)+' '+circ(214,178,9),k:.95,rule:1}],clip:'eye'},
+ {type:'fine',t:'Iris lines',h:'Little lines from the pupil out, like the spokes of a wheel.',d:[irisFibers(196,198,21,54,72,3)],clip:'eye',o:.8,c:'#1F3F66'},
+ {type:'tone',t:'Colour the iris',h:'Light blue first, dark blue at the top, and a golden ring around the pupil.',r:[{d:circ(196,198,56)+' '+circ(196,198,20)+' '+circ(214,178,9),k:.85,c:'#5B8FC7',rule:1},{d:circ(196,198,56)+' '+circ(196,198,20),k:.0,c:'#1F4A7A',g:[196,250,196,145,.7],rule:1},{d:circ(196,198,30)+' '+circ(196,198,20)+' '+circ(214,178,9),k:.55,c:'#B58A3A',rule:1}],clip:'eye'},
+ {type:'tone',t:'The dark ring',h:'Make the outer edge of the iris darker.',r:[{d:circ(196,198,56)+' '+circ(196,198,47),k:.85,c:'#1A2F4E',rule:1}],clip:'eye'},
+ {type:'tone',t:'Shadow on the eyeball',h:'The white of the eye is not pure white. Shade under the top lid.',r:[{d:'M88 216 C130 160 200 128 255 150 C285 162 305 185 312 200 L312 216 C300 202 282 180 255 170 C200 150 130 178 92 224 Z',k:.38,g:[200,140,200,190,.02]},{d:ell(112,216,26,14),k:.22,c:'#C98E8A'},{d:ell(292,206,22,12),k:.18,c:'#C98E8A'}],clip:'eye'},
+ {type:'fine',t:'Upper eyelashes',h:'Curved flicks. Start at the lid and lift off quickly. Longer at the outside.',d:[upperLashes()],w:1.5,o:.95},
+ {type:'fine',t:'Lower eyelashes',h:'Shorter and fewer. Leave the inner corner bare.',d:[lowerLashes()],w:1.2,o:.85},
+ {type:'guide',t:'Sketch the eyebrow shape',h:'A long light shape that goes up and then down at the end.',d:['M90 122 Q180 78 318 103 L320 95 Q170 50 80 110 Z']},
+ {type:'tone',t:'Base tone for the eyebrow',h:'Light shading inside the shape. Lighter at the start.',r:[{d:'M90 122 Q180 78 318 103 L320 95 Q170 50 80 110 Z',k:.2,c:'#7A5236',g:[80,0,320,0,.5]}]},
+ {type:'fine',t:'Eyebrow hairs',h:'Lots of short strokes in the direction hair grows.',d:[browHairs(7,110),browHairs(8,90)],w:1.1,o:.9,c:'#4A3020'},
+ {type:'tone',t:'Colour the skin',h:'Soft peach and brown in the crease, under the eye and in the pink corner.',r:[
+   {d:'M88 216 C130 160 200 128 255 150 C285 162 305 185 312 200 L300 165 C230 112 150 135 100 200 Z',k:.45,c:'#B97A62',g:[200,130,200,180,.2]},
+   {d:'M100 200 C150 135 230 112 300 165 L318 103 Q180 78 90 122 Z',k:.3,c:'#D9A58C',g:[200,140,200,95,.05]},
+   {d:'M96 220 C140 255 230 262 308 204 L322 214 C250 300 140 300 84 236 Z',k:.2,g:[200,250,200,295,0]},
+   {d:ell(86,218,12,16),k:.3,c:'#C9736A'},{d:'M88 216 Q97 205 109 213 Q101 223 96 220 Z',k:.7,c:'#E39A9A'}]},
+ {type:'blend',t:'Blend the shading',h:'Rub the shading gently with a tissue so it looks smooth.'},
+ {type:'light',t:'Lift the highlights',h:'Dab with an eraser to make the shine bright white.',r:[{d:circ(214,178,9),o:1},{d:circ(180,214,3.5),o:.9},{d:ell(238,240,7,1.6),o:.8}]}
+]};
+
+/* ---------- lesson 3: shaded apple (light and shadow) ---------- */
+const APPLE='M200 128 C170 100 95 105 92 190 C88 270 140 326 200 320 C260 326 315 270 308 190 C305 105 230 100 200 128 Z';
+function appleTexture(){const out=[];const r=rng(61);let tries=0;while(out.length<70&&tries<3000){tries++;const x=100+r()*200,y=140+r()*175;
+  if(((x-200)/100)**2+((y-222)/96)**2>0.8) continue;const L=4+r()*7;const bend=(x-200)/100*3;
+  out.push(`M${f(x)} ${f(y)} Q${f(x+bend)} ${f(y+L/2)} ${f(x+bend*0.6)} ${f(y+L)}`);}return hairs(out);}
+function appleLesson(name,C){return {name,cat:'still',lvl:2,mins:30,clips:{apple:APPLE},steps:[
+ {type:'guide',t:'A light circle',h:'Most fruit starts as a simple circle.',d:[circ(200,218,108)]},
+ {type:'guide',t:'Where the table is',h:'A light line behind the apple for the table edge.',d:['M30 322 L370 322']},
+ {type:'guide',t:'Where the light comes from',h:'Draw a little arrow. The light shines from the top left.',d:['M50 48 L104 102','M104 102 L88 100 M104 102 L102 86']},
+ {type:'line',t:'The apple shape',h:'Two bumps on top with a dip in the middle. Wider at the top. Keep it light.',d:[APPLE],w:1.8,o:.8},
+ {type:'line',t:'The dip for the stem',h:'A small curved line inside the top.',d:['M176 132 Q200 148 224 132'],w:1.4,o:.8},
+ {type:'line',t:'The stem',h:'Two lines close together, slightly bent.',d:['M198 140 Q196 110 208 80','M206 140 Q205 112 216 82','M208 80 L216 82'],w:1.6},
+ {type:'line',t:'A leaf',h:'Pointy at the end, with a line down the middle.',d:['M212 100 Q250 58 302 70 Q272 112 212 100 Z','M214 99 Q256 82 298 72'],w:1.6},
+ {type:'erase',t:'Erase the helper lines',h:'Keep the apple, lose the circle and arrow.'},
+ {type:'line',t:'The table edge',h:'Draw it only on each side of the apple.',d:['M30 322 L100 322','M300 322 L370 322'],w:1.4},
+ {type:'tone',t:'First layer: '+C.baseName,h:'Colour the whole apple lightly in '+C.baseName+'. Leave the shine spot white.',r:[{d:APPLE+' '+ell(150,170,24,15),k:.6,c:C.base,rule:1}]},
+ {type:'tone',t:'Main colour: '+C.mainName,h:'Layer '+C.mainName+' on top. Press lightly on the left, harder on the right.',r:[{d:APPLE+' '+ell(150,170,26,17),k:.8,c:C.main,g:[120,160,300,300,1],rule:1},{d:APPLE+' '+ell(150,170,30,20),k:.35,c:C.main,rule:1}],clip:'apple'},
+ {type:'fine',t:'Skin streaks',h:'Short '+C.mainName+' streaks that follow the round shape.',d:[appleTexture()],w:1.3,o:.6,c:C.streak,clip:'apple'},
+ {type:'tone',t:'Colour near the stem',h:'A '+C.topName+' patch around the top. Apples are lighter there.',r:[{d:ell(200,142,52,24),k:.55,c:C.top}],clip:'apple'},
+ {type:'tone',t:'Middle tones',h:'A darker '+C.mainName+' as the apple turns away from the light.',r:[{d:'M285 140 C302 230 252 300 140 300 C210 282 266 232 270 160 Z',k:.45,c:C.mid,g:[200,140,260,300,.7]}],clip:'apple'},
+ {type:'tone',t:'The core shadow',h:'The darkest part, on the side away from the light. Use '+C.darkName+'.',r:[{d:'M302 168 C314 250 270 318 200 322 C150 322 120 302 108 282 C162 302 244 292 274 232 C287 204 292 184 302 168 Z',k:.8,c:C.dark,g:[290,200,200,320,.6]}],clip:'apple'},
+ {type:'light',t:'Reflected light',h:'Leave a slightly lighter edge at the very bottom. Light bounces off the table.',r:[{d:'M140 308 C190 324 250 318 290 270 C268 306 220 320 186 320 C166 320 150 316 140 308 Z',o:.4}]},
+ {type:'tone',t:'Stem and leaf',h:'Brown stem, green leaf. Darker on one side.',r:[{d:'M198 140 Q196 110 208 80 L216 82 Q205 112 206 140 Z',k:.9,c:'#6B4423'},{d:'M212 100 Q250 58 302 70 Q272 112 212 100 Z',k:.85,c:'#5FA032'},{d:'M212 100 Q256 82 298 72 Q272 112 212 100 Z',k:.6,c:'#2F6A1C'},{d:ell(200,138,24,8),k:.6,c:C.dark}]},
+ {type:'tone',t:'The cast shadow',h:'Grey shadow on the table, with a hint of '+C.mainName+' close to the apple.',r:[{d:'M110 322 C150 334 260 344 352 330 C330 316 280 312 240 316 C200 322 150 320 110 322 Z',k:.5,g:[180,322,350,330,.12]},{d:ell(230,327,70,6),k:.25,c:C.mid},{d:ell(204,322,62,5),k:.9}]},
+ {type:'tone',t:'Colour the table',h:'A light wooden brown makes the apple stand out.',r:[{d:'M30 322 L370 322 L370 384 L30 384 Z',k:.35,c:'#C99A6B',g:[0,322,0,384,.15]}]},
+ {type:'blend',t:'Blend the colours',h:'Use a white or colourless blender pencil, or a tissue, to melt the layers together.'},
+ {type:'light',t:'The shiny highlight',h:'Lift a bright spot where the light hits first.',r:[{d:'M134 168 Q150 152 170 160 Q162 176 140 180 Q130 178 134 168 Z',o:1},{d:circ(178,190,3),o:.8}]}
+]};}
+const REDAPPLE=appleLesson('Red Apple',{base:'#F2CF45',baseName:'yellow',main:'#D62839',mainName:'red',streak:'#9E1B2F',top:'#B8C83C',topName:'yellow-green',mid:'#A3142B',dark:'#5C0F1E',darkName:'dark red'});
+const GREENAPPLE=appleLesson('Green Apple',{base:'#E6E86E',baseName:'light yellow',main:'#76B83A',mainName:'green',streak:'#4E8A25',top:'#E3D86A',topName:'yellow',mid:'#4F8F2A',dark:'#24501A',darkName:'dark green'});
+
+const LESSONS={eye:EYE,red:REDAPPLE,green:GREENAPPLE};
+const ORDER=['red','green'];
+/* ===== shared helpers for lesson authoring ===== */
+const ARROW=['M50 48 L104 102','M104 102 L88 100 M104 102 L102 86'];
+const _pc=document.createElement('canvas').getContext('2d');
+function inside(d,x,y,m){const p=new Path2D(d);m=m||0;return _pc.isPointInPath(p,x,y)&&(!m||(_pc.isPointInPath(p,x+m,y)&&_pc.isPointInPath(p,x-m,y)&&_pc.isPointInPath(p,x,y+m)&&_pc.isPointInPath(p,x,y-m)));}
+const poly=pts=>pts.map((p,i)=>(i?'L':'M')+f(p[0])+' '+f(p[1])).join(' ');
+const smooth=pts=>{let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;for(let i=1;i<pts.length-1;i++){const m=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2];d+=` Q${f(pts[i][0])} ${f(pts[i][1])} ${f(m[0])} ${f(m[1])}`;}const l=pts[pts.length-1];return d+` L${f(l[0])} ${f(l[1])}`;};
+const shift=(pts,dx,dy)=>pts.map(p=>[p[0]+dx,p[1]+dy]);
+function speckle(d,n,seed,len,m){const out=[];const r=rng(seed);let t=0;while(out.length<n&&t<n*60){t++;const b=_bbox(d);const x=b[0]+r()*(b[2]-b[0]),y=b[1]+r()*(b[3]-b[1]);if(!inside(d,x,y,m||6))continue;const a=-Math.PI/2+(r()-.5)*0.6;out.push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*len*(0.5+r()))} ${f(-Math.abs(Math.sin(a))*len*(0.5+r())*-1)}`);}return out.join(' ');}
+function dots(d,n,seed,rad,m){const out=[];const r=rng(seed);let t=0;const b=_bbox(d);while(out.length<n&&t<n*60){t++;const x=b[0]+r()*(b[2]-b[0]),y=b[1]+r()*(b[3]-b[1]);if(!inside(d,x,y,m||6))continue;out.push(circ(+f(x),+f(y),rad*(0.6+r()*0.6)));}return out.join(' ');}
+const _bbc={};function _bbox(d){if(_bbc[d])return _bbc[d];const s=el('svg',document.body,{width:0,height:0,style:'position:absolute'});const p=el('path',s,{d});const b=p.getBBox();s.remove();return _bbc[d]=[b.x,b.y,b.x+b.width,b.y+b.height];}
+
+/* ===== 4. Pear ===== */
+const PEAR='M198 92 C178 92 168 112 166 140 C164 168 150 182 132 206 C108 238 104 290 132 320 C160 348 240 350 270 320 C298 290 292 238 268 206 C250 182 236 168 234 140 C232 112 218 92 198 92 Z';
+const PEARL={name:'Ripe Pear',cat:'still',lvl:2,mins:25,clips:{p:PEAR},steps:[
+ {type:'guide',t:'Two light circles',h:'A small one on top and a big one below. They overlap.',d:[circ(200,150,38),circ(200,266,84)]},
+ {type:'guide',t:'Centre line and table',h:'A line through the middle and the table edge.',d:['M200 52 L200 360','M30 340 L370 340']},
+ {type:'guide',t:'Where the light comes from',h:'A little arrow at the top left.',d:ARROW},
+ {type:'line',t:'The pear shape',h:'Join the circles with smooth curves. The neck goes in, the bottom goes out.',d:[PEAR],w:2.2},
+ {type:'line',t:'Stem and top',h:'A small dip at the top and a woody stem.',d:['M188 98 Q200 106 212 98','M197 95 Q195 72 205 52','M204 95 Q203 74 212 54','M205 52 L212 54'],w:1.8},
+ {type:'erase',t:'Erase the helper lines',h:'Keep the pear, lose the circles.'},
+ {type:'line',t:'Table edge',h:'Only on each side of the pear.',d:['M30 340 L130 340','M272 340 L370 340'],w:1.5},
+ {type:'tone',t:'Light base tone',h:'Shade the whole pear lightly. Leave the shiny spots white.',r:[{d:PEAR+' '+ell(160,252,14,24)+' '+ell(184,134,5,10),k:.6,c:'#DCD55C',rule:1}]},
+ {type:'tone',t:'A rosy blush',h:'A soft orange-red patch on the sunny side.',r:[{d:ell(156,286,40,32),k:.32,c:'#E2793C'}],clip:'p'},
+ {type:'tone',t:'Middle tones',h:'A bit darker as the pear turns away from the light.',r:[{d:'M236 120 C250 190 296 230 290 290 C284 330 230 344 170 336 C240 320 272 280 264 236 C254 200 236 170 236 120 Z',k:.45,c:'#9BB53B',g:[230,150,270,330,.75]}],clip:'p'},
+ {type:'tone',t:'The core shadow',h:'The darkest band on the right and bottom.',r:[{d:'M268 206 C298 245 296 300 262 326 C230 346 170 346 140 330 C200 336 252 310 266 262 C272 240 272 222 268 206 Z',k:.65,c:'#55691F'}],clip:'p'},
+ {type:'light',t:'Reflected light',h:'A slightly lighter edge right at the bottom.',r:[{d:'M150 332 C200 344 250 336 276 306 C262 330 224 344 190 344 C172 344 160 340 150 332 Z',o:.5}]},
+ {type:'tone',t:'Cast shadow',h:'The pear blocks the light. Darkest where it touches the table.',r:[{d:'M120 342 C170 352 290 360 352 348 C330 334 280 332 240 334 Z',k:.45,g:[180,340,350,346,.1]},{d:ell(202,341,62,4),k:.9}]},
+ {type:'fine',t:'Pear freckles',h:'Tiny dots all over the skin. More on the dark side.',d:[dots(PEAR,70,71,1.1,8)],w:1,o:.55,c:'#6E5424'},
+ {type:'tone',t:'Shade the stem',h:'Dark on one side of the stem and in the dip.',r:[{d:'M201 95 Q200 74 209 53 L212 54 Q203 74 204 95 Z',k:.85,c:'#5B3A1E'},{d:ell(200,100,14,5),k:.45,c:'#55691F'}]},
+ {type:'blend',t:'Blend',h:'Smooth it with a tissue, light areas first.'},
+ {type:'tone',t:'Darken the darkest darks',h:'Go over the core shadow again so it really pops.',r:[{d:'M276 240 C290 280 280 316 250 332 C270 304 278 276 276 240 Z',k:.5,c:'#3F4F16'}],clip:'p'},
+ {type:'light',t:'Highlights',h:'Lift the shiny spots with your eraser.',r:[{d:ell(160,252,12,22),o:1},{d:ell(184,134,4,9),o:.9}]}
+]};
+
+/* ===== 5. Seashell ===== */
+const SH_H=[200,318],SH_R=165,SH_N=12;const shA=i=>(212+i*(116/(SH_N-1)))*Math.PI/180;
+const shP=(r,a)=>[SH_H[0]+r*Math.cos(a),SH_H[1]+r*Math.sin(a)];
+function shellOutline(){let d=`M${f(SH_H[0])} ${f(SH_H[1])}`;const e0=shP(SH_R,shA(0));d+=` L${f(e0[0])} ${f(e0[1])}`;for(let i=0;i<SH_N-1;i++){const m=shP(SH_R+16,(shA(i)+shA(i+1))/2),e=shP(SH_R,shA(i+1));d+=` Q${f(m[0])} ${f(m[1])} ${f(e[0])} ${f(e[1])}`;}return d+' Z';}
+const SHELL=shellOutline();
+const shellRidges=()=>Array.from({length:SH_N},(_,i)=>{const a=shA(i),s=shP(26,a),e=shP(SH_R,a),c=shP(SH_R*0.55,a+0.02);return `M${f(s[0])} ${f(s[1])} Q${f(c[0])} ${f(c[1])} ${f(e[0])} ${f(e[1])}`;}).join(' ');
+const shellRings=()=>[62,100,136].map((r,k)=>{const pts=[];const rr=rng(80+k);for(let a=212;a<=328;a+=4){pts.push(shP(r+(rr()-.5)*4,a*Math.PI/180));}return smooth(pts);}).join(' ');
+const shellWedges=()=>Array.from({length:SH_N-1},(_,i)=>{const a=shA(i),b=a+0.05;return poly([shP(28,a),shP(SH_R,a),shP(SH_R+6,b),shP(28,b)])+' Z';}).join(' ');
+const shellShine=()=>Array.from({length:SH_N-1},(_,i)=>{const a=(shA(i)+shA(i+1))/2-0.02,b=a+0.03;return poly([shP(60,a),shP(SH_R-8,a),shP(SH_R-8,b),shP(60,b)])+' Z';}).join(' ');
+const SHELLL={name:'Scallop Shell',cat:'nature',lvl:2,mins:30,clips:{s:SHELL},steps:[
+ {type:'guide',t:'A light fan shape',h:'Two lines from one point at the bottom, and a curve on top.',d:[poly([shP(SH_R,shA(0)),SH_H,shP(SH_R,shA(SH_N-1))]),smooth(Array.from({length:30},(_,k)=>shP(SH_R,(212+k*4)*Math.PI/180)))]},
+ {type:'guide',t:'Mark the ridges',h:'Light dots on the curve where each ridge ends. Twelve of them.',d:[Array.from({length:SH_N},(_,i)=>circ(+f(shP(SH_R,shA(i))[0]),+f(shP(SH_R,shA(i))[1]),3)).join(' ')]},
+ {type:'line',t:'Bumpy top edge',h:'A little bump between each dot, like a wavy curtain.',d:[SHELL],w:2},
+ {type:'line',t:'The two little wings',h:'Small flat shapes on each side of the bottom point.',d:['M196 316 L146 318 L152 294 L186 296','M204 316 L254 318 L248 294 L214 296'],w:1.8},
+ {type:'line',t:'The ridges',h:'Lines from the bottom point to each bump. Curve them a tiny bit.',d:[shellRidges()],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the fan and the dots.'},
+ {type:'fine',t:'Growth lines',h:'Thin wavy rings across the shell, like tree rings.',d:[shellRings()],o:.7},
+ {type:'tone',t:'Base tone',h:'Light shading over the whole shell.',r:[{d:SHELL,k:.55,c:'#F0C49A',g:[120,180,300,300,.8]}]},
+ {type:'tone',t:'Shade the grooves',h:'Each ridge has a shadow on its right side.',r:[{d:shellWedges(),k:.6,c:'#C0703F'}],clip:'s'},
+ {type:'tone',t:'Darker at the bottom',h:'Shade near the bottom point where the shell curves down.',r:[{d:SHELL,k:0,c:'#8A4A2A',g:[200,180,200,318,.55]}],clip:'s'},
+ {type:'fine',t:'Tiny texture lines',h:'Short marks across the ridges.',d:[speckle(SHELL,90,81,5,10)],o:.55,c:'#9A5530'},
+ {type:'tone',t:'Shade the wings',h:'Darker on the inside edges.',r:[{d:'M196 316 L146 318 L152 294 L186 296 Z M204 316 L254 318 L248 294 L214 296 Z',k:.55,c:'#C0703F'}]},
+ {type:'tone',t:'Cast shadow',h:'A soft shadow on the table, to the right.',r:[{d:'M60 326 C120 344 300 350 360 330 C320 318 260 316 210 322 Z',k:.3,g:[120,330,360,336,.05]},{d:ell(200,322,58,4),k:.8}]},
+ {type:'blend',t:'Blend',h:'Soften with a tissue, following the ridges.'},
+ {type:'light',t:'Shine on the ridges',h:'Lift a thin light line on top of each ridge.',r:[{d:shellShine(),o:.75}]},
+ {type:'fine',t:'Sharpen the edge',h:'Go over the bumpy top edge again with a sharp pencil.',d:[SHELL],w:1.6,o:.9,c:'#7A3E22'}
+]};
+
+/* ===== 6. Feather ===== */
+const FQ=[[110,352],[190,220],[300,52]];
+const fw=t=>t<0.12?0:62*Math.pow(Math.sin(Math.PI*Math.min(0.985,(t-0.12)/0.9)),0.7);
+const fP=t=>qb(FQ,t), fT=t=>norm(qbD(FQ,t)), fN=t=>{const T=fT(t);return [T[1],-T[0]];};
+const fSplit=(side,t)=>side>0?(Math.abs(t-0.47)<0.02):(Math.abs(t-0.66)<0.015||Math.abs(t-0.38)<0.015);
+function fEdge(side){const pts=[];for(let t=0.12;t<=1.0001;t+=0.02){const P=fP(t),N=fN(t),w=fw(t)*(side>0?1:0.78)*(fSplit(side,t)?0.75:1);pts.push([P[0]+N[0]*w*side,P[1]+N[1]*w*side]);}return pts;}
+function fBarbs(side,seed){const out=[];const r=rng(seed);for(let t=0.13;t<0.985;t+=0.0055){if(fSplit(side,t)&&r()<0.7)continue;const P=fP(t),T=fT(t),N=fN(t);const w=fw(t)*(side>0?1:0.78);const th=0.75;
+  const dir=[N[0]*side*Math.cos(th)+T[0]*Math.sin(th),N[1]*side*Math.cos(th)+T[1]*Math.sin(th)];const L=w/Math.cos(th)*(0.92+r()*0.08);
+  const e=[P[0]+dir[0]*L,P[1]+dir[1]*L],c=[P[0]+dir[0]*L*0.5+N[0]*side*2,P[1]+dir[1]*L*0.5+N[1]*side*2];out.push(`M${f(P[0])} ${f(P[1])} Q${f(c[0])} ${f(c[1])} ${f(e[0])} ${f(e[1])}`);}return out.join(' ');}
+function fFluff(){const out=[];const r=rng(91);for(let i=0;i<26;i++){const t=0.04+r()*0.1;const P=fP(t),N=fN(t),s=r()<.5?1:-1;const L=22+r()*22;const e=[P[0]+N[0]*s*L+(r()-.5)*14,P[1]+N[1]*s*L+(r()-.5)*14];out.push(`M${f(P[0])} ${f(P[1])} Q${f((P[0]+e[0])/2+(r()-.5)*16)} ${f((P[1]+e[1])/2+(r()-.5)*16)} ${f(e[0])} ${f(e[1])}`);}return out.join(' ');}
+const fShaft=s=>smooth(Array.from({length:41},(_,k)=>{const t=k/40,P=fP(t),N=fN(t),w=1.9*(1-t*0.8);return [P[0]+N[0]*w*s,P[1]+N[1]*w*s];}));
+const FL=fEdge(1),FR=fEdge(-1);
+const F_LEFT=smooth([fP(0.12),...FL])+' L'+Array.from({length:23},(_,k)=>{const P=fP(1-k*0.04);return f(P[0])+' '+f(P[1]);}).join(' L')+' Z';
+const F_RIGHT=smooth([fP(0.12),...FR])+' L'+Array.from({length:23},(_,k)=>{const P=fP(1-k*0.04);return f(P[0])+' '+f(P[1]);}).join(' L')+' Z';
+const F_ALL=poly([...FL,...FR.slice().reverse()])+' Z';
+const FEATHERL={name:'Bird Feather',cat:'nature',lvl:2,mins:25,clips:{l:F_LEFT,r:F_RIGHT},steps:[
+ {type:'guide',t:'A light curved line',h:'This is the middle of the feather. One smooth sweep.',d:[`M${FQ[0][0]} ${FQ[0][1]} Q${FQ[1][0]} ${FQ[1][1]} ${FQ[2][0]} ${FQ[2][1]}`]},
+ {type:'guide',t:'Light leaf shape around it',h:'Wider on one side. Pointy at the tip.',d:[smooth(FL),smooth(FR)]},
+ {type:'line',t:'The quill',h:'Two lines close together. Thicker at the bottom, thin at the tip.',d:[fShaft(1),fShaft(-1)],w:1.4},
+ {type:'line',t:'Feather edges',h:'Soft edges with a few little gaps where the feather has split.',d:[smooth(FL),smooth(FR)],w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the light guides.'},
+ {type:'fine',t:'Barbs on the wide side',h:'Lots of thin lines from the quill out to the edge, all leaning toward the tip.',d:[fBarbs(1,92)],w:.8,o:.8,c:'#1F3F73'},
+ {type:'fine',t:'Barbs on the narrow side',h:'Same again, a little closer together.',d:[fBarbs(-1,93)],w:.8,o:.75,c:'#2F5C99'},
+ {type:'fine',t:'Fluffy bottom',h:'Wispy, curly strokes at the bottom of the quill.',d:[fFluff()],w:.8,o:.7,c:'#6E8FB8'},
+ {type:'tone',t:'Shade the wide side',h:'Darker next to the quill, lighter at the edge.',r:[{d:F_LEFT,k:.75,c:'#3E6FB0',g:[200,210,150,170,.45]}],clip:'l'},
+ {type:'tone',t:'Shade the narrow side',h:'Lighter, because the light hits it.',r:[{d:F_RIGHT,k:.55,c:'#7FB2E5'}],clip:'r'},
+ {type:'tone',t:'Shadow on the quill',h:'One side of the quill is darker.',r:[{d:poly(Array.from({length:21},(_,k)=>{const t=k/20,P=fP(t),N=fN(t);return [P[0]-N[0]*1.9*(1-t*.8),P[1]-N[1]*1.9*(1-t*.8)];}).concat(Array.from({length:21},(_,k)=>fP(1-k/20))))+' Z',k:.7}]},
+ {type:'tone',t:'Cast shadow',h:'The feather floats a little above the paper. Its shadow is to the bottom right.',r:[{d:poly(shift([...FL,...FR.slice().reverse()],12,14))+' Z',k:.12}]},
+ {type:'blend',t:'Blend',h:'Very gently, along the direction of the barbs.'},
+ {type:'light',t:'Shine on the quill',h:'A thin light line along the quill.',r:[{d:poly(Array.from({length:21},(_,k)=>{const t=0.05+k/22,P=fP(t),N=fN(t);return [P[0]+N[0]*0.6,P[1]+N[1]*0.6];}).concat(Array.from({length:21},(_,k)=>{const t=0.05+(20-k)/22,P=fP(t),N=fN(t);return [P[0]+N[0]*1.5,P[1]+N[1]*1.5];})))+' Z',o:.9}]}
+]};
+
+/* ===== 7. Strawberry ===== */
+const BERRY='M200 345 C150 330 100 262 104 192 C108 142 150 122 200 130 C250 122 292 142 296 192 C300 262 250 330 200 345 Z';
+function seeds(){const s=[],sh=[],pit=[];const r=rng(101);for(let y=150,row=0;y<335;y+=17,row++)for(let x=106+(row%2)*10;x<296;x+=20){const X=x+(r()-.5)*4,Y=y+(r()-.5)*4;if(!inside(BERRY,X,Y,9)||Y<146)continue;
+  const tilt=(X-200)/100*0.5;s.push(`M${f(X)} ${f(Y-3.2)} q${f(2.6+tilt)} 3 0 6.4 q${f(-2.6+tilt)} -3 0 -6.4 Z`);sh.push(`M${f(X-3)} ${f(Y+4.5)} q3 2.2 6 0`);pit.push(ell(+f(X),+f(Y+0.5),4.2,5.4));}return {s:s.join(' '),sh:sh.join(' '),pit:pit.join(' ')};}
+const SEEDS=seeds();
+function sepal(deg,len,w){const a=deg*Math.PI/180,c=[200,132],tip=[c[0]+Math.cos(a)*len,c[1]+Math.sin(a)*len+10],pp=[-Math.sin(a),Math.cos(a)],m=[(c[0]+tip[0])/2,(c[1]+tip[1])/2];
+  return `M${f(c[0]+pp[0]*w)} ${f(c[1]+pp[1]*w)} Q${f(m[0]+pp[0]*w*1.3)} ${f(m[1]+pp[1]*w*1.3)} ${f(tip[0])} ${f(tip[1])} Q${f(m[0]-pp[0]*w*1.1)} ${f(m[1]-pp[1]*w*1.1)} ${f(c[0]-pp[0]*w)} ${f(c[1]-pp[1]*w)}`;}
+const SEPALS=[[-178,62,9],[-150,50,9],[-120,40,8],[-62,42,8],[-30,52,9],[-2,62,9],[160,36,7],[22,36,7]].map(a=>sepal(...a));
+const STRAWL={name:'Strawberry',cat:'still',lvl:2,mins:30,clips:{b:BERRY},steps:[
+ {type:'guide',t:'A light upside-down egg',h:'Wide at the top, rounded point at the bottom.',d:[BERRY]},
+ {type:'guide',t:'Light direction and table',h:'Light from the top left.',d:[...ARROW,'M30 350 L370 350']},
+ {type:'line',t:'Berry outline',h:'Go over the egg shape with a smooth, firm line.',d:[BERRY],w:2.2},
+ {type:'line',t:'Leafy top',h:'Pointy leaves spreading out from the middle, like a star.',d:SEPALS,w:1.6},
+ {type:'line',t:'Little stem',h:'A short curvy stem from the middle.',d:['M197 130 Q198 104 212 84','M204 130 Q206 106 218 88','M212 84 L218 88'],w:1.6},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the arrow and table guide.'},
+ {type:'line',t:'Table edge',h:'Only on each side.',d:['M30 350 L150 350','M250 350 L370 350'],w:1.4},
+ {type:'tone',t:'Base tone',h:'Strawberries are dark red, so shade the whole berry fairly dark.',r:[{d:BERRY,k:.85,c:'#E2343F'}],clip:'b'},
+ {type:'fine',t:'Seeds',h:'Tiny teardrops in rows. They curve around the berry.',d:[SEEDS.s],w:1.4,o:1,c:'#C9A227'},
+ {type:'tone',t:'Seed pockets',h:'Each seed sits in a little dip. Shade around it.',r:[{d:SEEDS.pit,k:.55,c:'#9E1A2B'}],clip:'b'},
+ {type:'fine',t:'Shadows under seeds',h:'A tiny curve under each seed.',d:[SEEDS.sh],w:1,o:.8,c:'#6B0F1C'},
+ {type:'tone',t:'The core shadow',h:'Much darker on the right side.',r:[{d:'M262 160 C300 220 286 300 230 336 C214 344 196 346 186 344 C246 316 276 260 262 160 Z',k:.7,c:'#7E0F22'},{d:BERRY,k:0,c:'#9E1A2B',g:[150,180,280,320,.55]}],clip:'b'},
+ {type:'tone',t:'Shade the leaves',h:'Darker close to the berry.',r:[{d:SEPALS.join(' '),k:.8,c:'#4E9A2E',g:[200,132,200,190,.55]},{d:SEPALS.join(' '),k:.0,c:'#245A16',g:[200,180,200,132,.5]}]},
+ {type:'tone',t:'Cast shadow',h:'Under and to the right.',r:[{d:'M140 350 C180 360 300 364 350 352 C320 342 260 342 220 346 Z',k:.4,g:[200,350,350,352,.1]},{d:ell(200,348,30,4),k:.9}]},
+ {type:'blend',t:'Blend',h:'Smooth the shading around the seeds.'},
+ {type:'tone',t:'Deepen the darks',h:'Go over the darkest parts again.',r:[{d:'M276 240 C278 290 254 322 226 340 C256 316 272 282 276 240 Z',k:.6,c:'#5A0A17'}],clip:'b'},
+ {type:'light',t:'Glossy highlights',h:'Lift shiny spots where the light hits. Strawberries are shiny!',r:[{d:'M140 186 Q150 170 168 172 Q160 186 146 194 Z',o:1},{d:circ(160,214,3),o:.85},{d:circ(186,236,2.4),o:.8},{d:circ(146,250,2.6),o:.7},{d:circ(214,206,2.2),o:.7}]},
+ {type:'light',t:'Seed highlights',h:'A tiny white dot on some of the seeds.',r:[{d:dots(BERRY,24,105,1.2,14),o:.9}]}
+]};
+
+/* ===== 8. Cupcake ===== */
+const WRAP='M130 250 L150 350 L250 350 L270 250 Z';
+const FROST1='M116 254 Q108 226 140 222 Q150 200 180 205 Q200 190 220 205 Q250 200 260 222 Q292 226 284 254 Q200 270 116 254 Z';
+const FROST2='M140 214 Q134 184 164 180 Q180 162 200 167 Q220 162 236 180 Q266 184 260 214 Q200 226 140 214 Z';
+const FROST3='M166 176 Q160 150 184 146 Q200 132 216 146 Q240 150 234 176 Q200 186 166 176 Z';
+const pleats=()=>Array.from({length:11},(_,i)=>`M${130+14*i} 254 L${150+10*i} 350`).join(' ');
+const pleatTone=()=>Array.from({length:5},(_,j)=>{const i=2*j;return `M${130+14*i} 254 L${150+10*i} 350 L${160+10*i} 350 L${144+14*i} 254 Z`;}).join(' ');
+function sprinkles(){const out=[];const r=rng(121);const all=FROST1+' '+FROST2+' '+FROST3;let t=0;while(out.length<30&&t<2000){t++;const x=120+r()*160,y=140+r()*120;if(!(inside(FROST1,x,y,5)||inside(FROST2,x,y,5)||inside(FROST3,x,y,5)))continue;const a=r()*Math.PI;out.push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*7)} ${f(Math.sin(a)*7)}`);}return out.join(' ');}
+const CUPL={name:'Cupcake',cat:'still',lvl:2,mins:30,clips:{w:WRAP},steps:[
+ {type:'guide',t:'A light cup shape',h:'Wider at the top, like a bucket.',d:[WRAP]},
+ {type:'guide',t:'Light bumps for the icing',h:'Three tiers getting smaller, like a little mountain.',d:[ell(200,236,84,26),ell(200,195,62,24),ell(200,160,36,20)]},
+ {type:'guide',t:'Light direction and table',h:'Light from the top left.',d:[...ARROW,'M30 350 L370 350']},
+ {type:'line',t:'The paper wrapper',h:'Straight sides, slanting in at the bottom.',d:['M130 252 L150 350 L250 350 L270 252'],w:2},
+ {type:'line',t:'Bottom icing swirl',h:'A bumpy wave that hangs over the wrapper.',d:[FROST1],w:2},
+ {type:'line',t:'Middle swirl',h:'A smaller bumpy ring on top.',d:[FROST2],w:2},
+ {type:'line',t:'Top swirl and tip',h:'The smallest ring and a little curl on top.',d:[FROST3,'M188 146 Q198 116 214 140'],w:2},
+ {type:'line',t:'A cherry',h:'A round cherry with a curvy stem.',d:[circ(214,118,17),'M218 102 Q226 78 246 66'],w:1.8},
+ {type:'line',t:'Wrapper folds',h:'Straight lines from top to bottom. Closer together at the bottom.',d:[pleats()],w:1.1},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out all the light guides.'},
+ {type:'tone',t:'Shade every other fold',h:'Folds go in and out, so every second strip is darker.',r:[{d:WRAP,k:.55,c:'#7FB4E6'},{d:pleatTone(),k:.5,c:'#3D78B5'}],clip:'w'},
+ {type:'tone',t:'Shadow on the wrapper',h:'The right side and the top edge under the icing are darker.',r:[{d:WRAP,k:0,c:'#24508A',g:[160,0,270,0,.5]},{d:'M128 250 L272 250 L270 266 Q200 278 132 266 Z',k:.55,c:'#24508A'}],clip:'w'},
+ {type:'tone',t:'Shadows under each icing tier',h:'Each swirl casts a shadow on the one below.',r:[{d:'M118 248 Q200 266 282 248 L284 254 Q200 270 116 254 Z M142 208 Q200 222 258 208 L260 214 Q200 226 140 214 Z M168 170 Q200 182 232 170 L234 176 Q200 186 166 176 Z',k:.6,c:'#C8578A'}]},
+ {type:'tone',t:'Round the icing',h:'Darker on the right side of each swirl.',r:[{d:FROST1+' '+FROST2+' '+FROST3,k:.5,c:'#F6A9C6'},{d:FROST1+' '+FROST2+' '+FROST3,k:0,c:'#D3628F',g:[150,0,290,0,.6]}]},
+ {type:'fine',t:'Icing texture',h:'Curved strokes that follow each swirl.',d:['M128 240 Q170 252 214 248','M150 204 Q190 212 228 206','M176 168 Q198 174 222 170','M140 230 Q180 238 230 236 Q260 234 272 230'],o:.6,c:'#B8487A'},
+ {type:'tone',t:'Shade the cherry',h:'Dark, but leave a shiny spot.',r:[{d:circ(214,118,17)+' '+ell(207,111,4,6),k:.85,c:'#D3202E',rule:1},{d:circ(214,118,17),k:0,c:'#6B0A14',g:[204,108,228,132,.8]}]},
+ {type:'fine',t:'Sprinkles',h:'Short little dashes all over the icing.',d:[sprinkles()],w:2.6,o:.9,c:'#F2B705'},
+ {type:'tone',t:'Cast shadow',h:'On the table, to the right.',r:[{d:'M150 350 C200 362 320 364 356 352 C320 344 270 342 250 344 Z',k:.4,g:[200,350,356,352,.08]},{d:ell(200,350,50,3.5),k:.9},{d:ell(250,352,50,5),k:.15,c:'#3D78B5'}]},
+ {type:'blend',t:'Blend',h:'Soften the icing shading so it looks creamy.'},
+ {type:'light',t:'Highlights',h:'Shine on the cherry and the tops of the swirls.',r:[{d:ell(207,111,3.5,5.5),o:1},{d:ell(160,226,14,3),o:.7},{d:ell(176,188,10,3),o:.7},{d:ell(190,154,7,2.5),o:.7}]}
+]};
+
+/* ===== 9. Mushroom ===== */
+const CAP='M78 202 C78 108 322 108 322 202 C282 218 118 218 78 202 Z';
+const STEM='M176 214 C172 270 162 316 150 346 L252 346 C240 316 230 270 224 214 Z';
+const gills=()=>{const out=[];for(let t=0.04;t<0.97;t+=0.035){const P=bz([[90,204],[140,232],[260,232],[310,204]],t);out.push(`M${f(P[0])} ${f(P[1])} L${f(200+(P[0]-200)*0.25)} ${f(218)}`);}return out.join(' ');};
+const SPOTS=['M140 150 Q150 138 164 146 Q166 160 150 162 Q138 160 140 150 Z','M196 130 Q210 120 222 130 Q220 142 206 142 Q194 140 196 130 Z','M250 150 Q262 142 272 152 Q270 164 258 164 Q246 160 250 150 Z','M110 184 Q118 174 128 180 Q128 192 118 192 Q108 192 110 184 Z','M286 182 Q296 176 302 186 Q298 196 290 194 Q282 190 286 182 Z','M176 176 Q186 168 196 176 Q194 186 184 186 Q174 184 176 176 Z'];
+function grass(){const out=[];const r=rng(131);for(let i=0;i<34;i++){const x=110+r()*190,b=348+r()*6,h=14+r()*24,lean=(r()-.5)*14;out.push(`M${f(x)} ${f(b)} Q${f(x+lean*0.4)} ${f(b-h*0.6)} ${f(x+lean)} ${f(b-h)}`);}return out.join(' ');}
+const MUSHL={name:'Forest Mushroom',cat:'nature',lvl:2,mins:30,clips:{c:CAP,s:STEM},steps:[
+ {type:'guide',t:'A light dome',h:'Half an oval for the cap.',d:[CAP]},
+ {type:'guide',t:'A light stem',h:'A thick column, wider at the bottom.',d:[STEM]},
+ {type:'guide',t:'Light direction and ground',h:'Light from the top left.',d:[...ARROW,'M40 348 L360 348']},
+ {type:'line',t:'The cap',h:'A smooth dome with a curved bottom edge.',d:[CAP],w:2.2},
+ {type:'line',t:'Underside of the cap',h:'A second curve showing the bottom of the cap.',d:['M90 204 C140 232 260 232 310 204'],w:1.6},
+ {type:'line',t:'The stem',h:'Starts under the cap, gets wider to the ground.',d:['M176 216 C172 270 162 316 150 346','M224 216 C230 270 240 316 252 346'],w:2},
+ {type:'fine',t:'Gills',h:'Lines from the edge toward the stem, like the spokes of an umbrella.',d:[gills()],o:.8},
+ {type:'line',t:'Spots on the cap',h:'Round blotchy patches.',d:SPOTS,w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Keep the mushroom, lose the guides.'},
+ {type:'tone',t:'Shade the cap',h:'Darker on the right and near the bottom edge. Skip the spots.',r:[{d:CAP+' '+SPOTS.join(' '),k:.85,c:'#D6372B',rule:1},{d:CAP+' '+SPOTS.join(' '),k:0,c:'#6E1610',g:[120,140,310,210,.75],rule:1}],clip:'c'},
+ {type:'tone',t:'Dark gills',h:'The underside is in shadow, so it is dark.',r:[{d:'M90 204 C140 232 260 232 310 204 C282 218 118 218 90 204 Z',k:.75,c:'#8A7258'}]},
+ {type:'tone',t:'Shade the stem',h:'Dark right under the cap and on the right side.',r:[{d:STEM,k:.35,c:'#EFE2C2'},{d:STEM,k:0,c:'#9C8660',g:[176,0,252,0,.6]},{d:'M170 214 L230 214 L228 240 Q200 246 172 240 Z',k:.55,c:'#7A6447'}],clip:'s'},
+ {type:'fine',t:'Stem texture',h:'Long thin lines going down the stem.',d:['M184 230 Q180 290 170 340','M196 232 Q194 290 190 342','M208 232 Q210 290 214 342','M218 230 Q222 290 234 340'],o:.5,c:'#9C8660'},
+ {type:'tone',t:'Shadow on the ground',h:'Under the mushroom, to the right.',r:[{d:'M130 348 C180 360 330 364 362 350 C320 340 270 340 250 342 Z',k:.38,g:[180,348,360,350,.08]}]},
+ {type:'fine',t:'Grass',h:'Quick upward flicks for blades of grass.',d:[grass()],w:1.3,o:.85,c:'#4E9A2E'},
+ {type:'blend',t:'Blend',h:'Smooth the cap so it looks round.'},
+ {type:'tone',t:'Shade the spots a little',h:'Spots on the dark side get a light tone too.',r:[{d:SPOTS.slice(2).join(' '),k:.18,c:'#9E8E80'}]},
+ {type:'light',t:'Highlights',h:'A shine on the top of the cap.',r:[{d:'M120 160 Q140 130 176 128 Q150 142 128 170 Z',o:.85}]}
+]};
+
+/* ===== 10. Autumn leaf ===== */
+const LQ=[[96,330],[180,240],[318,84]];
+const lP=t=>qb(LQ,t),lN=t=>{const T=norm(qbD(LQ,t));return [T[1],-T[0]];};
+const lw=(t,s)=>(s>0?74:62)*Math.pow(Math.sin(Math.PI*Math.min(1,t*1.02)),0.85)*(1-0.18*t);
+function lEdge(s){const pts=[];for(let i=0;i<=56;i++){const t=i/56,P=lP(t),N=lN(t),w=lw(t,s)*(i%2?0.9:1);pts.push([P[0]+N[0]*w*s+(i%2?0:2),P[1]+N[1]*w*s-(i%2?0:2)]);}return pts;}
+const LE1=lEdge(1),LE2=lEdge(-1);
+const LEAF=poly([...LE1,...LE2.slice().reverse()])+' Z';
+const LHALF1=poly([...LE1,...Array.from({length:29},(_,k)=>lP(1-k/28))])+' Z';
+function lVeins(){const out=[],small=[];for(let i=0;i<8;i++){const t=0.12+i*0.1;[1,-1].forEach(s=>{const P=lP(t),t2=Math.min(0.98,t+0.12),E=lP(t2),N=lN(t2),w=lw(t2,s)*0.92;const e=[E[0]+N[0]*w*s,E[1]+N[1]*w*s];const c=[(P[0]+e[0])/2+N[0]*s*6,(P[1]+e[1])/2+N[1]*s*6];
+  out.push(`M${f(P[0])} ${f(P[1])} Q${f(c[0])} ${f(c[1])} ${f(e[0])} ${f(e[1])}`);for(const u of [0.4,0.7]){const q=[P[0]+(e[0]-P[0])*u,P[1]+(e[1]-P[1])*u];small.push(`M${f(q[0])} ${f(q[1])} l${f(N[0]*s*10-4)} ${f(N[1]*s*10+4)}`);}});}return {v:out.join(' '),s:small.join(' ')};}
+const LV2=lVeins();
+const LEAFL={name:'Autumn Leaf',cat:'nature',lvl:2,mins:25,clips:{a:LEAF,h:LHALF1},steps:[
+ {type:'guide',t:'A light curved middle line',h:'From the bottom left up to the top right.',d:[`M${LQ[0][0]} ${LQ[0][1]} Q${LQ[1][0]} ${LQ[1][1]} ${LQ[2][0]} ${LQ[2][1]}`]},
+ {type:'guide',t:'A light leaf shape',h:'Wide in the middle, pointy at the tip.',d:[smooth(LE1),smooth(LE2)]},
+ {type:'line',t:'The stem',h:'Two lines that continue the middle line out of the leaf.',d:['M96 330 Q84 350 70 372','M100 332 Q90 352 76 374'],w:1.6},
+ {type:'line',t:'Zig-zag edges',h:'Tiny saw teeth all around the edge.',d:[poly(LE1),poly(LE2)],w:1.4},
+ {type:'line',t:'The middle vein',h:'Two close lines down the middle.',d:[`M${LQ[0][0]} ${LQ[0][1]} Q${LQ[1][0]} ${LQ[1][1]} ${LQ[2][0]} ${LQ[2][1]}`,`M${LQ[0][0]+3} ${LQ[0][1]+1} Q${LQ[1][0]+3} ${LQ[1][1]+1} ${LQ[2][0]} ${LQ[2][1]}`],w:1.3},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the light guides.'},
+ {type:'fine',t:'Side veins',h:'Lines from the middle to the edge, curving toward the tip.',d:[LV2.v],w:1.1,o:.85,c:'#9A4A1A'},
+ {type:'fine',t:'Small veins',h:'Tiny branches off each side vein.',d:[LV2.s],o:.6,c:'#9A4A1A'},
+ {type:'tone',t:'Base tone',h:'Shade the whole leaf lightly.',r:[{d:LEAF,k:.7,c:'#F3B53A'}],clip:'a'},
+ {type:'tone',t:'The darker half',h:'The leaf bends, so one half is darker.',r:[{d:LHALF1,k:.65,c:'#E06A26',g:[200,200,140,150,.3]}],clip:'h'},
+ {type:'fine',t:'Shading beside each vein',h:'A little darker along one side of every vein. This makes them look raised.',d:[LV2.v],w:3,o:.35,c:'#B5501C'},
+ {type:'tone',t:'Autumn spots',h:'A few darker patches where the leaf is drying out.',r:[{d:ell(250,150,14,9)+' '+ell(160,280,12,8)+' '+ell(214,230,9,6),k:.6,c:'#8E3B1A'}],clip:'a'},
+ {type:'tone',t:'Cast shadow',h:'The leaf lifts off the paper a bit, so it has a soft shadow.',r:[{d:poly(shift([...LE1,...LE2.slice().reverse()],12,14))+' Z',k:.14}]},
+ {type:'blend',t:'Blend',h:'Soften the tones between the veins.'},
+ {type:'light',t:'Light on the veins',h:'A thin light line on top of the middle vein.',r:[{d:poly([...Array.from({length:20},(_,k)=>{const P=lP(0.05+k*0.045),N=lN(0.05+k*0.045);return [P[0]+N[0]*1.2,P[1]+N[1]*1.2];}),...Array.from({length:20},(_,k)=>{const t=0.05+(19-k)*0.045,P=lP(t),N=lN(t);return [P[0]+N[0]*2.6,P[1]+N[1]*2.6];})])+' Z',o:.9}]}
+]};
+
+/* ===== 11. Teacup ===== */
+const CUP='M100 170 C104 250 140 290 190 292 C240 290 276 250 280 170';
+const TEAL={name:'Teacup',cat:'still',lvl:2,mins:30,clips:{},steps:[
+ {type:'guide',t:'A light oval for the top',h:'A flat oval. This is the rim of the cup.',d:[ell(190,170,90,24)]},
+ {type:'guide',t:'Light bowl shape',h:'A curve down from each side of the oval.',d:[CUP]},
+ {type:'guide',t:'A light oval for the saucer',h:'A big, flat oval under the cup.',d:[ell(190,296,140,30)]},
+ {type:'line',t:'The rim',h:'Draw the oval firmly, then a second one just inside for the thickness.',d:[ell(190,170,90,24),ell(190,171,84,20)],w:1.8},
+ {type:'line',t:'The cup body',h:'Smooth curves into the round bottom.',d:[CUP],w:2},
+ {type:'line',t:'The handle',h:'A loop on the side, with an inside line too.',d:['M278 194 C324 182 334 244 264 254','M276 208 C308 202 310 234 270 240'],w:1.8},
+ {type:'line',t:'The saucer',h:'The big oval, a smaller oval inside, and the thick edge.',d:[ell(190,296,140,30),'M108 292 C140 304 240 304 272 292','M50 297 C62 322 318 322 330 297'],w:1.6},
+ {type:'line',t:'The tea',h:'An oval inside the rim for the top of the tea.',d:[ell(190,178,76,16)],w:1.2},
+ {type:'guide',t:'Steam',h:'Light wavy lines rising from the tea.',d:['M160 150 C150 128 172 116 160 92','M196 146 C186 122 210 110 198 80','M228 150 C220 130 240 118 230 96']},
+ {type:'erase',t:'Erase the helper lines',h:'Keep the steam lines light. Rub out the rest.'},
+ {type:'tone',t:'Dark tea',h:'Tea is dark. Darker near the far edge.',r:[{d:ell(190,178,76,16),k:.85,c:'#8A5426',g:[190,162,190,194,.6]},{d:ell(190,172,60,8),k:.4,c:'#3E220E'}]},
+ {type:'tone',t:'Inside of the cup',h:'The inside wall above the tea is in shadow on the left.',r:[{d:ell(190,171,84,20)+' '+ell(190,178,76,16),k:.32,c:'#5D7FA8',g:[106,0,274,0,.08],rule:1}]},
+ {type:'tone',t:'Round shading on the cup',h:'Darker on the right side so it looks round.',r:[{d:CUP+' C240 194 140 194 100 170 Z',k:0,c:'#3E5F8A',g:[150,0,282,0,.55]},{d:CUP+' C240 194 140 194 100 170 Z',k:.12,c:'#3E5F8A',g:[190,200,190,292,.3]}]},
+ {type:'tone',t:'Shade the handle',h:'The inside of the loop is darker.',r:[{d:'M278 194 C324 182 334 244 264 254 L270 240 C310 234 308 202 276 208 Z',k:.42}]},
+ {type:'tone',t:'Shadows on the saucer',h:'Dark right under the cup, lighter towards the edge.',r:[{d:ell(196,292,96,15),k:.5,c:'#3E5F8A',g:[150,290,290,296,.2]},{d:'M50 297 C62 322 318 322 330 297 C320 312 60 312 50 297 Z',k:.4,c:'#5D7FA8'}]},
+ {type:'tone',t:'Shadow on the table',h:'To the right of the saucer.',r:[{d:'M80 318 C160 336 330 336 372 314 C350 304 330 306 320 308 Z',k:.3,g:[150,320,372,316,.05]}]},
+ {type:'blend',t:'Blend',h:'Smooth all the shading. China cups are very smooth!'},
+ {type:'light',t:'Shiny reflections',h:'Lift a long light stripe on the cup and a shine on the rim.',r:[{d:'M126 200 Q130 240 150 266 Q140 236 136 200 Z',o:.95},{d:ell(130,168,14,2.5),o:.8},{d:ell(160,180,20,3),o:.35}]},
+ {type:'fine',t:'Soft steam',h:'Very light, wiggly lines. Barely touch the paper.',d:['M160 150 C150 128 172 116 160 92','M196 146 C186 122 210 110 198 80','M228 150 C220 130 240 118 230 96'],o:.3}
+]};
+
+/* ===== 12. Butterfly ===== */
+const fwing=(s,k)=>{const X=x=>f(200+s*x*k),Y=(y,b)=>f(b+(y-b)*k);return `M200 ${Y(176,176)} C${X(40)} ${Y(118,176)} ${X(118)} ${Y(64,176)} ${X(172)} ${Y(74,176)} C${X(186)} ${Y(118,176)} ${X(168)} ${Y(178,176)} ${X(116)} ${Y(204,176)} C${X(74)} ${Y(214,176)} ${X(32)} ${Y(204,176)} 200 ${Y(192,176)} Z`;};
+const hwing=(s,k)=>{const X=x=>f(200+s*x*k),Y=y=>f(200+(y-200)*k);return `M200 ${Y(198)} C${X(62)} ${Y(198)} ${X(142)} ${Y(212)} ${X(152)} ${Y(258)} C${X(156)} ${Y(306)} ${X(96)} ${Y(334)} ${X(44)} ${Y(306)} C${X(22)} ${Y(284)} ${X(8)} ${Y(244)} 200 ${Y(212)} Z`;};
+const WINGS=[fwing(1,1),fwing(-1,1),hwing(1,1),hwing(-1,1)];
+const BORDERS=[fwing(1,1)+' '+fwing(1,0.8),fwing(-1,1)+' '+fwing(-1,0.8),hwing(1,1)+' '+hwing(1,0.78),hwing(-1,1)+' '+hwing(-1,0.78)];
+function wveins(){const out=[];[1,-1].forEach(s=>{[[60,96],[110,70],[150,82],[170,120],[150,170],[110,200]].forEach(([x,y])=>out.push(`M${200+s*8} 184 Q${f(200+s*x*0.5)} ${f((184+y)/2+6)} ${f(200+s*x)} ${y}`));[[70,212],[130,236],[140,290],[90,322],[50,300]].forEach(([x,y])=>out.push(`M${200+s*8} 206 Q${f(200+s*x*0.5)} ${f((206+y)/2)} ${f(200+s*x)} ${y}`));});return out.join(' ');}
+function wdots(){const out=[];[1,-1].forEach(s=>{for(let i=0;i<9;i++){const t=i/8;const a=[200+s*(176-t*60)*1,80+t*120];out.push(circ(+f(200+s*(168-28*Math.sin(t*3)) ),+f(84+t*110),3));}for(let i=0;i<7;i++){const t=i/6;out.push(circ(+f(200+s*(144-t*96)),+f(262+Math.sin(t*3)*48),3));}});return out.join(' ');}
+const BUTTL={name:'Butterfly',cat:'animals',lvl:3,mins:40,clips:{w:WINGS.join(' ')},steps:[
+ {type:'guide',t:'A light centre line',h:'Butterflies are the same on both sides. Start with the middle.',d:['M200 60 L200 340']},
+ {type:'guide',t:'Light wing shapes',h:'Two big top wings and two rounder bottom wings.',d:WINGS},
+ {type:'line',t:'The body',h:'A small round head, an oval chest and a long thin tail.',d:[circ(200,160,9),ell(200,186,9,20),'M196 206 Q194 260 200 300 Q206 260 204 206'],w:1.8},
+ {type:'line',t:'Antennae',h:'Two long thin curves with little knobs at the end.',d:['M197 152 Q180 110 160 84','M203 152 Q220 110 240 84',circ(159,82,3.5),circ(241,82,3.5)],w:1.3},
+ {type:'line',t:'Top wings',h:'Draw the outline firmly. Check both sides match.',d:[WINGS[0],WINGS[1]],w:1.8},
+ {type:'line',t:'Bottom wings',h:'Rounder, tucked under the top wings.',d:[WINGS[2],WINGS[3]],w:1.8},
+ {type:'line',t:'The wing border',h:'A second line inside each wing edge. This makes the dark border.',d:[fwing(1,0.8),fwing(-1,0.8),hwing(1,0.78),hwing(-1,0.78)],w:1.1},
+ {type:'fine',t:'Wing veins',h:'Lines from the body out to the edges, like branches.',d:[wveins()],w:1.6,o:1,c:'#1E1A1A'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the centre line.'},
+ {type:'tone',t:'Shade between the veins',h:'A medium tone inside the wings.',r:[{d:WINGS.join(' '),k:.85,c:'#F08A24'},{d:WINGS.join(' '),k:0,c:'#C1440E',g:[200,180,330,120,.6]}],clip:'w'},
+ {type:'tone',t:'Dark borders',h:'Fill the border bands dark. Press hard.',r:BORDERS.map(d=>({d,k:.9,c:'#1E1A1A',rule:1}))},
+ {type:'tone',t:'Dark near the body',h:'The wings are darker where they join the body.',r:[{d:WINGS.join(' '),k:0,g:[200,190,130,190,.0]},{d:ell(200,196,46,40),k:.55,c:'#1E1A1A'}],clip:'w'},
+ {type:'tone',t:'Shade the body',h:'Dark and fuzzy.',r:[{d:circ(200,160,9)+' '+ell(200,186,9,20)+' M196 206 Q194 260 200 300 Q206 260 204 206 Z',k:.8}]},
+ {type:'fine',t:'Fuzzy body hairs',h:'Tiny strokes around the chest.',d:[Array.from({length:30},(_,i)=>{const a=i/30*Math.PI*2;return `M${f(200+Math.cos(a)*8)} ${f(186+Math.sin(a)*18)} l${f(Math.cos(a)*5)} ${f(Math.sin(a)*5)}`;}).join(' ')],o:.7},
+ {type:'tone',t:'Cast shadow',h:'A soft shadow under the wings.',r:[{d:poly([[60,230],[200,350],[340,230],[300,350],[100,350]])+' Z',k:0},{d:ell(214,346,130,10),k:.18}]},
+ {type:'blend',t:'Blend',h:'Smooth the wing tone, but keep the veins sharp.'},
+ {type:'light',t:'White dots',h:'Lift little white dots along the dark borders.',r:[{d:wdots(),o:1}]},
+ {type:'fine',t:'Sharpen the veins',h:'Go over the veins again so they stand out.',d:[wveins()],w:2,c:'#1E1A1A'}
+]};
+
+Object.assign(LESSONS,{pear:PEARL,shell:SHELLL,feather:FEATHERL,straw:STRAWL,cupcake:CUPL,mush:MUSHL,leaf:LEAFL,tea:TEAL,butterfly:BUTTL});
+ORDER.push('pear','straw','cupcake','tea','shell','feather','leaf','mush','butterfly');
+
+/* ===== batch 2 ===== */
+function scallops(x0,x1,y0,y1,dx,dy){let d='';let row=0;for(let y=y0;y<=y1;y+=dy,row++){for(let x=x0+(row%2?dx/2:0);x+dx<=x1;x+=dx){d+=`M${x} ${y} q${dx/2} ${dy*.55} ${dx} 0 `;}}return d.trim();}
+const castShadow=(cx,y,rx,tint)=>{const r=[{d:`M${cx-rx} ${y} C${cx-rx*0.5} ${y+12} ${cx+rx*1.2} ${y+18} ${cx+rx*1.55} ${y+6} C${cx+rx*1.2} ${y-6} ${cx+rx*0.5} ${y-6} ${cx} ${y-2} Z`,k:.45,g:[cx,y,cx+rx*1.5,y+6,.08]},{d:ell(cx,y,rx*0.62,4),k:.85}];if(tint)r.push({d:ell(cx+rx*0.3,y+4,rx*0.7,5),k:.22,c:tint});return r;};
+const tableLine=(y,x0,x1)=>({type:'line',t:'Table edge',h:'Only on each side of the object.',d:[`M30 ${y} L${x0} ${y}`,`M${x1} ${y} L370 ${y}`],w:1.4});
+const lightGuide=y=>({type:'guide',t:'Light and table',h:'An arrow for the light (top left) and a line for the table.',d:[...ARROW,`M30 ${y} L370 ${y}`]});
+
+/* 13. Cherries */
+const CH1=circ(152,268,56), CH2=circ(254,280,52);
+const CHERRYL={name:'Cherries',cat:'still',lvl:1,mins:20,clips:{c:CH1+' '+CH2},steps:[
+ {type:'guide',t:'Two light circles',h:'One a little lower and smaller than the other.',d:[CH1,CH2]},
+ lightGuide(334),
+ {type:'line',t:'Cherry outlines',h:'Round, with a small dip at the top of each.',d:['M152 216 C122 206 96 232 96 268 C96 306 124 324 152 324 C180 324 208 306 208 268 C208 232 182 206 152 216 Z','M254 232 C226 222 202 246 202 280 C202 314 228 332 254 332 C282 332 306 314 306 280 C306 246 280 222 254 232 Z'],w:1.6,o:.85},
+ {type:'line',t:'Stems',h:'Two long curvy stems that meet at the top.',d:['M152 218 Q160 140 230 84','M156 218 Q166 142 234 86','M254 234 Q246 150 230 84','M258 234 Q250 150 234 86'],w:1.5},
+ {type:'line',t:'A leaf',h:'A pointy leaf where the stems join.',d:['M232 86 Q270 50 326 58 Q292 100 232 86 Z','M234 85 Q276 70 322 60'],w:1.5},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and guides.'},
+ tableLine(334,96,306),
+ {type:'tone',t:'First layer: red',h:'Colour both cherries red. Leave shiny spots white.',r:[{d:CH1+' '+CH2+' '+ell(130,246,12,8)+' '+ell(234,258,11,7),k:.85,c:'#E0303F',rule:1}]},
+ {type:'tone',t:'Dark red layer',h:'Darker red on the right side of each cherry.',r:[{d:CH1,k:0,c:'#A3122A',g:[110,240,205,300,.85]},{d:CH2,k:0,c:'#A3122A',g:[212,252,305,312,.85]}],clip:'c'},
+ {type:'tone',t:'Core shadow',h:'Almost black-red near the bottom right edge.',r:[{d:'M200 260 C210 300 186 326 150 324 C180 316 200 296 200 260 Z',k:.85,c:'#4E0711'},{d:'M300 272 C306 312 286 334 252 332 C282 322 298 302 300 272 Z',k:.85,c:'#4E0711'}],clip:'c'},
+ {type:'tone',t:'Shadow of one cherry on the other',h:'The front cherry casts a shadow on the back one.',r:[{d:ell(212,272,14,30),k:.6,c:'#4E0711'}],clip:'c'},
+ {type:'tone',t:'Stems and leaf',h:'Green-brown stems, green leaf with a darker half.',r:[{d:'M152 218 Q160 140 230 84 L234 86 Q166 142 156 218 Z M254 234 Q246 150 230 84 L234 86 Q250 150 258 234 Z',k:.85,c:'#7A8A2E'},{d:'M232 86 Q270 50 326 58 Q292 100 232 86 Z',k:.85,c:'#5FA032'},{d:'M232 86 Q276 70 322 60 Q292 100 232 86 Z',k:.6,c:'#2F6A1C'}]},
+ {type:'tone',t:'Cast shadows',h:'Under each cherry, with a hint of red.',r:[...castShadow(152,326,50,'#A3122A'),...castShadow(254,334,46,'#A3122A')]},
+ {type:'blend',t:'Blend',h:'Blend the reds so the cherries look glossy and smooth.'},
+ {type:'light',t:'Shiny highlights',h:'Bright spots plus a soft window shape. Cherries are very shiny.',r:[{d:ell(130,246,11,7),o:1},{d:ell(234,258,10,6),o:1},{d:circ(146,262,2.5),o:.8},{d:ell(170,306,10,3),o:.35},{d:ell(272,316,9,3),o:.35}]}
+]};
+
+/* 14. Lemon slice */
+const LEM_O=ell(200,214,128,96), LEM_P=ell(200,214,116,86), LEM_I=ell(200,214,108,80);
+const lemSeg=()=>{const out=[];for(let i=0;i<10;i++){const a0=i/10*2*Math.PI+0.06,a1=(i+1)/10*2*Math.PI-0.06;const p=(a,r)=>[200+Math.cos(a)*102*r,214+Math.sin(a)*75*r];
+  out.push(`M${f(p(a0,0.14)[0])} ${f(p(a0,0.14)[1])} L${f(p(a0,0.96)[0])} ${f(p(a0,0.96)[1])} Q${f(p((a0+a1)/2,1.04)[0])} ${f(p((a0+a1)/2,1.04)[1])} ${f(p(a1,0.96)[0])} ${f(p(a1,0.96)[1])} L${f(p(a1,0.14)[0])} ${f(p(a1,0.14)[1])} Z`);}return out;};
+const LSEG=lemSeg();
+const juice=()=>{const out=[];const r=rng(141);LSEG.forEach((d,i)=>{for(let k=0;k<9;k++){const a=(i+0.5)/10*2*Math.PI+(r()-.5)*0.4,rr=0.3+r()*0.6;const x=200+Math.cos(a)*102*rr,y=214+Math.sin(a)*75*rr;out.push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*7)} ${f(Math.sin(a)*5)}`);}});return out.join(' ');};
+const LEMONL={name:'Lemon Slice',cat:'still',lvl:2,mins:30,clips:{o:LEM_O},steps:[
+ {type:'guide',t:'A light oval',h:'A slice lying flat looks like a wide oval.',d:[LEM_O]},
+ {type:'guide',t:'Light centre and cross lines',h:'Mark the middle so the segments line up.',d:['M72 214 L328 214','M200 118 L200 310']},
+ {type:'line',t:'Outer peel',h:'Firm oval for the edge.',d:[LEM_O],w:1.8,o:.85},
+ {type:'line',t:'Peel thickness',h:'A second oval just inside, and a band at the bottom to show it is thick.',d:[LEM_P,'M72 222 C80 292 320 292 328 222'],w:1.3},
+ {type:'line',t:'Ten segments',h:'Like pizza slices with rounded outer ends. Leave thin gaps between.',d:LSEG,w:1.1},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the cross lines.'},
+ {type:'line',t:'Seeds',h:'A couple of small teardrop seeds.',d:['M186 196 q6 -10 12 0 q-6 8 -12 0 Z','M224 236 q6 -10 12 0 q-6 8 -12 0 Z'],w:1.1},
+ {type:'tone',t:'Yellow peel',h:'Bright yellow on the outer band.',r:[{d:LEM_O+' '+LEM_P,k:.9,c:'#F2D22E',rule:1},{d:'M72 222 C80 292 320 292 328 222 C320 270 80 270 72 222 Z',k:.9,c:'#E8C21E'}]},
+ {type:'tone',t:'Shadow on the peel',h:'Darker yellow-orange on the bottom edge.',r:[{d:'M72 222 C80 292 320 292 328 222 C320 270 80 270 72 222 Z',k:.5,c:'#B88A0E'}]},
+ {type:'tone',t:'Pale pith',h:'A very light cream ring inside the peel.',r:[{d:LEM_P+' '+LEM_I,k:.4,c:'#F6F0C8',rule:1}]},
+ {type:'tone',t:'Juicy segments',h:'Light lemon yellow inside each segment.',r:[{d:LSEG.join(' '),k:.75,c:'#F7E46A'}]},
+ {type:'tone',t:'Deeper colour at the edges',h:'Each segment is a bit darker at its edges.',r:LSEG.map(d=>({d,k:.0,c:'#E0B52A',g:[200,214,200,140,.5]}))},
+ {type:'fine',t:'Juice cells',h:'Tiny strokes inside each segment, pointing out from the middle.',d:[juice()],w:1.6,o:.55,c:'#D9A21E'},
+ {type:'tone',t:'Seeds',h:'Pale yellow seeds with a soft shadow.',r:[{d:'M186 196 q6 -10 12 0 q-6 8 -12 0 Z M224 236 q6 -10 12 0 q-6 8 -12 0 Z',k:.6,c:'#E8D9A0'}]},
+ {type:'tone',t:'Cast shadow',h:'A soft shadow to the bottom right.',r:[{d:poly(Array.from({length:40},(_,k)=>{const a=k/39*Math.PI;return [214+Math.cos(a)*130,270+Math.sin(a)*36];}))+' Z',k:.3,g:[200,280,330,290,.05]}]},
+ {type:'blend',t:'Blend',h:'Blend gently. Keep the juice cells visible.'},
+ {type:'light',t:'Juicy shine',h:'Lift little white sparkles on the segments.',r:[{d:dots(LSEG.join(' '),26,145,1.8,4),o:.95},{d:ell(150,184,10,3),o:.7}]}
+]};
+
+/* 15. Orange */
+const ORANGE=ell(200,222,112,104);
+const ORANGEL={name:'Orange',cat:'still',lvl:2,mins:25,clips:{o:ORANGE},steps:[
+ {type:'guide',t:'A light circle',h:'Oranges are almost perfectly round.',d:[circ(200,222,108)]},
+ lightGuide(326),
+ {type:'line',t:'The outline',h:'Slightly bumpy, not perfectly smooth.',d:[ORANGE],w:1.6,o:.85},
+ {type:'line',t:'Stem end',h:'A small star shape with a tiny stem near the top.',d:['M188 132 L200 126 L212 132 L206 140 L194 140 Z','M200 126 Q202 112 210 104'],w:1.3},
+ {type:'line',t:'A leaf',h:'One glossy leaf.',d:['M208 106 Q246 76 300 88 Q262 124 208 106 Z','M210 105 Q252 92 296 89'],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and guides.'},
+ tableLine(326,90,312),
+ {type:'tone',t:'First layer: yellow-orange',h:'Colour everything lightly. Leave the shine white.',r:[{d:ORANGE+' '+ell(150,170,20,13),k:.75,c:'#FFB347',rule:1}]},
+ {type:'tone',t:'Main colour: orange',h:'Orange on top, harder on the right side.',r:[{d:ORANGE+' '+ell(150,170,22,15),k:.6,c:'#F28C1E',g:[110,160,300,300,1],rule:1}],clip:'o'},
+ {type:'tone',t:'Middle tones',h:'Dark orange where it turns away from the light.',r:[{d:'M292 160 C318 240 280 314 196 326 C270 300 300 250 292 160 Z',k:.65,c:'#D2601A'}],clip:'o'},
+ {type:'tone',t:'Core shadow',h:'Brown-orange near the bottom right.',r:[{d:'M304 200 C316 268 278 322 200 326 C150 326 120 312 104 290 C170 316 268 296 304 200 Z',k:.75,c:'#8A3A0E'}],clip:'o'},
+ {type:'fine',t:'Dimpled skin',h:'Lots of tiny dots all over. Oranges are bumpy!',d:[dots(ORANGE,180,151,1,4)],w:1,o:.5,c:'#B8500F'},
+ {type:'tone',t:'Stem and leaf',h:'Green stem end and leaf.',r:[{d:'M188 132 L200 126 L212 132 L206 140 L194 140 Z',k:.8,c:'#6C8A2A'},{d:'M208 106 Q246 76 300 88 Q262 124 208 106 Z',k:.85,c:'#4E9A2E'},{d:'M208 106 Q252 92 296 89 Q262 124 208 106 Z',k:.6,c:'#255E1A'}]},
+ {type:'tone',t:'Cast shadow',h:'Grey with a little orange near the fruit.',r:castShadow(206,326,92,'#D2601A')},
+ {type:'light',t:'Reflected light',h:'A slightly lighter edge at the bottom.',r:[{d:'M130 300 C180 322 250 318 290 280 C266 312 220 324 186 322 C160 320 142 312 130 300 Z',o:.35}]},
+ {type:'blend',t:'Blend',h:'Blend the colours, then add a few more dimple dots on top.'},
+ {type:'light',t:'Highlights',h:'A bright shine and tiny light dots for the bumpy skin.',r:[{d:ell(150,170,18,12),o:1},{d:dots('M120 140 L200 140 L200 220 L120 220 Z',30,152,1.4,2),o:.6}]}
+]};
+
+/* 16. Watermelon slice */
+const WM='M200 64 L334 262 Q200 334 66 262 Z', WMF='M200 76 L322 256 Q200 316 78 256 Z', WMW='M200 70 L328 259 Q200 324 72 259 Z';
+const wmSeeds=()=>{const out=[];const r=rng(161);[[200,130],[178,170],[222,170],[156,212],[200,206],[244,212],[132,248],[176,248],[224,250],[268,246]].forEach(([x,y])=>{const a=Math.atan2(y-64,x-200)-Math.PI/2;const s=8;out.push(`M${f(x)} ${f(y-s)} Q${f(x+5)} ${f(y)} ${f(x)} ${f(y+s)} Q${f(x-5)} ${f(y)} ${f(x)} ${f(y-s)} Z`);});return out.join(' ');};
+const WMSEEDS=wmSeeds();
+const WATERL={name:'Watermelon Slice',cat:'still',lvl:1,mins:20,clips:{f:WMF},steps:[
+ {type:'guide',t:'A light triangle',h:'Point at the top, wide at the bottom.',d:['M200 64 L334 262 L66 262 Z']},
+ {type:'guide',t:'Curve the bottom',h:'The bottom edge bends down like a smile.',d:['M66 262 Q200 334 334 262']},
+ {type:'line',t:'The slice outline',h:'Straight sides, curved bottom.',d:[WM],w:1.6,o:.85},
+ {type:'line',t:'The rind',h:'Two curves inside the bottom: one for the white, one for the green.',d:['M78 256 Q200 316 322 256','M72 259 Q200 324 328 259'],w:1.2},
+ {type:'line',t:'Seeds',h:'Teardrop seeds in rows, pointing down.',d:[WMSEEDS],w:1.1},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the triangle.'},
+ {type:'tone',t:'Red flesh',h:'Bright pinky-red all over the inside. Go around the seeds.',r:[{d:WMF+' '+WMSEEDS,k:.85,c:'#F2545B',rule:1}]},
+ {type:'tone',t:'Deeper red',h:'Darker red near the middle and on the right side.',r:[{d:WMF,k:0,c:'#C42B38',g:[140,200,300,240,.6]}],clip:'f'},
+ {type:'fine',t:'Juicy texture',h:'Tiny short strokes all over the red part.',d:[speckle(WMF,140,163,6,6)],w:1.2,o:.45,c:'#A31A28'},
+ {type:'tone',t:'White rind',h:'A pale green-white band.',r:[{d:'M78 256 Q200 316 322 256 L328 259 Q200 324 72 259 Z',k:.6,c:'#D9F0B0'}]},
+ {type:'tone',t:'Green skin',h:'Dark green at the very bottom.',r:[{d:'M72 259 Q200 324 328 259 L334 262 Q200 334 66 262 Z',k:.95,c:'#2F7A2C'}]},
+ {type:'tone',t:'Black seeds',h:'Fill the seeds dark. Leave a tiny shine on each.',r:[{d:WMSEEDS,k:.95,c:'#1E1414'}]},
+ {type:'tone',t:'Cast shadow',h:'The slice lies on a plate. Shadow at the bottom right.',r:[{d:'M80 270 Q200 350 344 268 L352 284 Q200 362 70 286 Z',k:.3,g:[200,290,350,280,.05]}]},
+ {type:'blend',t:'Blend',h:'Blend the red so it looks juicy.'},
+ {type:'light',t:'Highlights',h:'Tiny shines on the seeds and juicy sparkles.',r:[{d:[[200,126],[178,166],[222,166],[156,208],[200,202],[244,208],[132,244],[176,244],[224,246],[268,242]].map(([x,y])=>ell(x-1.5,y,1.3,2.6)).join(' '),o:1},{d:dots(WMF,22,165,1.4,10),o:.75}]}
+]};
+
+/* 17. Sunflower */
+const petal=(a,r0,r1,w)=>{const c=[200+Math.cos(a)*r0,180+Math.sin(a)*r0],t=[200+Math.cos(a)*r1,180+Math.sin(a)*r1],p=[-Math.sin(a),Math.cos(a)],m=[(c[0]+t[0])/2,(c[1]+t[1])/2];
+  return `M${f(c[0]+p[0]*w*0.5)} ${f(c[1]+p[1]*w*0.5)} Q${f(m[0]+p[0]*w)} ${f(m[1]+p[1]*w)} ${f(t[0])} ${f(t[1])} Q${f(m[0]-p[0]*w)} ${f(m[1]-p[1]*w)} ${f(c[0]-p[0]*w*0.5)} ${f(c[1]-p[1]*w*0.5)} Z`;};
+const PET_B=Array.from({length:16},(_,i)=>petal(i/16*2*Math.PI+0.2,40,112,15));
+const PET_F=Array.from({length:16},(_,i)=>petal(i/16*2*Math.PI,38,104,16));
+const SEEDHEAD=circ(200,180,46);
+const phyllo=()=>{const out=[];for(let i=1;i<170;i++){const r=3.4*Math.sqrt(i),a=i*2.39996;if(r>44)break;out.push(circ(+f(200+Math.cos(a)*r),+f(180+Math.sin(a)*r),1.5));}return out.join(' ');};
+const SUNL={name:'Sunflower',cat:'nature',lvl:3,mins:40,clips:{h:SEEDHEAD},steps:[
+ {type:'guide',t:'Two light circles',h:'A small one for the seed head and a big one for the petal tips.',d:[SEEDHEAD,circ(200,180,110)]},
+ {type:'guide',t:'Stem line',h:'A gentle curve down from the flower.',d:['M200 226 Q190 310 204 392']},
+ {type:'line',t:'Seed head',h:'A circle in the middle.',d:[SEEDHEAD],w:1.6},
+ {type:'line',t:'Back petals',h:'Pointy petals between the front ones. Draw only what you can see.',d:PET_B,w:1.1,o:.7},
+ {type:'line',t:'Front petals',h:'Long pointy petals all around, like a sun.',d:PET_F,w:1.4},
+ {type:'line',t:'The stem',h:'Two lines for a thick stem.',d:['M194 226 Q184 310 198 392','M208 226 Q198 310 212 392'],w:1.6},
+ {type:'line',t:'A big leaf',h:'A heart-shaped leaf on the side of the stem.',d:['M200 310 Q150 270 104 296 Q130 346 198 322 Z','M198 316 Q150 300 110 298'],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and the stem line.'},
+ {type:'tone',t:'Yellow petals',h:'Bright yellow on every petal.',r:[{d:PET_B.join(' '),k:.85,c:'#F5B81C'},{d:PET_F.join(' '),k:.85,c:'#FFD12E'}]},
+ {type:'tone',t:'Orange near the centre',h:'Petals are darker orange where they join the middle.',r:[{d:circ(200,180,70),k:.0,c:'#E2780E',g:[200,180,200,110,.0]},{d:circ(200,180,66)+' '+circ(200,180,44),k:.55,c:'#E2780E',rule:1}]},
+ {type:'fine',t:'Petal lines',h:'Thin lines down the middle of each petal.',d:[Array.from({length:16},(_,i)=>{const a=i/16*2*Math.PI;return `M${f(200+Math.cos(a)*48)} ${f(180+Math.sin(a)*48)} L${f(200+Math.cos(a)*96)} ${f(180+Math.sin(a)*96)}`;}).join(' ')],o:.5,c:'#C77A0A'},
+ {type:'tone',t:'Brown seed head',h:'Dark brown, darker at the edge.',r:[{d:SEEDHEAD,k:.9,c:'#7A4520'},{d:SEEDHEAD+' '+circ(200,180,30),k:.6,c:'#3A1E0C',rule:1}]},
+ {type:'fine',t:'Seed spiral',h:'Tiny circles in spirals, like a pattern of dots.',d:[phyllo()],w:1,o:.85,c:'#24120A'},
+ {type:'tone',t:'Green stem and leaf',h:'Medium green, darker on the right.',r:[{d:'M194 226 Q184 310 198 392 L212 392 Q198 310 208 226 Z',k:.85,c:'#5A9E34'},{d:'M200 310 Q150 270 104 296 Q130 346 198 322 Z',k:.85,c:'#4E9A2E'},{d:'M198 316 Q150 300 110 298 Q130 346 198 322 Z',k:.55,c:'#245A16'},{d:'M204 226 Q194 310 206 392 L212 392 Q198 310 208 226 Z',k:.5,c:'#245A16'}]},
+ {type:'tone',t:'Shadows under the petals',h:'Front petals cast a shadow on the back ones.',r:[{d:PET_B.join(' '),k:.35,c:'#B5650A'}]},
+ {type:'blend',t:'Blend',h:'Blend the petals from orange in the middle to yellow at the tips.'},
+ {type:'light',t:'Highlights',h:'Light on the top petals and a few shiny seeds.',r:[{d:dots(SEEDHEAD,18,171,1.4,6),o:.6},{d:PET_F.slice(10,14).join(' '),o:.25}]}
+]};
+
+/* 18. Tulip */
+const TUL_L='M200 214 C160 210 138 170 146 118 C160 132 176 140 186 150 C188 176 194 198 200 214 Z';
+const TUL_R='M200 214 C240 210 262 170 254 118 C240 132 224 140 214 150 C212 176 206 198 200 214 Z';
+const TUL_M='M186 150 C182 120 192 96 200 84 C208 96 218 120 214 150 C210 178 204 200 200 214 C196 200 190 178 186 150 Z';
+const TULIPL={name:'Tulip',cat:'nature',lvl:2,mins:25,clips:{},steps:[
+ {type:'guide',t:'A light egg shape',h:'The flower is like an egg standing up.',d:[ell(200,150,58,70)]},
+ {type:'guide',t:'Stem line',h:'A long gentle curve.',d:['M200 214 Q206 300 196 388']},
+ {type:'line',t:'Middle petal',h:'A tall pointed petal in the centre.',d:[TUL_M],w:1.4},
+ {type:'line',t:'Side petals',h:'One on each side, wrapping around.',d:[TUL_L,TUL_R],w:1.4},
+ {type:'line',t:'Stem',h:'Two lines close together.',d:['M196 214 Q202 300 192 388','M206 214 Q212 300 202 388'],w:1.4},
+ {type:'line',t:'Long leaves',h:'Two long pointy leaves from the bottom.',d:['M194 388 Q130 330 120 222 Q170 300 198 340','M204 388 Q262 320 286 250 Q240 310 204 344'],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the egg and stem line.'},
+ {type:'tone',t:'Pink first layer',h:'Light pink on all petals.',r:[{d:TUL_L+' '+TUL_R+' '+TUL_M,k:.7,c:'#F48FB1'}]},
+ {type:'tone',t:'Deeper pink-red',h:'Darker at the bottom of each petal.',r:[{d:TUL_L,k:0,c:'#D81B60',g:[180,120,190,214,.8]},{d:TUL_R,k:0,c:'#D81B60',g:[220,120,210,214,.8]},{d:TUL_M,k:0,c:'#D81B60',g:[200,100,200,214,.6]}]},
+ {type:'tone',t:'Shadows between petals',h:'Dark where the petals overlap.',r:[{d:'M186 150 C188 176 194 198 200 214 C192 196 186 176 184 152 Z M214 150 C212 176 206 198 200 214 C208 196 214 176 216 152 Z',k:.8,c:'#880E4F'}]},
+ {type:'fine',t:'Petal veins',h:'Faint lines going up each petal.',d:['M166 200 Q156 170 154 130','M178 204 Q170 176 168 144','M234 200 Q244 170 246 130','M222 204 Q230 176 232 144','M200 200 Q198 150 200 96'],o:.4,c:'#AD1457'},
+ {type:'tone',t:'Green stem and leaves',h:'Leaves are blue-green, darker on one side.',r:[{d:'M196 214 Q202 300 192 388 L202 388 Q212 300 206 214 Z',k:.85,c:'#6AA84F'},{d:'M194 388 Q130 330 120 222 Q170 300 198 340 Z M204 388 Q262 320 286 250 Q240 310 204 344 Z',k:.85,c:'#5E9E50'},{d:'M194 388 Q150 320 120 222 Q170 300 198 340 Z',k:.5,c:'#2E5E2A'}]},
+ {type:'blend',t:'Blend',h:'Blend the pink into the red smoothly.'},
+ {type:'light',t:'Highlights',h:'Soft light streaks on the petals.',r:[{d:'M160 180 Q154 150 156 124 Q162 150 166 182 Z M206 150 Q204 120 202 100 Q208 120 210 150 Z M240 130 Q246 160 240 186 Q238 160 236 132 Z',o:.7}]}
+]};
+
+/* 19. Garden rose (colour) */
+const ROSE_CUP='M140 106 Q127 170 170 196 Q200 211 232 196 Q273 170 261 108';
+const ROSEL={name:'Red Rose',cat:'nature',lvl:3,mins:40,clips:{},steps:[
+ {type:'guide',t:'A light circle for the flower',h:'Press lightly, it will be erased.',d:[circ(200,135,72)]},
+ {type:'guide',t:'A light line for the stem',h:'A gentle curve down to the bottom.',d:['M200 207 Q194 300 204 386']},
+ {type:'line',t:'The swirl in the middle',h:'Start small and curl outward like a snail shell.',d:['M200 118 Q186 110 192 99 Q204 90 214 102 Q221 117 205 126 Q186 132 179 117'],w:1.5},
+ {type:'line',t:'Inner petals',h:'Wrap a petal around the swirl.',d:['M179 117 Q170 90 200 82 Q232 80 235 111 Q236 140 205 148 Q176 150 168 128'],w:1.5},
+ {type:'line',t:'Outer petals',h:'Bigger petals on each side, then the cup underneath.',d:['M168 128 Q140 140 140 104 Q145 74 176 69','M235 111 Q263 120 261 89 Q256 64 222 67',ROSE_CUP,'M170 196 Q180 170 205 168 Q228 168 232 196'],w:1.5},
+ {type:'line',t:'Petal edges curling back',h:'Small curls on the petal tips make it look real.',d:['M176 69 Q170 62 160 66','M222 67 Q230 58 242 62','M140 104 Q132 98 134 90'],w:1.2},
+ {type:'line',t:'Sepals and stem',h:'Two pointy sepals, then two lines for the stem.',d:['M176 197 Q160 216 139 212 Q160 205 183 201','M226 197 Q242 216 263 211 Q243 205 220 201','M195 206 Q189 300 198 386','M207 206 Q201 300 210 386'],w:1.4},
+ {type:'line',t:'Leaves and thorns',h:'A leaf on each side, plus a few thorns.',d:['M195 292 Q150 270 124 292 Q156 314 195 298','M207 333 Q252 307 280 324 Q252 348 207 339','M197 252 l-9 4 l9 3','M209 358 l9 3 l-9 4'],w:1.3},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and stem line.'},
+ {type:'tone',t:'First layer: pink-red',h:'Colour all the petals in a light red.',r:[{d:'M200 82 Q232 80 235 111 Q263 120 261 89 Q256 64 222 67 Q200 60 176 69 Q145 74 140 104 Q127 170 170 196 Q200 211 232 196 Q273 170 261 108 Q262 96 258 92 Q236 140 205 148 Q176 150 168 128 Q140 140 140 104 Z',k:.85,c:'#E53950'},{d:'M179 117 Q170 90 200 82 Q232 80 235 111 Q236 140 205 148 Q176 150 168 128 Z',k:.8,c:'#E53950'}]},
+ {type:'tone',t:'Deep red in the folds',h:'Very dark red inside the swirl and where petals tuck in.',r:[{d:'M200 118 Q186 110 192 99 Q204 90 214 102 Q221 117 205 126 Q186 132 179 117 Z',k:.9,c:'#7A0A1C'},{d:ell(200,182,36,9),k:.8,c:'#7A0A1C'},{d:'M168 128 Q160 116 160 100 Q150 110 152 124 Z M235 111 Q246 108 250 96 Q256 112 244 118 Z',k:.85,c:'#7A0A1C'}]},
+ {type:'tone',t:'Middle red',h:'A medium red on the shadow side of each petal.',r:[{d:ROSE_CUP+' Q232 150 200 168 Q170 160 140 106 Z',k:0,c:'#B0102E',g:[150,120,250,200,.7]}]},
+ {type:'tone',t:'Green sepals, stem and leaves',h:'Two greens: medium, then dark on the shadow side.',r:[{d:'M176 197 Q160 216 139 212 Q160 205 183 201 Z M226 197 Q242 216 263 211 Q243 205 220 201 Z',k:.9,c:'#3E7D2A'},{d:'M195 206 Q189 300 198 386 L210 386 Q201 300 207 206 Z',k:.8,c:'#5E8E32'},{d:'M195 292 Q150 270 124 292 Q156 314 195 298 Z M207 333 Q252 307 280 324 Q252 348 207 339 Z',k:.85,c:'#4E9A2E'},{d:'M195 295 Q160 290 124 292 Q156 314 195 298 Z M207 336 Q245 326 280 324 Q252 348 207 339 Z',k:.6,c:'#24501A'}]},
+ {type:'fine',t:'Leaf veins',h:'A middle line in each leaf.',d:['M195 295 Q160 290 131 292','M207 336 Q245 326 274 324'],w:1,o:.8,c:'#1E4A14'},
+ {type:'blend',t:'Blend',h:'Blend the reds so the petals look velvety.'},
+ {type:'light',t:'Highlights on petal edges',h:'Lift thin light edges where petals curl toward the light.',r:[{d:'M176 69 Q160 72 146 88 Q160 76 178 72 Z M200 82 Q182 84 176 98 Q186 86 202 85 Z M140 112 Q136 150 156 180 Q142 150 144 112 Z',o:.8}]}
+]};
+
+/* 20. Ladybug on a leaf */
+const LBLEAF='M40 330 Q90 150 330 70 Q300 290 40 330 Z';
+const LBODY=ell(206,208,62,52), LHEAD='M152 196 C148 176 160 166 172 170 L170 222 C156 222 150 214 152 196 Z';
+const LSPOTS=[circ(186,180,10),circ(230,180,11),circ(200,224,10),circ(244,226,9),circ(172,230,8),circ(256,200,7)];
+const LADYL={name:'Ladybug on a Leaf',cat:'animals',lvl:2,mins:30,clips:{b:LBODY,l:LBLEAF},steps:[
+ {type:'guide',t:'A light leaf shape',h:'A big pointed leaf across the page.',d:[LBLEAF]},
+ {type:'guide',t:'A light oval for the ladybug',h:'Sitting in the middle of the leaf.',d:[LBODY]},
+ {type:'line',t:'Leaf outline and middle vein',h:'Smooth edges, then a curved middle line.',d:[LBLEAF,'M40 330 Q170 210 330 70'],w:1.3,o:.8},
+ {type:'line',t:'Leaf veins',h:'Side veins curving toward the tip.',d:['M100 280 Q90 240 110 200','M150 240 Q140 200 170 160','M210 186 Q210 150 236 116','M270 128 Q276 100 300 86','M110 272 Q160 280 200 286','M170 222 Q230 236 262 230','M240 160 Q280 170 310 150'],w:1,o:.7},
+ {type:'line',t:'Ladybug shell',h:'A dome shape with a line down the middle.',d:[LBODY,'M168 200 Q206 210 266 206'],w:1.6},
+ {type:'line',t:'Head',h:'A small black head at the front with two white spots.',d:[LHEAD,circ(160,190,3.5),circ(160,208,3.5)],w:1.4},
+ {type:'line',t:'Legs and antennae',h:'Thin bent legs and two short antennae.',d:['M180 252 l-8 14 l-10 2','M206 258 l0 16 l-8 6','M232 254 l8 14 l10 2','M152 186 Q138 172 130 176','M152 206 Q136 214 128 208'],w:1.2},
+ {type:'line',t:'Spots',h:'Round black spots on the shell.',d:LSPOTS,w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the guides.'},
+ {type:'tone',t:'Green leaf',h:'Yellow-green first, then darker green on top.',r:[{d:LBLEAF+' '+LBODY,k:.7,c:'#9BCB4B',rule:1},{d:LBLEAF+' '+LBODY,k:0,c:'#3E7D2A',g:[300,90,60,320,.75],rule:1}],clip:'l'},
+ {type:'tone',t:'Shadow under the ladybug',h:'The ladybug casts a shadow on the leaf.',r:[{d:ell(218,232,66,42)+' '+LBODY,k:.5,c:'#1E4A14',rule:1}],clip:'l'},
+ {type:'tone',t:'Red shell',h:'Bright red, skipping the spots.',r:[{d:LBODY+' '+LSPOTS.join(' '),k:.92,c:'#E2231A',rule:1}],clip:'b'},
+ {type:'tone',t:'Shading on the shell',h:'Dark red on the right and bottom so it looks round.',r:[{d:LBODY,k:0,c:'#7A0A0A',g:[180,180,266,250,.8]}],clip:'b'},
+ {type:'tone',t:'Black spots, head and legs',h:'Fill them in very dark.',r:[{d:LSPOTS.join(' ')+' '+LHEAD,k:.95,c:'#141010'}]},
+ {type:'blend',t:'Blend',h:'Blend the red so the shell looks glossy.'},
+ {type:'light',t:'Shiny highlights',h:'A bright window-shaped shine on the shell.',r:[{d:'M178 178 Q196 164 220 166 Q204 176 186 190 Z',o:1},{d:circ(160,190,3),o:1},{d:circ(160,208,3),o:1},{d:ell(186,177,3,2),o:.7},{d:'M60 316 Q120 200 300 90 Q130 210 70 318 Z',o:.25}]}
+]};
+
+/* 21. Goldfish */
+const FISH='M110 210 C130 150 210 132 262 160 C286 172 300 192 300 210 C300 230 286 248 262 260 C210 288 130 270 110 210 Z';
+const TAIL='M112 210 C80 170 50 140 34 150 C54 180 56 196 50 212 C58 232 52 256 32 276 C56 282 86 250 112 210 Z';
+const FINT='M180 150 C190 110 230 100 252 112 C240 130 232 148 230 160 Z', FINB='M196 270 C200 300 220 312 236 306 C228 290 226 278 226 266 Z', FINP='M214 222 C220 246 240 256 254 250 C244 238 238 228 236 218 Z';
+const FISHL={name:'Goldfish',cat:'animals',lvl:3,mins:40,clips:{b:FISH},steps:[
+ {type:'guide',t:'A light oval body',h:'Fat in the middle, narrow at the tail.',d:[ell(205,210,96,64)]},
+ {type:'guide',t:'Light tail and fins',h:'A big flowing tail and little fins.',d:[TAIL,FINT,FINB]},
+ {type:'line',t:'Body outline',h:'Rounded head on the right, getting thinner to the tail.',d:[FISH],w:1.5,o:.85},
+ {type:'line',t:'The gill line',h:'A curve behind the head.',d:['M254 166 Q236 210 256 256'],w:1.3},
+ {type:'line',t:'The eye',h:'A circle with a big pupil and a tiny shine.',d:[circ(272,196,11),circ(274,197,6)],w:1.3},
+ {type:'line',t:'Mouth',h:'A small open mouth at the front.',d:['M298 206 Q306 210 298 216'],w:1.2},
+ {type:'line',t:'Flowing tail',h:'Wavy and see-through. Draw lightly.',d:[TAIL],w:1.2},
+ {type:'line',t:'Fins',h:'A top fin, a bottom fin and a small side fin.',d:[FINT,FINB,FINP],w:1.2},
+ {type:'fine',t:'Fin and tail lines',h:'Long thin lines fanning out.',d:['M110 210 Q80 180 44 152 M110 210 Q76 196 52 186 M110 210 Q76 214 52 212 M110 210 Q76 232 52 238 M110 210 Q80 246 40 272','M196 146 Q206 120 240 108 M210 148 Q218 128 246 112 M222 154 Q230 136 250 116','M204 272 Q212 296 230 304 M214 270 Q220 290 234 302','M220 226 Q232 244 250 248'],o:.55},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the guides.'},
+ {type:'fine',t:'Scales',h:'Rows of little curved scales across the body.',d:[scallops(150,250,176,250,13,13)],clip:'b',o:.6},
+ {type:'tone',t:'Gold body',h:'Yellow-orange first.',r:[{d:FISH,k:.85,c:'#FFB12E'}]},
+ {type:'tone',t:'Orange on top',h:'Deeper orange on the back and head.',r:[{d:FISH,k:0,c:'#E8621A',g:[200,150,200,250,.0]},{d:FISH,k:.75,c:'#E8621A',g:[200,150,200,260,0]}],clip:'b'},
+ {type:'tone',t:'Shadow on the belly',h:'A darker red-orange underneath.',r:[{d:'M120 230 C150 270 230 286 280 254 C230 268 160 262 120 230 Z',k:.7,c:'#A33A0E'}],clip:'b'},
+ {type:'tone',t:'See-through fins',h:'Light orange, darker near the body.',r:[{d:TAIL+' '+FINT+' '+FINB+' '+FINP,k:.55,c:'#FFA040'},{d:TAIL,k:0,c:'#E8621A',g:[110,210,40,210,.6]}]},
+ {type:'tone',t:'Black eye',h:'Fill the pupil dark.',r:[{d:circ(274,197,6),k:.95,c:'#141010'}]},
+ {type:'tone',t:'Water',h:'Light blue water around the fish, darker at the bottom.',r:[{d:'M10 40 L390 40 L390 380 L10 380 Z '+FISH+' '+TAIL+' '+FINT+' '+FINB,k:.12,c:'#7FB8E6',g:[200,40,200,380,.4],rule:1}]},
+ {type:'blend',t:'Blend',h:'Blend the body colours smoothly.'},
+ {type:'light',t:'Highlights',h:'Shine on the eye, the head and tiny bubbles.',r:[{d:circ(277,193,2.5),o:1},{d:'M250 168 Q272 162 290 180 Q270 172 252 176 Z',o:.8},{d:dots(FISH,16,211,1.6,8),o:.5}]},
+ {type:'line',t:'Bubbles',h:'Little circles rising from the mouth.',d:[circ(318,180,6),circ(330,148,4.5),circ(322,118,3.5)],w:1.1,o:.7}
+]};
+
+/* 22. Lips */
+const LIPU='M92 212 C120 196 150 172 176 176 C188 178 196 186 200 186 C204 186 212 178 224 176 C250 172 280 196 308 212 C270 214 230 212 200 216 C170 212 130 214 92 212 Z';
+const LIPL='M92 212 C130 214 170 212 200 216 C230 212 270 214 308 212 C286 246 246 270 200 270 C154 270 114 246 92 212 Z';
+const lipLines=()=>{const out=[];for(let x=110;x<292;x+=9){const t=(x-92)/216;const yb=212+Math.sin(t*Math.PI)*52;out.push(`M${x} ${f(220)} Q${x+2} ${f((220+yb)/2)} ${x} ${f(yb-6)}`);}for(let x=126;x<280;x+=10){const y0=212-Math.sin((x-92)/216*Math.PI)*34;out.push(`M${x} ${f(y0+5)} Q${x+1} ${f((y0+210)/2)} ${x} 208`);}return out.join(' ');};
+const LIPSL={name:'Lips',cat:'faces',lvl:3,mins:35,clips:{u:LIPU,l:LIPL},steps:[
+ {type:'guide',t:'A light centre line and width',h:'A line across for the mouth, with marks for the corners.',d:['M80 212 L320 212','M200 160 L200 290']},
+ {type:'guide',t:'Light lip shapes',h:'A thin top lip with an M shape, a fuller bottom lip.',d:[LIPU,LIPL]},
+ {type:'line',t:'The mouth line',h:'The line where the lips meet. Darkest line in the drawing.',d:['M92 212 C130 214 170 212 200 216 C230 212 270 214 308 212'],w:2.2},
+ {type:'line',t:"Cupid's bow",h:'The top edge dips in the middle like a little M.',d:['M92 212 C120 196 150 172 176 176 C188 178 196 186 200 186 C204 186 212 178 224 176 C250 172 280 196 308 212'],w:1.3,o:.8},
+ {type:'line',t:'Bottom lip',h:'A soft U shape. Draw it lightly, it has no hard edge.',d:['M92 212 C114 246 154 270 200 270 C246 270 286 246 308 212'],w:1.1,o:.6},
+ {type:'erase',t:'Erase the helper lines',h:'Keep the lips, lose the guides.'},
+ {type:'tone',t:'Base colour',h:'Soft pink on both lips.',r:[{d:LIPU+' '+LIPL,k:.75,c:'#E28C8C'}]},
+ {type:'tone',t:'Top lip is darker',h:'The top lip faces down, so it is in shadow.',r:[{d:LIPU,k:.7,c:'#B8545C',g:[200,180,200,214,.9]}],clip:'u'},
+ {type:'tone',t:'Shade the bottom lip',h:'Darker near the mouth line and at the bottom edge.',r:[{d:LIPL,k:.6,c:'#B8545C',g:[200,216,200,246,.0]},{d:'M110 238 C150 268 250 268 290 238 C260 276 140 276 110 238 Z',k:.4,c:'#9E4048'}],clip:'l'},
+ {type:'fine',t:'Lip lines',h:'Thin vertical lines that follow the curve of the lips.',d:[lipLines()],o:.45,c:'#8E3440'},
+ {type:'tone',t:'Corners of the mouth',h:'Small dark shadows in each corner.',r:[{d:ell(94,212,10,5),k:.7,c:'#6E2A30'},{d:ell(306,212,10,5),k:.7,c:'#6E2A30'}]},
+ {type:'tone',t:'Skin around the lips',h:'Light peach skin, with a shadow under the bottom lip.',r:[{d:ell(200,222,150,90)+' '+LIPU+' '+LIPL,k:.35,c:'#F2C4A8',rule:1},{d:ell(200,284,70,10),k:.4,c:'#C98E78'},{d:'M186 150 Q192 168 196 182 L204 182 Q208 168 214 150 Z',k:.25,c:'#C98E78'}]},
+ {type:'blend',t:'Blend',h:'Blend everything softly. Lips have no hard edges.'},
+ {type:'light',t:'Glossy highlights',h:'Lift shiny spots on the bottom lip and a soft one on the top.',r:[{d:'M160 236 Q190 228 214 236 Q190 246 160 240 Z',o:.9},{d:ell(240,240,12,4),o:.7},{d:ell(170,196,14,3),o:.45},{d:ell(234,194,12,3),o:.45}]}
+]};
+
+/* 23. Donut */
+const DOUGH=ell(200,214,140,92), HOLE=ell(200,200,40,22), ICING='M74 200 C70 150 140 124 200 124 C270 124 334 150 326 204 C322 222 312 226 306 240 C300 258 288 244 280 256 C266 272 250 254 236 266 C218 280 206 262 192 270 C176 280 166 262 150 264 C134 268 128 250 112 248 C96 246 98 230 84 226 C76 222 74 212 74 200 Z';
+const DSPR=(()=>{const out=[[],[],[],[]];const r=rng(231);let t=0;while(out.flat().length<60&&t<4000){t++;const x=80+r()*240,y=130+r()*130;if(!inside(ICING,x,y,6)||inside(HOLE,x,y,-1)||Math.hypot((x-200)/52,(y-200)/32)<1)continue;const a=r()*Math.PI;out[out.flat().length%4].push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*7)} ${f(Math.sin(a)*7)}`);}return out.map(a=>a.join(' '));})();
+const DONUTL={name:'Sprinkle Donut',cat:'still',lvl:2,mins:30,clips:{i:ICING,d:DOUGH},steps:[
+ {type:'guide',t:'A light wide oval',h:'A donut seen from the side is a flat oval.',d:[DOUGH]},
+ {type:'guide',t:'A small oval for the hole',h:'Above the middle, because we look down on it.',d:[HOLE]},
+ lightGuide(318),
+ {type:'line',t:'Donut outline',h:'The big oval, a bit puffy.',d:[DOUGH],w:1.5,o:.85},
+ {type:'line',t:'The hole',h:'Only the top part of the hole is a sharp edge.',d:['M160 200 C164 184 236 184 240 200','M164 204 C176 218 224 218 236 204'],w:1.4},
+ {type:'line',t:'Drippy icing',h:'A wavy edge with drips hanging down.',d:[ICING],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the guides.'},
+ tableLine(318,62,338),
+ {type:'tone',t:'Golden dough',h:'Light golden brown on the bottom part.',r:[{d:DOUGH+' '+ICING,k:.8,c:'#E3A75A',rule:1}],clip:'d'},
+ {type:'tone',t:'Darker dough',h:'Brown at the bottom edge where it was fried.',r:[{d:DOUGH,k:0,c:'#8A4E1E',g:[200,250,200,306,.8]}],clip:'d'},
+ {type:'tone',t:'Pink icing',h:'Bright pink, skipping the hole.',r:[{d:ICING+' '+ell(200,200,44,25),k:.85,c:'#F37DB0',rule:1}]},
+ {type:'tone',t:'Icing shading',h:'Darker pink on the right and near the hole.',r:[{d:ICING,k:0,c:'#B8306E',g:[150,150,330,240,.7]},{d:ell(200,204,56,32)+' '+ell(200,200,44,25),k:.55,c:'#B8306E',rule:1}],clip:'i'},
+ {type:'tone',t:'Inside the hole',h:'Dark brown, darker at the top.',r:[{d:HOLE,k:.85,c:'#6B3A16',g:[200,180,200,220,.5]}]},
+ {type:'fine',t:'Sprinkles',h:'Short dashes in four colours.',d:DSPR,cs:['#2E86DE','#F7C71E','#2EAD5B','#FFFFFF'],w:3,o:1},
+ {type:'tone',t:'Cast shadow',h:'Under the donut, to the right.',r:castShadow(214,316,118,'#8A4E1E')},
+ {type:'blend',t:'Blend',h:'Blend the dough and the icing separately.'},
+ {type:'light',t:'Shiny icing',h:'Lift a few shiny streaks on the icing.',r:[{d:'M110 182 Q140 150 190 142 Q150 158 118 192 Z',o:.85},{d:ell(262,170,20,4),o:.55}]}
+]};
+
+Object.assign(LESSONS,{cherry:CHERRYL,lemon:LEMONL,orange:ORANGEL,water:WATERL,sun:SUNL,tulip:TULIPL,rose:ROSEL,lady:LADYL,fish:FISHL,lips:LIPSL,donut:DONUTL});
+ORDER.push('cherry','orange','lemon','water','donut','tulip','sun','lady','fish','lips');
+
+ORDER.push('eye');
+/* ===== Najmal's picks ===== */
+const tulipParts=(cx,cy)=>({
+ back:`M${cx-30} ${cy-50} C${cx-18} ${cy-82} ${cx+18} ${cy-82} ${cx+34} ${cy-50} C${cx+20} ${cy-30} ${cx-14} ${cy-30} ${cx-30} ${cy-50} Z`,
+ L:`M${cx} ${cy+62} C${cx-46} ${cy+60} ${cx-58} ${cy+10} ${cx-44} ${cy-52} C${cx-26} ${cy-64} ${cx-6} ${cy-42} ${cx+4} ${cy-10} C${cx+8} ${cy+20} ${cx+6} ${cy+46} ${cx} ${cy+62} Z`,
+ R:`M${cx} ${cy+62} C${cx+44} ${cy+60} ${cx+58} ${cy+16} ${cx+48} ${cy-44} C${cx+30} ${cy-60} ${cx+8} ${cy-50} ${cx-2} ${cy-20} C${cx-8} ${cy+6} ${cx-6} ${cy+40} ${cx} ${cy+62} Z`,
+ hiL:`M${cx-30} ${cy+20} C${cx-36} ${cy-4} ${cx-32} ${cy-30} ${cx-24} ${cy-42} C${cx-22} ${cy-20} ${cx-20} ${cy} ${cx-22} ${cy+24} Z`,
+ hiR:`M${cx+24} ${cy+24} C${cx+20} ${cy} ${cx+22} ${cy-24} ${cx+30} ${cy-36} C${cx+36} ${cy-14} ${cx+34} ${cy+6} ${cx+30} ${cy+26} Z`});
+const T1=tulipParts(140,120), T2=tulipParts(258,134);
+const TPET=[T1.back,T1.L,T1.R,T2.back,T2.L,T2.R];
+const TLEAVES=['M140 382 C110 320 70 262 28 222 C82 250 132 300 162 382 Z','M160 382 C150 312 130 262 102 222 C150 262 170 312 178 382 Z','M206 382 C202 320 198 270 214 220 C228 270 228 330 226 382 Z','M236 382 C270 320 310 270 352 236 C322 292 282 332 258 382 Z'];
+const TSTEMS=['M136 182 Q142 280 146 382 L154 382 Q150 280 144 182 Z','M254 196 Q244 290 234 382 L242 382 Q252 290 262 196 Z'];
+const TWO_TULIPS={name:'Two Tulips',cat:'pick',pick:1,lvl:2,mins:35,clips:{},steps:[
+ {type:'guide',t:'Two light egg shapes',h:'One on the left, one a little lower on the right. They almost touch.',d:[ell(140,116,52,66),ell(258,130,52,66)]},
+ {type:'guide',t:'Light stem lines',h:'Two long lines down to the ground.',d:['M140 182 Q146 280 150 382','M258 196 Q248 290 238 382','M20 382 L380 382']},
+ {type:'line',t:'Front petals, left tulip',h:'Two big petals that overlap in the middle.',d:[T1.L,T1.R],w:1.6},
+ {type:'line',t:'Back petal, left tulip',h:'Just the tip peeking out at the top.',d:[T1.back],w:1.4},
+ {type:'line',t:'Petals, right tulip',h:'Same again for the second tulip.',d:[T2.L,T2.R,T2.back],w:1.6},
+ {type:'line',t:'Stems',h:'Two lines for each stem.',d:TSTEMS,w:1.4},
+ {type:'line',t:'Long leaves',h:'Four long pointy leaves. Some bend outwards.',d:TLEAVES,w:1.5},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the eggs and guide lines.'},
+ {type:'tone',t:'Yellow first',h:'Colour all the petals in yellow. This makes the orange glow.',r:[{d:TPET.join(' '),k:.8,c:'#F7D23A'}]},
+ {type:'tone',t:'Orange on top',h:'Orange from the edges inwards. Leave the middle of each petal yellow.',r:[...[T1.L,T1.R,T2.L,T2.R].map((d,i)=>({d,k:.9,c:'#F08A24',g:[i%2?(i<2?190:308):(i<2?90:208),130,i%2?(i<2?150:268):(i<2?130:248),120,.15]})),{d:T1.back+' '+T2.back,k:.9,c:'#E8741C'}]},
+ {type:'tone',t:'Purple edges',h:'A purple-magenta along the outside edges of the petals.',r:[{d:TPET.join(' '),k:0,c:'#9C2A7A',g:[200,40,200,190,.0]},...[T1.L,T2.L].map((d,i)=>({d,k:.75,c:'#9C2A7A',g:[i?208:90,120,i?232:116,120,0]})),...[T1.R,T2.R].map((d,i)=>({d,k:.7,c:'#9C2A7A',g:[i?310:192,120,i?286:166,120,0]}))]},
+ {type:'fine',t:'Outline the petals in purple',h:'Go over the petal edges with a dark purple pencil.',d:TPET,w:2.2,o:.8,c:'#6E1A5A'},
+ {type:'tone',t:'Green leaves and stems',h:'Light yellow-green first, then darker green on the edges.',r:[{d:TLEAVES.join(' ')+' '+TSTEMS.join(' '),k:.8,c:'#B8D84A'},...TLEAVES.map((d,i)=>({d,k:0,c:'#2F7A24',g:[[60,160,180,250][i],300,[110,170,214,300][i],290,.9]})),{d:TSTEMS.join(' '),k:.6,c:'#2F7A24'}]},
+ {type:'fine',t:'Dark green outlines',h:'Outline the leaves and stems in dark green.',d:[...TLEAVES,...TSTEMS],w:1.8,o:.8,c:'#1E4A14'},
+ {type:'tone',t:'Grass line',h:'A strip of green at the bottom.',r:[{d:'M10 378 L390 378 L390 392 L10 392 Z',k:.7,c:'#4E9A2E'}]},
+ {type:'blend',t:'Blend',h:'Blend the yellow into the orange so it glows.'},
+ {type:'light',t:'Glowing highlights',h:'Lift a light streak in the middle of each front petal and leaf.',r:[{d:T1.hiL+' '+T1.hiR+' '+T2.hiL+' '+T2.hiR,o:.45},{d:'M70 268 C100 300 128 340 146 376 C120 336 96 304 66 274 Z M300 290 C280 320 262 350 252 376 C266 346 284 316 304 294 Z',o:.5}]}
+]};
+
+/* Hibiscus */
+const HC=[208,176];
+const hp=(a,r)=>[HC[0]+Math.cos(a)*r,HC[1]+Math.sin(a)*r*0.86];
+const hPetal=a=>{const P=(da,r)=>{const p=hp(a+da,r);return f(p[0])+' '+f(p[1]);};return `M${P(-0.35,14)} C${P(-0.66,80)} ${P(-0.58,128)} ${P(-0.26,130)} Q${P(0,142)} ${P(0.26,130)} C${P(0.58,128)} ${P(0.66,80)} ${P(0.35,14)} Z`;};
+const HPET=[-1.5,-0.25,1.0,2.25,3.5].map(hPetal);
+const hVeins=()=>{const out=[];[-1.5,-0.25,1.0,2.25,3.5].forEach(a=>{[-0.25,0,0.25].forEach(d=>{const s=hp(a+d*0.5,16),e=hp(a+d,70+Math.abs(d)*-20);out.push(`M${f(s[0])} ${f(s[1])} L${f(e[0])} ${f(e[1])}`);});});return out.join(' ');};
+const HLEAF1='M128 150 C100 104 60 96 24 116 C40 160 84 182 128 168 Z', HLEAF2='M126 226 C92 236 66 270 64 318 C110 316 140 282 146 244 Z';
+const HSTAM='M210 174 Q262 128 300 98 L304 104 Q266 136 214 180 Z';
+const pollen=()=>{const out=[];const r=rng(301);for(let i=0;i<11;i++){const a=r()*Math.PI*2,rr=6+r()*12;out.push(circ(+f(306+Math.cos(a)*rr),+f(92+Math.sin(a)*rr),3.2));}return out;};
+const POLL=pollen();
+const HIBISCUS={name:'Hibiscus',cat:'pick',pick:1,lvl:2,mins:35,clips:{p:HPET.join(' ')},clipsOut:{behind:HPET.join(' ')},steps:[
+ {type:'guide',t:'A light circle',h:'The flower fits in a big circle.',d:[ell(208,176,140,122)]},
+ {type:'guide',t:'Five light lines',h:'Like a star from the centre. One petal goes on each line.',d:[-1.5,-0.25,1.0,2.25,3.5].map(a=>{const e=hp(a,130);return `M208 176 L${f(e[0])} ${f(e[1])}`;})},
+ {type:'line',t:'Five round petals',h:'Each petal is like a wide fan with a wavy edge. They overlap a little.',d:HPET,w:1.6},
+ {type:'line',t:'The long stamen',h:'A thin tube coming out of the centre toward the top right.',d:[HSTAM],w:1.3},
+ {type:'line',t:'Pollen',h:'Tiny circles in a little bunch at the end.',d:POLL,w:1.1},
+ {type:'line',t:'Two leaves',h:'Pointy leaves peeking out from behind on the left.',d:[HLEAF1,HLEAF2],w:1.5,clip:'behind'},
+ {type:'fine',t:'Leaf veins',h:'A middle line with small side veins.',d:['M128 160 C96 136 60 122 30 118 M100 146 l-6 -14 M76 134 l-4 -12 M98 148 l-4 14 M72 136 l-8 12','M140 240 C110 260 84 290 68 314 M120 256 l-14 -2 M100 276 l-14 0 M120 258 l4 14 M100 280 l6 12'],o:.7,clip:'behind'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and the star lines.'},
+ {type:'tone',t:'Light pink',h:'Colour every petal in light pink. Press gently.',r:[{d:HPET.join(' '),k:.65,c:'#F7B6C2'}]},
+ {type:'tone',t:'Darker pink near the centre',h:'Pinker towards the middle of the flower.',r:[{d:circ(208,176,90),k:0,c:'#E0668A',g:[208,176,208,96,.0]},{d:circ(208,176,70)+' '+circ(208,176,1),k:.6,c:'#E0668A',rule:1}],clip:'p'},
+ {type:'tone',t:'Deep red heart',h:'A small dark red-pink centre.',r:[{d:circ(208,176,24),k:.85,c:'#A3153F'}],clip:'p'},
+ {type:'fine',t:'Petal veins',h:'Thin dark pink lines from the centre outwards.',d:[hVeins()],w:1.2,o:.75,c:'#A3153F'},
+ {type:'fine',t:'Petal edges',h:'Go over the petal edges with a soft pink-grey line.',d:HPET,w:1.4,o:.6,c:'#8A4A5A'},
+ {type:'tone',t:'Stamen and pollen',h:'Pale pink stamen, yellow pollen.',r:[{d:HSTAM,k:.6,c:'#F2B8C8'},{d:POLL.join(' '),k:.85,c:'#F2D04A'}]},
+ {type:'tone',t:'Green leaves',h:'Light green first, darker green along one side.',r:[{d:HLEAF1+' '+HLEAF2,k:.75,c:'#8CCB6E'},{d:HLEAF1,k:0,c:'#2E7A30',g:[40,110,110,170,.7]},{d:HLEAF2,k:0,c:'#2E7A30',g:[70,310,140,240,.7]}],clip:'behind'},
+ {type:'blend',t:'Blend',h:'Blend the pinks together softly.'},
+ {type:'light',t:'Highlights',h:'Lift light patches on the outer parts of the petals.',r:[{d:[-1.5,-0.25,1.0,2.25,3.5].map(a=>{const p=hp(a,104);return ell(+f(p[0]),+f(p[1]),14,8);}).join(' '),o:.55}]}
+]};
+
+/* Cute cat with a beret (traced from Najmal's picture) */
+const tfP=(d,s,dx,dy)=>{let i=0;return d.replace(/-?\d+(\.\d+)?/g,m=>f((i++%2===0)?(+m)*s+dx:(+m)*s+dy));};
+const KT=d=>tfP(d,.62,14,-40), KX=x=>+f(x*.62+14), KY=y=>+f(y*.62-40);
+const kEll=(x,y,rx,ry)=>ell(KX(x),KY(y),+f(rx*.62),+f(ry*.62)), kCirc=(x,y,r)=>circ(KX(x),KY(y),+f(r*.62));
+const KHEAD=KT('M160 205 C130 200 90 192 45 188 C55 230 70 270 92 300 C80 340 92 380 120 400 C160 430 230 440 280 430 C340 425 395 405 412 360 C425 330 420 290 405 260 C405 220 398 190 392 170 C388 140 380 115 372 105 C350 120 330 140 318 160 C280 160 240 170 205 185 C190 192 175 200 160 205 Z');
+const KBERET=KT('M205 182 C230 160 320 150 370 172 C405 192 422 238 412 268 C385 300 305 306 262 292 C226 272 204 225 205 182 Z');
+const KRIM=KT('M205 182 C204 225 226 272 262 292 L274 286 C240 266 220 224 220 180 Z');
+const KEARIN=KT('M58 200 C90 205 125 215 150 230 C130 245 110 265 95 288 C80 260 66 230 58 200 Z');
+const KEARIN2=KT('M372 118 C380 140 386 160 388 180 L350 168 C356 150 364 132 372 118 Z');
+const KEYEL=KT('M150 355 C165 330 215 330 228 352 C226 380 206 392 186 390 C166 388 152 372 150 355 Z');
+const KEYER=KT('M300 330 C305 302 345 296 360 316 C366 340 352 360 332 362 C314 362 300 348 300 330 Z');
+const KPUPL=kEll(197,362,13,17), KPUPR=kEll(334,328,12,16);
+const KBODY=KT('M165 432 C150 470 160 520 175 560 C185 600 195 630 225 638 L390 636 C430 630 452 590 446 540 C440 490 425 455 410 405 L300 430 Z');
+const KBODYLINE=KT('M165 432 C150 470 160 520 175 560 C185 600 195 630 225 638 L390 636 C430 630 452 590 446 540 C440 490 425 455 410 405');
+const KTAIL=KT('M440 548 C470 500 470 440 465 400 C462 360 480 320 520 312 C545 308 562 325 552 342 C540 330 515 336 505 360 C495 390 505 440 500 490 C496 530 476 560 446 582 Z');
+const KTOES=kEll(238,624,20,10)+' '+kEll(334,624,22,10);
+const KHEART=KT('M470 276 C452 262 458 248 470 257 C482 248 488 262 470 276 Z');
+const CATBERET={name:'Cat in a Beret',cat:'pick',pick:1,lvl:2,mins:35,clips:{h:KHEAD,b:KBODY,e:KEYEL+' '+KEYER,t:KTAIL},clipsOut:{noBeret:KBERET,noHead:KHEAD+' '+KBERET,noBody:KBODY+' '+KHEAD},steps:[
+ {type:'guide',t:'A wide oval for the head',h:'Wider than it is tall, tilted a little.',d:[kEll(250,320,170,120)]},
+ {type:'guide',t:'A pear shape for the body',h:'Under the head, round at the bottom.',d:[kEll(300,540,140,100)]},
+ {type:'guide',t:'Eye line',h:'A slanted line: the left eye sits a bit lower.',d:[KT('M140 370 L380 318')]},
+ {type:'line',t:'Head and ears',h:'Big soft cheeks. The left ear points out, the right ear points up.',d:[KHEAD],w:1.6,clip:'noBeret'},
+ {type:'line',t:'Inside the ears',h:'A smaller triangle inside each ear.',d:[KEARIN,KEARIN2],w:1.1,o:.7,clip:'noBeret'},
+ {type:'line',t:'The beret',h:'A soft cap tilted on the right side, with a rim at the front.',d:[KBERET,KT('M220 180 C220 224 240 266 274 286')],w:1.6},
+ {type:'line',t:'Big almond eyes',h:'The right eye is a little higher and rounder.',d:[KEYEL,KEYER,KPUPL,KPUPR],w:1.4},
+ {type:'line',t:'Eyelashes',h:'A thick top line with a little flick on the outside.',d:[KT('M138 344 C158 326 212 324 232 350'),KT('M150 350 L132 342'),KT('M296 332 C300 300 346 290 364 314')],w:2.4},
+ {type:'line',t:'Nose and mouth',h:'A tiny triangle nose and a small "w" mouth.',d:[KT('M254 374 L280 374 L267 388 Z'),KT('M267 388 L267 396'),KT('M244 395 C252 406 262 404 267 396 C272 404 282 406 290 395')],w:1.4},
+ {type:'line',t:'Body',h:'From under the chin, round down to the floor.',d:[KBODYLINE],w:1.5,clip:'noHead'},
+ {type:'line',t:'Front legs and paws',h:'Four soft lines make two legs. Round toes at the bottom.',d:[KT('M212 548 C205 590 210 620 215 636'),KT('M262 556 C264 600 262 625 258 636'),KT('M305 556 C302 600 302 625 300 636'),KT('M362 548 C368 590 372 615 370 636')],w:1.3},
+ {type:'line',t:'Curly tail',h:'It comes from behind the body and curls over at the top.',d:[KTAIL],w:1.5,clip:'noBody'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the ovals and the eye line.'},
+ {type:'tone',t:'Cream fur',h:'Light cream on the whole cat. Press very lightly.',r:[{d:KHEAD+' '+KEYEL+' '+KEYER,k:.6,c:'#F2DDB6',rule:1},{d:KBODY,k:.6,c:'#F2DDB6'}],clip:'noBeret'},
+ {type:'tone',t:'Pink ears',h:'Soft pink inside the ears.',r:[{d:KEARIN+' '+KEARIN2,k:.55,c:'#E9A79A'}],clip:'noBeret'},
+ {type:'tone',t:'Tan shading on the head',h:'Light brown on the forehead, the right cheek and under the beret.',r:[{d:KHEAD,k:0,c:'#C99A62',g:[KX(220),KY(420),KX(260),KY(200),.28]},{d:KHEAD,k:0,c:'#C99A62',g:[KX(300),0,KX(420),0,.55]}],clip:'h'},
+ {type:'tone',t:'Shade the body',h:'Tan on the back and sides, darker under the chin.',r:[{d:KBODY,k:0,c:'#C99A62',g:[KX(300),0,KX(450),0,.65]},{d:KBODY,k:0,c:'#C99A62',g:[KX(180),0,KX(240),0,.35]},{d:kEll(290,440,100,16),k:.25,c:'#B08050'}],clip:'b'},
+ {type:'tone',t:'Grey tail',h:'Grey, darker towards the curly tip.',r:[{d:KTAIL,k:.7,c:'#A49C94'},{d:KTAIL,k:0,c:'#4E4844',g:[KX(470),KY(560),KX(530),KY(320),.75]}],clip:'noBody'},
+ {type:'tone',t:'The beret',h:'Grey-brown, much darker at the back. Leave the rim lighter.',r:[{d:KBERET+' '+KRIM,k:.8,c:'#7A746E',rule:1},{d:KBERET,k:0,c:'#2E2A28',g:[KX(260),KY(190),KX(400),KY(290),.85]},{d:KRIM,k:.35,c:'#7A746E'}]},
+ {type:'fine',t:'Beret folds',h:'Long soft strokes following the shape of the cap.',d:[KT('M240 200 C290 180 350 190 395 230'),KT('M245 230 C300 215 360 225 405 255'),KT('M255 260 C310 250 370 260 405 268')],w:1.1,o:.45,c:'#2E2A28'},
+ {type:'tone',t:'Amber eyes',h:'Golden orange, darker brown at the top. Leave the shine spots white.',r:[{d:KEYEL+' '+KEYER+' '+kCirc(205,350,6)+' '+kCirc(342,316,6),k:.85,c:'#E0A040',rule:1},{d:KEYEL+' '+KEYER,k:0,c:'#6A4210',g:[0,KY(310),0,KY(372),.8]},{d:KPUPL+' '+KPUPR+' '+kCirc(205,350,6)+' '+kCirc(342,316,6),k:.95,c:'#1E140C',rule:1}],clip:'e'},
+ {type:'tone',t:'Pink nose, cheeks and toes',h:'A pink nose, rosy cheeks and pink toe beans.',r:[{d:KT('M254 374 L280 374 L267 388 Z'),k:.85,c:'#E57A80'},{d:kEll(162,412,26,14)+' '+kEll(372,388,24,13),k:.35,c:'#F28B8B'},{d:KTOES,k:.45,c:'#EDA0A0'}]},
+ {type:'fine',t:'Fur strokes',h:'Tiny strokes on the forehead, chest and legs. Follow the fur direction.',d:[KT('M240 205 L246 222 M260 200 L264 216 M228 222 L234 238 M150 300 L160 310 M140 320 L150 326'),KT('M250 450 L254 470 M280 452 L282 474 M310 452 L310 472 M340 450 L338 470 M220 470 L226 486'),KT('M410 470 L420 486 M420 500 L430 514 M182 520 L176 536')],o:.4,c:'#9A7048'},
+ {type:'fine',t:'Whiskers',h:'Long, thin and curved. Lift your pencil at the end.',d:[KT('M215 404 C170 410 130 430 92 462'),KT('M215 411 C176 426 142 456 110 494'),KT('M220 417 C190 440 162 472 142 512'),KT('M300 386 C350 366 400 356 452 356'),KT('M300 393 C350 382 410 380 462 384')],w:.9,o:.75,c:'#4A4A4A'},
+ {type:'fine',t:'A little heart',h:'A tiny orange heart and two little marks next to the cat.',d:[KHEART,KT('M455 182 L461 190 L467 182'),KT('M56 352 L66 346 M60 362 L70 359')],w:1.6,c:'#E89A30'},
+ {type:'tone',t:'Soft shadow',h:'A light grey shadow under the cat.',r:[{d:kEll(310,640,150,14),k:.35,c:'#8A8070'}]},
+ {type:'blend',t:'Blend',h:'Blend the fur gently with a tissue.'},
+ {type:'light',t:'Sparkly eyes',h:'Lift bright spots in the eyes and a soft shine on the beret.',r:[{d:kCirc(205,350,6)+' '+kCirc(342,316,6)+' '+kCirc(190,376,2.6)+' '+kCirc(326,342,2.6),o:1},{d:KT('M260 190 C300 172 345 175 375 192 C340 186 300 188 268 202 Z'),o:.45},{d:kEll(270,500,40,30),o:.25}]}
+]};
+
+/* Puppy on a log (traced from Najmal's picture) */
+const QT=d=>tfP(d,.58,8,40), QX=x=>+f(x*.58+8), QY=y=>+f(y*.58+40);
+const qCirc=(x,y,r)=>circ(QX(x),QY(y),+f(r*.58)), qEll=(x,y,rx,ry)=>ell(QX(x),QY(y),+f(rx*.58),+f(ry*.58));
+const PHEAD=QT('M215 70 C240 30 300 10 345 12 C400 10 450 30 470 70 C490 120 495 200 470 250 C445 300 395 325 340 328 C285 328 230 300 210 255 C195 210 195 120 215 70 Z');
+const PUPEARL=QT('M236 50 C190 46 148 88 134 140 C124 186 140 236 162 256 C188 242 212 224 222 198 C212 150 214 100 236 50 Z');
+const PUPEARR=QT('M454 50 C500 46 542 88 556 140 C566 186 550 236 528 256 C502 242 478 224 468 198 C478 150 476 100 454 50 Z');
+const PPATCHL=QT('M326 18 C300 22 258 38 228 70 C214 110 214 180 228 215 C250 222 272 210 284 190 C302 160 324 130 330 90 C333 60 331 35 326 18 Z');
+const PPATCHR=QT('M364 18 C400 24 440 40 462 66 C478 110 480 170 470 212 C450 218 430 206 420 190 C402 160 372 130 366 90 C362 60 362 35 364 18 Z');
+const PEYEL=qCirc(277,180,28), PEYER=qCirc(418,170,28), PPUPL=qCirc(277,182,17), PPUPR=qCirc(418,172,17);
+const PNOSE=QT('M322 230 C322 216 368 216 368 230 C368 245 352 255 345 255 C338 255 322 245 322 230 Z');
+const PTONGUE=QT('M324 282 C322 316 368 320 372 282 C362 290 334 290 324 282 Z');
+const PBODY=QT('M212 256 C170 282 130 310 106 350 C96 378 100 400 112 412 L560 340 C556 300 522 270 470 250 L340 330 Z');
+const PSHOULDER=QT('M138 302 C175 276 215 280 232 302 C222 342 190 362 160 362 C134 356 124 330 138 302 Z');
+const PTAIL=QT('M112 362 C82 330 56 262 66 198 C72 186 82 200 88 214 C100 250 116 290 136 318 C142 326 148 332 156 336 Z');
+const LOG=QT('M0 428 C200 394 450 340 700 300 L700 600 L0 600 Z');
+const PPAWL=QT('M292 342 C272 362 284 420 294 450 C304 490 330 506 370 498 C402 490 412 460 402 430 C388 394 372 360 352 338 Z');
+const PPAWR=QT('M442 330 C430 360 440 400 470 412 C510 426 556 410 558 375 C560 344 540 320 510 312 C484 308 456 314 442 330 Z');
+const grain=()=>{const out=[];const r=rng(331);for(let i=0;i<14;i++){const off=20+i*13+r()*6,x0=r()*120,x1=x0+200+r()*380;const y=x=>428-(x/700)*128+off+(r()-.5)*4;out.push(QT(`M${f(x0)} ${f(y(x0))} Q${f((x0+x1)/2)} ${f(y((x0+x1)/2)+(r()-.5)*8)} ${f(x1)} ${f(y(x1))}`));}return out.join(' ');};
+const PFRONT=PPAWL+' '+PPAWR;
+const PUPPY={name:'Puppy on a Log',cat:'pick',pick:1,lvl:2,mins:40,clips:{h:PHEAD,b:PBODY,e:PEYEL+' '+PEYER},clipsEO:{log:LOG+' '+PFRONT},clipsOut:{ears:PUPEARL+' '+PUPEARR,body:PHEAD+' '+PUPEARL+' '+PUPEARR+' '+LOG+' '+PFRONT,front:PFRONT,tail:PBODY+' '+LOG},steps:[
+ {type:'guide',t:'A big circle for the head',h:'In the middle near the top. The head is big!',d:[qEll(345,170,140,150)]},
+ {type:'guide',t:'Face helper lines',h:'Across for the eyes, down the middle for the nose.',d:[QT('M200 178 L490 172'),QT('M345 20 L345 320')]},
+ {type:'guide',t:'The log',h:'A wide band slanting up to the right.',d:[QT('M0 428 L700 300')]},
+ {type:'line',t:'Head shape',h:'Round forehead and full cheeks.',d:[PHEAD],w:1.5,clip:'ears'},
+ {type:'line',t:'Fluffy top',h:'Little flicks of fur sticking up on top.',d:[QT('M262 34 L256 18 M282 24 L280 6 M304 16 L306 0 M330 12 L326 -4 M356 12 L360 -4 M382 16 L388 0 M406 24 L414 8 M428 34 L438 20')],w:1.1,o:.7,c:'#7A4216'},
+ {type:'line',t:'Floppy ears',h:'Big rounded ears hanging down each side, a little wavy at the bottom.',d:[PUPEARL,PUPEARR],w:1.5},
+ {type:'line',t:'Big shiny eyes',h:'Round eyes with big pupils, on the helper line.',d:[PEYEL,PEYER,PPUPL,PPUPR],w:1.5},
+ {type:'line',t:'Nose, smile and tongue',h:'A round nose, a wide happy smile and the tongue sticking out.',d:[PNOSE,QT('M345 255 L345 270'),QT('M272 262 C290 290 320 292 345 270 C370 292 400 290 426 254'),PTONGUE,QT('M348 288 L348 306')],w:1.5},
+ {type:'line',t:'Patches',h:'Light lines for the brown patches. A white stripe goes up the middle.',d:[PPATCHL,PPATCHR],w:1,o:.5,clip:'ears'},
+ {type:'line',t:'Body and tail',h:'The body is behind the head. A fluffy tail sticks up on the left.',d:[PBODY,PTAIL],w:1.5,clip:'body'},
+ {type:'line',t:'Paws',h:'One paw hangs over the front of the log. The other rests on top.',d:[PPAWL,PPAWR,QT('M336 498 L333 482 M360 500 L360 484 M386 490 L389 476'),QT('M484 414 L484 400 M512 418 L512 402 M538 410 L538 396')],w:1.5},
+ {type:'line',t:'The log',h:'The top edge of the log, behind the paws.',d:[QT('M0 428 C200 394 450 340 700 300')],w:1.6,clip:'front'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and lines.'},
+ {type:'tone',t:'Cream fur',h:'A light cream on the head, chest, paws and tail.',r:[{d:PHEAD+' '+PEYEL+' '+PEYER+' '+PFRONT,k:.55,c:'#F6E3BC',rule:1}]},
+ {type:'tone',t:'Cream body',h:'The same cream on the body and tail.',r:[{d:PBODY+' '+PTAIL,k:.55,c:'#F6E3BC'}],clip:'body'},
+ {type:'tone',t:'Brown patches',h:'Golden brown around the eyes and over the top of the head.',r:[{d:PPATCHL+' '+PPATCHR,k:.8,c:'#D08A3A'}],clip:'h'},
+ {type:'tone',t:'Brown ears',h:'Golden brown, darker at the edges and the bottom.',r:[{d:PUPEARL+' '+PUPEARR,k:.85,c:'#D08A3A'},{d:PUPEARL,k:0,c:'#7A4216',g:[QX(200),QY(80),QX(140),QY(250),.8]},{d:PUPEARR,k:0,c:'#7A4216',g:[QX(480),QY(80),QX(580),QY(250),.8]}]},
+ {type:'tone',t:'Brown shoulder and tail',h:'A brown patch on the shoulder and a little tan on the tail.',r:[{d:PSHOULDER,k:.8,c:'#D08A3A'},{d:PTAIL,k:0,c:'#C9883E',g:[QX(80),QY(220),QX(140),QY(330),.6]}],clip:'body'},
+ {type:'tone',t:'Shade the patches',h:'Darker brown near the ears and under the eyes.',r:[{d:PPATCHL,k:0,c:'#8A4A1A',g:[QX(320),0,QX(225),0,.55]},{d:PPATCHR,k:0,c:'#8A4A1A',g:[QX(370),0,QX(470),0,.55]}],clip:'h'},
+ {type:'tone',t:'Shade the cream fur',h:'Light tan under the ears, under the chin and on the paws.',r:[{d:qEll(345,340,120,22),k:.4,c:'#C9A070'},{d:PPAWL,k:0,c:'#C9A070',g:[QX(300),QY(350),QX(380),QY(500),.5]},{d:PPAWR,k:0,c:'#C9A070',g:[QX(450),QY(320),QX(540),QY(415),.5]}]},
+ {type:'tone',t:'Brown eyes',h:'Warm brown with a dark ring, very dark pupils. Leave shine spots white.',r:[{d:PEYEL+' '+PEYER+' '+qCirc(268,170,7)+' '+qCirc(409,160,7),k:.9,c:'#9A5A22',rule:1},{d:PEYEL+' '+PEYER,k:0,c:'#3E2010',g:[0,QY(150),0,QY(200),.7]},{d:PPUPL+' '+PPUPR+' '+qCirc(268,170,7)+' '+qCirc(409,160,7),k:.95,c:'#1E120A',rule:1}],clip:'e'},
+ {type:'tone',t:'Nose and tongue',h:'Dark brown nose, pink tongue with a darker middle line.',r:[{d:PNOSE,k:.9,c:'#5A3420'},{d:PTONGUE,k:.8,c:'#EF8DA0'}]},
+ {type:'fine',t:'Fur strokes',h:'Short strokes all around the edges and on the chest.',d:[QT('M210 120 L196 126 M206 160 L192 166 M204 200 L190 206 M480 120 L494 124 M484 160 L498 164 M478 200 L492 206'),QT('M300 40 L306 58 M330 30 L332 50 M360 30 L358 50 M390 40 L384 58'),QT('M250 330 L256 346 M420 320 L414 336 M200 360 L210 374 M440 300 L446 316')],o:.5,c:'#7A4216'},
+ {type:'tone',t:'The log',h:'Light brown first, then darker brown lower down.',r:[{d:LOG,k:.75,c:'#C08048'},{d:LOG,k:0,c:'#6E3F1C',g:[0,QY(380),0,QY(600),.8]}],clip:'log'},
+ {type:'fine',t:'Wood grain',h:'Long wavy lines along the log.',d:[grain()],w:1.2,o:.6,c:'#5A3216',clip:'log'},
+ {type:'tone',t:'Shadow under the paws',h:'Dark brown on the log right next to each paw.',r:[{d:QT('M290 440 C300 470 330 500 380 500 C420 496 420 470 410 440 L430 450 C440 490 410 520 360 518 C320 514 296 480 290 440 Z'),k:.5,c:'#4A2A12'},{d:qEll(510,420,60,12),k:.55,c:'#4A2A12'}],clip:'log'},
+ {type:'blend',t:'Blend',h:'Blend the fur, then the log.'},
+ {type:'light',t:'Sparkly highlights',h:'Big white shines in the eyes and on the nose.',r:[{d:qCirc(268,170,7)+' '+qCirc(409,160,7)+' '+qCirc(287,194,3)+' '+qCirc(428,184,3),o:1},{d:qEll(338,226,8,4),o:.8}]}
+]};
+
+Object.assign(LESSONS,{tulips2:TWO_TULIPS,hibiscus:HIBISCUS,catberet:CATBERET,puppy:PUPPY});
+ORDER.unshift('tulips2','hibiscus','catberet','puppy');
+
+/* ===== batch 3 ===== */
+const PZ=pts=>poly(pts)+' Z';
+
+/* 27. Grapes */
+const GB=[[155,140],[215,132],[275,142],[185,200],[245,200],[215,258]].map(p=>circ(p[0],p[1],30));
+const GFp=[[120,180],[190,170],[260,172],[155,236],[225,232],[190,296]];
+const GF=GFp.map(p=>circ(p[0],p[1],32));
+const GSTEM='M212 104 C214 86 218 66 226 48 L232 50 C226 68 222 88 220 106 Z';
+const GLEAF='M228 62 C250 34 300 30 330 46 C318 54 322 70 306 74 C300 90 278 88 270 82 C256 88 236 80 228 62 Z';
+const GRAPES={name:'Grapes',cat:'still',lvl:2,mins:30,clipsOut:{back:GF.join(' ')},steps:[
+ {type:'guide',t:'The bunch shape',h:'A wide upside-down triangle with round corners.',d:['M96 140 Q210 70 324 140 Q270 260 200 340 Q120 250 96 140 Z']},
+ {type:'guide',t:'Front grapes',h:'Light circles for the grapes at the front. They just touch.',d:GF},
+ {type:'line',t:'Front grapes',h:'Round outlines for the front grapes.',d:GF,w:1.5},
+ {type:'line',t:'Grapes behind',h:'Only the parts that peek out from behind.',d:GB,w:1.3,clip:'back'},
+ {type:'line',t:'Stem and leaf',h:'A short woody stem with a wavy leaf.',d:[GSTEM,GLEAF,'M230 62 Q276 52 326 47','M262 56 l-6 14 M290 52 l-4 16'],w:1.4},
+ {type:'line',t:'A curly tendril',h:'A little spring shape next to the stem.',d:['M220 80 C200 70 186 80 192 90 C198 98 208 90 202 84 C196 78 184 82 180 70'],w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the bunch shape.'},
+ {type:'tone',t:'Grapes behind: dark purple',h:'The back grapes are darker because they get less light.',r:[{d:GB.join(' '),k:.9,c:'#5A2A7A'}],clip:'back'},
+ {type:'tone',t:'Front grapes: purple',h:'Colour each front grape. Leave a little shine spot white.',r:[{d:GF.join(' ')+' '+GFp.map(p=>ell(p[0]-12,p[1]-13,7,5)).join(' '),k:.85,c:'#8E4BB0',rule:1}]},
+ {type:'tone',t:'Darker bottom-right',h:'Dark purple on the side away from the light.',r:GFp.map(p=>({d:circ(p[0],p[1],32),k:0,c:'#36144F',g:[p[0]-20,p[1]-20,p[0]+26,p[1]+28,.85]}))},
+ {type:'tone',t:'A hint of blue',h:'Light blue on the bottom edge: it is light bouncing up.',r:GFp.map(p=>({d:'M'+(p[0]-26)+' '+(p[1]+16)+' Q'+p[0]+' '+(p[1]+40)+' '+(p[0]+26)+' '+(p[1]+16)+' Q'+p[0]+' '+(p[1]+30)+' '+(p[0]-26)+' '+(p[1]+16)+' Z',k:.35,c:'#4A6AC8'}))},
+ {type:'tone',t:'Shadows between grapes',h:'Very dark where grapes touch the ones behind.',r:[{d:GB.join(' '),k:0,c:'#1E0A2E',g:[200,120,200,300,.6]}],clip:'back'},
+ {type:'tone',t:'Stem and leaf',h:'Brown-green stem; green leaf, darker at the bottom.',r:[{d:GSTEM,k:.85,c:'#7A6A2E'},{d:GLEAF,k:.8,c:'#6BAA3A'},{d:GLEAF,k:0,c:'#2F6A1C',g:[280,40,280,88,.7]}]},
+ {type:'fine',t:'Leaf veins',h:'Thin darker lines on the leaf.',d:['M230 62 Q276 52 326 47 M262 56 l-6 14 M290 52 l-4 16 M276 54 l4 -10 M304 50 l4 -10'],o:.6,c:'#24501A'},
+ {type:'blend',t:'Blend',h:'Blend each grape so it looks round and smooth.'},
+ {type:'light',t:'Shiny spots',h:'A bright shine and a soft dusty bloom on each front grape.',r:[{d:GFp.map(p=>ell(p[0]-12,p[1]-13,6,4)).join(' '),o:1},{d:GFp.map(p=>ell(p[0]-2,p[1]-6,16,10)).join(' '),o:.18}]}
+]};
+
+/* 28. Cactus in a pot */
+const CACT='M172 252 L172 196 C140 196 126 188 126 160 L126 122 C126 106 148 106 148 122 L148 166 C148 172 156 174 172 174 L172 110 C172 72 228 72 228 110 L228 144 C244 144 252 142 252 136 L252 96 C252 80 274 80 274 96 L274 126 C274 152 256 160 228 160 L228 252 Z';
+const CRIM='M142 248 L258 248 L258 274 L142 274 Z', CPOT='M150 274 L250 274 L238 354 L162 354 Z';
+const CFLOW=[0,1,2,3,4].map(i=>{const a=-Math.PI/2+i*2*Math.PI/5,x=200+Math.cos(a)*12,y=76+Math.sin(a)*9;return ell(+f(x),+f(y),8,6);}).join(' ');
+const cSpines=()=>{const out=[];const r=rng(77);const ribs=[[186,100,250],[200,84,250],[214,100,250],[137,116,180],[263,92,140]];ribs.forEach(([x,y0,y1])=>{for(let y=y0+6;y<y1;y+=14){const s=r()<.5?-1:1;out.push(`M${x} ${y} l${s*5} -3 M${x} ${y} l${-s*4} -4`);}});return out.join(' ');};
+const CACTUS={name:'Cactus in a Pot',cat:'nature',lvl:1,mins:25,clipsOut:{rim:CRIM,flow:CFLOW},steps:[
+ lightGuide(354),
+ {type:'guide',t:'Pot and cactus blocks',h:'A box for the pot and a tall rounded shape for the cactus.',d:['M142 248 L258 248 L238 354 L162 354 Z','M172 252 L172 80 L228 80 L228 252']},
+ {type:'line',t:'Pot rim',h:'A wide band at the top of the pot.',d:[CRIM],w:1.6},
+ {type:'line',t:'Pot',h:'Sides slope in towards the bottom.',d:[CPOT],w:1.6},
+ {type:'line',t:'Cactus body and arms',h:'One arm low on the left, one higher on the right. Round every end.',d:[CACT],w:1.6,clip:'rim'},
+ {type:'line',t:'Ribs',h:'Curved lines down the cactus. They follow its round shape.',d:['M186 98 Q182 180 186 248','M200 82 L200 248','M214 98 Q218 180 214 248','M137 114 L137 180','M263 90 L263 146'],w:1,o:.7,clip:'rim'},
+ {type:'line',t:'A little flower',h:'Five round petals on top.',d:[CFLOW,circ(200,76,4)],w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the blocks.'},
+ tableLine(354,162,238),
+ {type:'tone',t:'Cactus green',h:'A fresh green all over the cactus.',r:[{d:CACT,k:.8,c:'#5FA65A'}],clip:'rim'},
+ {type:'tone',t:'Dark green side',h:'Darker green on the right of the body and each arm.',r:[{d:CACT,k:0,c:'#1F5A2A',g:[176,0,232,0,.8]},{d:'M138 110 L148 110 L148 196 L138 196 Z',k:.45,c:'#1F5A2A'},{d:'M264 84 L274 84 L274 156 L264 156 Z',k:.45,c:'#1F5A2A'}],clip:'rim'},
+ {type:'tone',t:'Pink flower',h:'Pink petals, a yellow middle.',r:[{d:CFLOW,k:.75,c:'#F0709A'},{d:circ(200,76,4),k:.9,c:'#F2C230'}]},
+ {type:'tone',t:'Terracotta pot',h:'Orange-brown, darker on the right and under the rim.',r:[{d:CPOT+' '+CRIM,k:.8,c:'#D9733F'},{d:CPOT,k:0,c:'#7A2E12',g:[170,0,240,0,.75]},{d:'M150 274 L250 274 L248 288 L152 288 Z',k:.5,c:'#7A2E12'},{d:CRIM,k:0,c:'#7A2E12',g:[180,0,258,0,.5]}]},
+ {type:'fine',t:'Spines',h:'Tiny V-shapes along every rib.',d:[cSpines()],w:1,o:.8,c:'#2E3A1E',clip:'rim'},
+ {type:'tone',t:'Cast shadow',h:'To the right of the pot.',r:castShadow(206,356,46,'#7A2E12')},
+ {type:'blend',t:'Blend',h:'Blend the green and the pot gently.'},
+ {type:'light',t:'Highlights',h:'A light stripe down the left of the cactus and on the pot rim.',r:[{d:'M180 100 Q178 180 180 246 L184 246 Q182 180 184 98 Z M130 124 L130 170 L133 170 L133 124 Z',o:.6},{d:'M148 252 L210 252 L210 256 L148 256 Z',o:.5}]}
+]};
+
+/* 29. Hot-air balloon */
+const ENV='M200 50 C290 50 320 130 300 190 C286 232 240 262 228 280 L172 280 C160 262 114 232 100 190 C80 130 110 50 200 50 Z';
+const gore=t=>`${f(200+t*44)} 70 ${f(200+t*52)} 200 ${f(200+t*7)} 280`;
+const goreLine=t=>`M200 50 C${gore(t)}`;
+const goreReg=(a,b)=>{const pa=[200+a*7,280],pb=[200+b*7,280];return `M200 50 C${gore(a)} L${f(pb[0])} ${pb[1]} C${f(200+b*52)} 200 ${f(200+b*44)} 70 200 50 Z`;};
+const BASK='M182 322 L218 322 L214 354 L186 354 Z';
+const CLOUD1='M44 330 C34 312 56 298 74 306 C80 286 116 284 124 302 C142 296 160 312 150 330 Z';
+const CLOUD2='M262 96 C254 80 272 70 288 76 C294 60 324 60 330 76 C346 72 360 86 352 98 Z';
+const BCOL=['#3B7FD0','#F2C230','#E2443A','#3B7FD0','#F2C230','#E2443A','#3B7FD0','#F2C230'];
+const BALLOON={name:'Hot-Air Balloon',cat:'nature',lvl:2,mins:30,clips:{env:ENV},steps:[
+ {type:'guide',t:'A big light circle',h:'For the top of the balloon.',d:[circ(200,150,100)]},
+ {type:'guide',t:'Centre line',h:'Straight down the middle, to the basket.',d:['M200 50 L200 356']},
+ {type:'line',t:'Balloon shape',h:'Round on top, then narrowing like a light bulb.',d:[ENV],w:1.7},
+ {type:'line',t:'Panels',h:'Curved lines from the top to the bottom. They bend more near the sides.',d:[-3,-2,-1,0,1,2,3].map(goreLine),w:1.1,clip:'env'},
+ {type:'line',t:'Ropes and basket',h:'Four ropes down to a small basket.',d:['M174 280 L184 322','M190 280 L194 322','M210 280 L206 322','M226 280 L216 322',BASK,'M180 322 L220 322 L220 328 L180 328 Z'],w:1.3},
+ {type:'line',t:'Clouds',h:'Puffy bumpy tops, flat bottoms.',d:[CLOUD1,CLOUD2],w:1.2,o:.6},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circle and centre line.'},
+ {type:'tone',t:'Colour the panels',h:'Blue, yellow, red, then repeat.',r:BCOL.map((c,i)=>({d:goreReg(i-4,i-3),k:.85,c})),clip:'env'},
+ {type:'tone',t:'Shade the right side',h:'A darker layer on the right and the bottom.',r:[{d:ENV,k:0,c:'#2A1E4A',g:[170,120,310,170,.55]},{d:ENV,k:0,c:'#2A1E4A',g:[200,200,200,282,.45]}],clip:'env'},
+ {type:'tone',t:'Wicker basket',h:'Light brown with dark brown on the right.',r:[{d:BASK+' M180 322 L220 322 L220 328 L180 328 Z',k:.85,c:'#C08A4A'},{d:BASK,k:0,c:'#5A3216',g:[186,0,216,0,.7]}]},
+ {type:'fine',t:'Basket weave',h:'Little criss-cross lines.',d:['M186 334 L214 334 M187 342 L213 342 M188 350 L212 350 M192 328 l2 26 M200 328 l0 26 M208 328 l-2 26'],o:.6,c:'#5A3216'},
+ {type:'tone',t:'Sky',h:'Very light blue, darker at the top. Go around the balloon and clouds.',r:[{d:'M10 10 L390 10 L390 390 L10 390 Z '+ENV+' '+CLOUD1+' '+CLOUD2+' '+BASK,k:.15,c:'#6FB0E8',g:[0,10,0,390,.05],rule:1}]},
+ {type:'tone',t:'Cloud shadows',h:'Soft grey-blue at the bottom of each cloud.',r:[{d:CLOUD1,k:0,c:'#7A90B0',g:[0,290,0,330,.4]},{d:CLOUD2,k:0,c:'#7A90B0',g:[0,64,0,98,.4]}]},
+ {type:'blend',t:'Blend',h:'Blend the sky and the panels.'},
+ {type:'light',t:'Shine',h:'A soft curved shine on the top left of the balloon.',r:[{d:'M130 120 C140 84 170 66 196 64 C172 76 152 100 144 130 Z',o:.6}]}
+]};
+
+/* 30. Sailboat */
+const HULL='M110 270 L300 270 L272 304 L136 304 Z';
+const MAIN='M212 78 Q262 160 298 258 L212 258 Z', JIB='M202 96 L202 258 L116 258 Q166 184 202 96 Z';
+const FLAG='M206 58 L206 72 L230 65 Z';
+const SEA='M0 288 Q50 282 100 288 T200 288 T300 288 T400 288 L400 400 L0 400 Z';
+const SAILBOAT={name:'Sailboat',cat:'nature',lvl:2,mins:30,clipsOut:{nohull:HULL,noboat:HULL+' '+MAIN+' '+JIB+' '+FLAG+' M204 58 L208 58 L208 270 L204 270 Z'},steps:[
+ {type:'guide',t:'Horizon line',h:'Where the sea meets the sky.',d:['M10 288 L390 288']},
+ {type:'guide',t:'Mast and triangle',h:'A tall line and a big triangle for the sails.',d:['M206 58 L206 270','M116 258 L206 78 L298 258 Z']},
+ {type:'line',t:'Hull',h:'Long on top, shorter on the bottom.',d:[HULL,'M114 276 L296 276'],w:1.7},
+ {type:'line',t:'Mast and flag',h:'Straight up, with a little flag.',d:['M206 58 L206 270',FLAG],w:1.5},
+ {type:'line',t:'Sails',h:'A big curved sail and a smaller front sail.',d:[MAIN,JIB],w:1.5},
+ {type:'line',t:'Sail seams',h:'A few lines across the sails.',d:['M212 120 L238 118 M212 160 L258 156 M212 200 L276 196 M212 240 L292 236','M202 140 L166 152 M202 190 L138 204 M202 230 L124 244'],w:.9,o:.6},
+ {type:'line',t:'Waves',h:'Small wavy lines. Make them smaller far away.',d:['M20 300 q10 -4 20 0 t20 0 M300 298 q10 -4 20 0 t20 0','M40 326 q14 -6 28 0 t28 0 M260 330 q14 -6 28 0 t28 0','M70 364 q18 -8 36 0 t36 0 M230 370 q18 -8 36 0 t36 0'],w:1.1,o:.7,clip:'nohull'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the triangle and horizon.'},
+ {type:'tone',t:'Hull colour',h:'Navy blue with a red stripe at the top.',r:[{d:HULL,k:.85,c:'#24406A'},{d:'M110 270 L300 270 L295 276 L115 276 Z',k:.85,c:'#D8443C'},{d:HULL,k:0,c:'#0E1A2E',g:[0,270,0,304,.6]}]},
+ {type:'tone',t:'Sail shading',h:'Sails stay white, with soft grey-blue in the curves.',r:[{d:MAIN,k:0,c:'#8AA0BE',g:[220,170,290,250,.5]},{d:JIB,k:0,c:'#8AA0BE',g:[196,170,130,250,.45]}]},
+ {type:'tone',t:'Red flag and mast',h:'Red flag and brown mast.',r:[{d:FLAG,k:.9,c:'#D8443C'},{d:'M204 58 L208 58 L208 270 L204 270 Z',k:.8,c:'#7A4A22'}]},
+ {type:'tone',t:'The sea',h:'Blue, getting darker near you.',r:[{d:SEA,k:.55,c:'#2F7FBF',g:[0,288,0,400,.95]}],clip:'nohull'},
+ {type:'tone',t:'The sky',h:'Very light blue, darker at the top.',r:[{d:'M10 10 L390 10 L390 288 L10 288 Z',k:.35,c:'#7FB8E8',g:[0,10,0,288,.08]}],clip:'noboat'},
+ {type:'fine',t:'Reflection',h:'Dark wiggly lines under the boat.',d:['M140 312 q8 3 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0','M156 322 q8 3 16 0 t16 0 t16 0 t16 0 t16 0 t16 0','M174 332 q8 3 16 0 t16 0 t16 0 t16 0'],w:2,o:.55,c:'#0E1A2E'},
+ {type:'fine',t:'Birds',h:'Two little seagulls: soft V shapes.',d:['M80 90 q8 -8 14 0 q6 -8 14 0','M112 116 q6 -6 10 0 q4 -6 10 0'],w:1.4,c:'#4A4A4A'},
+ {type:'blend',t:'Blend',h:'Blend the sky and sea smoothly.'},
+ {type:'light',t:'Sparkles on the water',h:'Little white dashes where the sun hits the waves.',r:[{d:'M60 296 h14 v2 h-14 Z M120 306 h10 v2 h-10 Z M300 312 h16 v2 h-16 Z M330 350 h18 v2 h-18 Z M40 352 h12 v2 h-12 Z',o:.9}]}
+]};
+
+/* 31. Lighthouse */
+const LX=(y,s)=>s<0?168+(330-y)/190*10:232-(330-y)/190*10;
+const band=(y0,y1)=>`M${f(LX(y1,-1))} ${y1} L${f(LX(y1,1))} ${y1} L${f(LX(y0,1))} ${y0} L${f(LX(y0,-1))} ${y0} Z`;
+const TOWER=band(140,330), REDB=band(140,178)+' '+band(216,254)+' '+band(292,330);
+const GALL='M164 128 L236 128 L236 140 L164 140 Z', LAMP='M180 90 L220 90 L220 128 L180 128 Z', DOME='M174 90 Q200 50 226 90 Z';
+const ROCKS='M96 360 C100 336 124 322 150 330 C156 318 168 326 172 334 L230 334 C238 320 262 316 276 332 C292 330 304 344 306 360 Z';
+const LDOOR='M192 330 L192 312 Q200 302 208 312 L208 330 Z';
+const LIGHTHOUSE={name:'Lighthouse',cat:'nature',lvl:3,mins:40,clipsOut:{norock:ROCKS,sky:'M168 330 L232 330 L222 140 L178 140 Z '+GALL+' '+LAMP+' '+DOME+' '+ROCKS},steps:[
+ {type:'guide',t:'Centre line',h:'Everything is balanced on this line.',d:['M200 40 L200 360']},
+ {type:'guide',t:'Tower block',h:'Slightly narrower at the top than the bottom.',d:['M168 330 L178 140 L222 140 L232 330 Z']},
+ {type:'line',t:'Tower',h:'Two long sloping sides.',d:['M168 330 L178 140 M232 330 L222 140'],w:1.6,clip:'norock'},
+ {type:'line',t:'Balcony and lamp room',h:'A wide flat band, then a box with windows.',d:[GALL,LAMP,'M193 90 L193 128 M207 90 L207 128','M166 128 L166 112 L234 112 L234 128 M178 112 L178 128 M190 112 L190 128 M210 112 L210 128 M222 112 L222 128'],w:1.4},
+ {type:'line',t:'Dome',h:'A rounded roof with a small point.',d:[DOME,'M200 58 L200 44',circ(200,42,3)],w:1.5},
+ {type:'line',t:'Stripes',h:'Lines across the tower. They curve a little because it is round.',d:[178,216,254,292].map(y=>`M${f(LX(y,-1))} ${y} Q200 ${y+5} ${f(LX(y,1))} ${y}`),w:1.1},
+ {type:'line',t:'Door and window',h:'An arched door at the bottom, a small window up high.',d:[LDOOR,'M195 196 L205 196 L205 210 L195 210 Z'],w:1.2},
+ {type:'line',t:'Rocks',h:'Lumpy rocks around the bottom.',d:[ROCKS,'M150 330 C146 342 150 352 160 358 M276 332 C270 344 274 352 282 358'],w:1.4},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the centre line and block.'},
+ {type:'tone',t:'Red stripes and dome',h:'Bright red bands and roof.',r:[{d:REDB+' '+DOME,k:.85,c:'#D8443C'}],clip:'norock'},
+ {type:'tone',t:'Round shading',h:'Grey-blue on the right side of the tower so it looks round.',r:[{d:TOWER,k:0,c:'#2A3550',g:[186,0,232,0,.55]},{d:GALL,k:.6,c:'#3A3A44'}],clip:'norock'},
+ {type:'tone',t:'Glowing lamp',h:'Warm yellow in the lamp room.',r:[{d:LAMP,k:.85,c:'#F7C93A'}]},
+ {type:'tone',t:'Dark door and window',h:'Dark grey-brown.',r:[{d:LDOOR+' M195 196 L205 196 L205 210 L195 210 Z',k:.85,c:'#3A2A22'}]},
+ {type:'tone',t:'Grey rocks',h:'Grey, very dark in the cracks and at the bottom.',r:[{d:ROCKS,k:.75,c:'#8A8780'},{d:ROCKS,k:0,c:'#2A2824',g:[0,330,0,362,.8]}]},
+ {type:'tone',t:'Evening sky',h:'Soft blue on top fading to warm peach near the sea.',r:[{d:'M10 10 L390 10 L390 350 L10 350 Z',k:.45,c:'#5A8AD0',g:[0,10,0,350,0]},{d:'M10 200 L390 200 L390 350 L10 350 Z',k:0,c:'#F2A070',g:[0,200,0,350,.5]}],clip:'sky'},
+ {type:'tone',t:'The sea',h:'Deep blue at the bottom.',r:[{d:'M10 350 L390 350 L390 392 L10 392 Z',k:.8,c:'#24507A'}],clip:'norock'},
+ {type:'fine',t:'Waves and foam',h:'White-ish curls around the rocks, dark lines in the sea.',d:['M20 366 q10 -5 20 0 t20 0 M310 368 q10 -5 20 0 t20 0','M40 382 q14 -6 28 0 t28 0 M280 384 q14 -6 28 0 t28 0'],w:1.3,o:.6,c:'#0E2A44'},
+ {type:'blend',t:'Blend',h:'Blend the sky colours together.'},
+ {type:'light',t:'Lifted light',h:'Bright lamp centre and a shine on the left of the tower.',r:[{d:ell(200,108,10,12),o:.9},{d:'M200 104 L20 76 L20 132 Z M200 104 L380 76 L380 132 Z',o:.45},{d:'M182 150 L186 150 L178 326 L174 326 Z',o:.5},{d:'M80 360 q10 -5 20 0 M300 356 q10 -5 20 0 L320 360 q-10 -4 -20 0 Z',o:.7}]}
+]};
+
+/* 32. Candle */
+const CBODY='M150 170 L150 316 A50 12 0 0 0 250 316 L250 170 Z', CTOP=ell(200,170,50,12);
+const CDRIP='M150 170 C150 186 156 200 162 196 C166 192 164 180 170 180 C176 180 176 210 184 210 C192 210 188 182 196 182 L196 170 Z';
+const FLAME='M200 82 C214 106 220 126 208 140 C204 144 196 144 192 140 C180 126 186 106 200 82 Z';
+const PLATE=ell(200,320,92,18);
+const CANDLE={name:'Glowing Candle',cat:'still',lvl:2,mins:25,clipsOut:{noflame:FLAME,nocandle:CBODY},steps:[
+ lightGuide(336),
+ {type:'guide',t:'A tall box',h:'For the candle, with an oval on top.',d:['M150 170 L150 316 M250 170 L250 316',CTOP]},
+ {type:'line',t:'Plate',h:'A wide flat oval under the candle.',d:['M108 320 A92 18 0 0 0 292 320','M108 320 L108 326 A92 18 0 0 0 292 326 L292 320'],w:1.4},
+ {type:'line',t:'Back of the plate',h:'The far edge of the plate, behind the candle.',d:['M108 320 A92 18 0 0 1 292 320'],w:1.3,clip:'nocandle'},
+ {type:'line',t:'Candle',h:'Straight sides and a curved bottom.',d:[CBODY],w:1.6},
+ {type:'line',t:'Top and melted wax',h:'An oval top with drips running down the front.',d:[CTOP,CDRIP],w:1.3},
+ {type:'line',t:'Wick and flame',h:'A short wick, then a teardrop flame.',d:['M200 170 L200 140',FLAME,ell(200,132,5,8)],w:1.3},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the box.'},
+ tableLine(336,108,292),
+ {type:'tone',t:'Red wax',h:'Warm red all over the candle.',r:[{d:CBODY+' '+CTOP,k:.85,c:'#D8443C'}]},
+ {type:'tone',t:'Dark side',h:'Dark red on the right side and the bottom.',r:[{d:CBODY,k:0,c:'#5A0E10',g:[170,0,250,0,.85]}]},
+ {type:'tone',t:'Melted pool',h:'The top is lighter and glows from the flame.',r:[{d:CTOP,k:.4,c:'#F7A040'}]},
+ {type:'tone',t:'Flame colours',h:'Yellow outside, orange in the middle, a little blue at the bottom.',r:[{d:FLAME,k:.75,c:'#F7C93A'},{d:ell(200,122,6,14),k:.6,c:'#F28A2A'},{d:ell(200,136,4,4),k:.6,c:'#4A7AD8'}]},
+ {type:'tone',t:'Warm glow',h:'Very soft yellow all around the flame.',r:[{d:circ(200,118,80),k:.1,c:'#F7C93A'},{d:circ(200,118,50),k:.14,c:'#F7B030'}],clip:'noflame'},
+ {type:'tone',t:'Brass plate',h:'Golden yellow, brown on the right.',clip:'nocandle',r:[{d:PLATE,k:.6,c:'#C9A24A'},{d:'M108 320 L108 326 A92 18 0 0 0 292 326 L292 320 A92 18 0 0 1 108 320 Z',k:.8,c:'#C9A24A'},{d:'M108 320 L108 326 A92 18 0 0 0 292 326 L292 320 Z',k:0,c:'#6A4A1A',g:[150,0,292,0,.7]}]},
+ {type:'tone',t:'Cast shadow',h:'Behind the plate to the right.',r:castShadow(210,338,88,'#6A4A1A')},
+ {type:'blend',t:'Blend',h:'Blend the wax and the glow.'},
+ {type:'light',t:'Highlights',h:'Bright flame centre, a shine down the left of the candle and on the drips.',r:[{d:ell(200,118,4,10),o:1},{d:'M160 214 L166 214 L166 310 L160 308 Z',o:.55},{d:'M164 186 l3 0 l0 6 l-3 0 Z M182 196 l3 0 l0 8 l-3 0 Z',o:.6}]}
+]};
+
+/* 33. Blue gem */
+const GT=[[160,110],[240,110],[220,132],[180,132]];
+const GCROWN=[[[120,150],[160,110],[180,132]],[[280,150],[240,110],[220,132]],[[120,150],[180,132],[160,150]],[[160,150],[180,132],[200,150]],[[180,132],[220,132],[200,150]],[[200,150],[220,132],[240,150]],[[240,150],[220,132],[280,150]]];
+const GPAV=[[[120,150],[160,150],[200,320]],[[160,150],[200,150],[200,320]],[[200,150],[240,150],[200,320]],[[240,150],[280,150],[200,320]]];
+const GEM_OUT='M120 150 L160 110 L240 110 L280 150 L200 320 Z';
+const GK=[.35,.85,.55,.5,.25,.6,.75], GPK=[.45,.75,.6,.95];
+const GEM={name:'Blue Gem',cat:'still',lvl:2,mins:30,steps:[
+ {type:'guide',t:'Outside shape',h:'A short wide top and a long point below. Use a ruler if you like.',d:[GEM_OUT]},
+ {type:'guide',t:'The middle line',h:'The widest line across: the girdle.',d:['M120 150 L280 150','M200 100 L200 320']},
+ {type:'line',t:'Outline',h:'Straight, sharp edges.',d:[GEM_OUT],w:1.7},
+ {type:'line',t:'Girdle and table',h:'The line across, and the flat top face.',d:['M120 150 L280 150',PZ(GT)],w:1.3},
+ {type:'line',t:'Top facets',h:'Triangles between the table and the girdle.',d:['M160 110 L180 132 M240 110 L220 132','M120 150 L180 132 L160 150 M180 132 L200 150 L220 132 L240 150 L280 150 M220 132 L280 150'],w:1.1},
+ {type:'line',t:'Bottom facets',h:'Lines from the girdle all meet at the bottom point.',d:['M160 150 L200 320 M200 150 L200 320 M240 150 L200 320','M140 150 L178 236 M180 150 L190 236 M220 150 L210 236 M260 150 L222 236'],w:1,o:.8},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the guides.'},
+ {type:'tone',t:'Table',h:'The flat top is the lightest blue.',r:[{d:PZ(GT),k:.25,c:'#2F7FD6'}]},
+ {type:'tone',t:'Top facets',h:'Each triangle a different blue: some light, some dark.',r:GCROWN.map((t,i)=>({d:PZ(t),k:GK[i],c:'#2F7FD6'}))},
+ {type:'tone',t:'Bottom facets',h:'Deeper blues, darkest on the right.',r:GPAV.map((t,i)=>({d:PZ(t),k:GPK[i],c:'#1E5AB0'}))},
+ {type:'tone',t:'Navy depths',h:'Dark navy near the bottom point.',r:[{d:GEM_OUT,k:0,c:'#0E1E4A',g:[200,180,200,320,.8]},{d:PZ(GPAV[3]),k:.4,c:'#0E1E4A'}]},
+ {type:'tone',t:'Hint of purple',h:'A touch of purple on two facets makes it sparkle.',r:[{d:PZ(GCROWN[5])+' '+PZ(GPAV[1]),k:.3,c:'#8A4ACB'}]},
+ {type:'tone',t:'Blue glow shadow',h:'A soft blue shadow on the table below.',r:[{d:ell(206,352,70,10),k:.35,c:'#2F7FD6'},{d:ell(200,352,30,5),k:.5,c:'#1E3A6A'}]},
+ {type:'blend',t:'Blend a little',h:'Only soften inside each facet. Keep the edges crisp.'},
+ {type:'line',t:'Sharpen the edges',h:'Go over the facet lines again so they are crisp.',d:[GEM_OUT,'M120 150 L280 150',PZ(GT)],w:1.4,c:'#1E2A4A'},
+ {type:'light',t:'Sparkles',h:'White on the table edge and little star sparkles.',r:[{d:'M162 112 L238 112 L234 116 L166 116 Z',o:.8},{d:'M250 124 l3 -14 l3 14 l14 3 l-14 3 l-3 14 l-3 -14 l-14 -3 Z',o:1},{d:'M152 196 l2 -9 l2 9 l9 2 l-9 2 l-2 9 l-2 -9 l-9 -2 Z',o:.9},{d:'M140 136 L150 128 L156 134 L146 142 Z',o:.5}]}
+]};
+
+/* 34. Snail */
+const SPIRAL=(()=>{const pts=[];const N=90,T=4.2*Math.PI;for(let i=0;i<=N;i++){const t=i/N*T,r=4+70*(i/N);pts.push([228+Math.cos(t+2.4)*r,206+Math.sin(t+2.4)*r*.96]);}return smooth(pts);})();
+const SNSHELL=circ(228,206,76);
+const SBODY='M96 306 C70 306 64 278 72 256 C80 236 100 226 116 236 C130 246 134 270 150 282 L310 290 C332 292 348 302 340 308 Z';
+const SNAIL={name:'Snail',cat:'animals',lvl:2,mins:30,clipsOut:{shell:SNSHELL},steps:[
+ {type:'guide',t:'A circle for the shell',h:'Big and round, sitting on the body.',d:[SNSHELL]},
+ {type:'guide',t:'A line for the body',h:'Long and low under the shell, curving up at the head.',d:['M80 300 L340 306','M80 300 Q70 250 110 236']},
+ {type:'line',t:'Shell outline',h:'Go round the circle.',d:[SNSHELL],w:1.7},
+ {type:'line',t:'Spiral',h:'Start in the middle and spin outwards to the edge.',d:[SPIRAL],w:1.4},
+ {type:'line',t:'Body',h:'Soft and long. Draw only the parts outside the shell.',d:[SBODY],w:1.5,clip:'shell'},
+ {type:'line',t:'Eye stalks',h:'Two long stalks with round eyes, two short feelers below.',d:['M92 240 Q80 214 76 192','M106 236 Q108 212 112 190',circ(76,188,6),circ(112,186,6),'M78 262 Q66 262 60 270','M84 270 Q74 274 70 282'],w:1.4},
+ {type:'line',t:'Smile',h:'A small happy mouth.',d:['M70 280 Q78 288 88 282'],w:1.2},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the guides.'},
+ {type:'tone',t:'Shell colour',h:'Orange-brown all over the shell.',r:[{d:SNSHELL,k:.8,c:'#D9883A'}]},
+ {type:'line',t:'Spiral band',h:'A darker brown band along the spiral.',d:[SPIRAL],w:9,o:.35,c:'#7A3E12'},
+ {type:'tone',t:'Shell shading',h:'Dark brown at the bottom right of the shell.',r:[{d:SNSHELL,k:0,c:'#4A2410',g:[190,160,290,270,.8]}]},
+ {type:'tone',t:'Body colour',h:'Soft green-grey, darker underneath.',r:[{d:SBODY+' '+circ(76,188,6)+' '+circ(112,186,6)+' M90 240 L94 240 L78 190 L74 192 Z M104 236 L108 236 L114 190 L110 190 Z',k:.7,c:'#B8B88A'},{d:SBODY,k:0,c:'#5A5A3A',g:[0,270,0,310,.6]}],clip:'shell'},
+ {type:'tone',t:'Black eyes and pink cheek',h:'Dark pupils, a little pink cheek.',r:[{d:circ(77,189,3.5)+' '+circ(113,187,3.5),k:.95,c:'#1E1A14'},{d:ell(96,270,7,4),k:.5,c:'#F28B9A'}]},
+ {type:'fine',t:'Shell texture',h:'Short curved lines across the spiral band.',d:[(()=>{const out=[];for(let i=8;i<90;i+=4){const t=i/90*4.2*Math.PI+2.4,r=4+70*i/90,x=228+Math.cos(t)*r,y=206+Math.sin(t)*r*.96;out.push(`M${f(x-Math.cos(t)*4)} ${f(y-Math.sin(t)*4)} l${f(Math.cos(t)*8)} ${f(Math.sin(t)*8)}`);}return out.join(' ');})()],o:.5,c:'#4A2410'},
+ {type:'tone',t:'Leaf and shadow',h:'A green leaf for the snail to sit on.',r:[{d:'M40 312 C120 292 300 296 370 316 C300 336 120 340 40 312 Z',k:.6,c:'#6BAA3A'},{d:ell(210,310,120,6),k:.5,c:'#2F5A1C'}],clip:'shell'},
+ {type:'blend',t:'Blend',h:'Blend the shell and body.'},
+ {type:'light',t:'Shiny bits',h:'A shine on the shell, the eyes and a wet line on the body.',r:[{d:'M176 160 C190 140 214 132 232 134 C214 140 196 150 184 168 Z',o:.6},{d:circ(75,186,1.6)+' '+circ(111,184,1.6),o:1},{d:'M150 288 L300 294 L300 296 L150 290 Z',o:.5}]}
+]};
+
+/* 35. Ice cream */
+const CONE='M150 220 L250 220 L200 360 Z';
+const SC1='M140 224 C130 200 140 166 170 158 C190 140 230 142 244 160 C266 168 272 204 260 224 C250 232 240 222 228 232 C216 244 206 228 194 234 C180 240 170 226 158 234 C150 236 142 232 140 224 Z';
+const SC2='M156 150 C148 118 170 90 200 88 C232 88 252 116 244 150 C236 160 222 152 210 160 C198 168 186 154 174 162 C166 164 158 160 156 150 Z';
+const CHER=circ(206,80,13);
+const waffle=()=>{const o=[];for(let k=-6;k<=6;k++){o.push(`M${150+k*18} 210 L${250+k*18} 370`);o.push(`M${250-k*18} 210 L${150-k*18} 370`);}return o.join(' ');};
+const SPR=(()=>{const r=rng(51);const o=[];for(let i=0;i<22;i++){const x=166+r()*70,y=100+r()*48;if(!inside(SC2,x,y,4)||Math.hypot(x-206,y-80)<16)continue;const a=r()*Math.PI;o.push(`M${f(x)} ${f(y)} l${f(Math.cos(a)*6)} ${f(Math.sin(a)*6)}`);}return o;})();
+const ICECREAM={name:'Ice Cream Cone',cat:'still',lvl:1,mins:25,clips:{cone:CONE},clipsOut:{s1:SC2+' '+CHER,cone:SC1,top:CHER},steps:[
+ {type:'guide',t:'A triangle and two circles',h:'Cone at the bottom, scoops stacked on top.',d:['M150 220 L250 220 L200 360 Z',circ(200,196,58),circ(200,124,46)]},
+ {type:'line',t:'Cherry',h:'A round cherry on the very top.',d:[CHER,'M206 67 Q210 50 226 42'],w:1.5},
+ {type:'line',t:'Top scoop',h:'Bumpy wavy edge at the bottom where it melts.',d:[SC2],w:1.5,clip:'top'},
+ {type:'line',t:'Bottom scoop',h:'Bigger, with drips over the cone.',d:[SC1],w:1.5,clip:'s1'},
+ {type:'line',t:'Cone',h:'A long triangle. Only the part below the scoop.',d:[CONE],w:1.5,clip:'cone'},
+ {type:'fine',t:'Waffle pattern',h:'Criss-cross lines on the cone.',d:[waffle()],w:1,o:.7,c:'#8A5A2A',clip:'cone'},
+ {type:'erase',t:'Erase the helper lines',h:'Rub out the circles and triangle.'},
+ {type:'tone',t:'Cone colour',h:'Golden brown, darker on the right.',r:[{d:CONE,k:.75,c:'#D9A35A'},{d:CONE,k:0,c:'#7A4A1A',g:[170,0,236,0,.75]}],clip:'cone'},
+ {type:'tone',t:'Strawberry scoop',h:'Pink, with darker pink on the right and underneath.',r:[{d:SC1,k:.75,c:'#F29BB0'},{d:SC1,k:0,c:'#B03A5E',g:[170,170,262,232,.75]}],clip:'s1'},
+ {type:'tone',t:'Chocolate scoop',h:'Brown, very dark on the right and bottom.',r:[{d:SC2,k:.85,c:'#8A5634'},{d:SC2,k:0,c:'#2E180C',g:[176,100,248,160,.8]}],clip:'top'},
+ {type:'tone',t:'Shadows under the scoops',h:'Each scoop casts a shadow on what is below.',r:[{d:'M140 224 C150 244 250 244 260 224 L260 246 L140 246 Z',k:.5,c:'#5A3010'}],clip:'cone'},
+ {type:'tone',t:'Shadow on the pink scoop',h:'Dark pink right under the chocolate scoop.',r:[{d:'M156 150 C170 172 236 172 244 150 L244 178 L156 178 Z',k:.4,c:'#8A1E40'}],clip:'s1'},
+ {type:'tone',t:'Red cherry',h:'Bright red, dark on the right.',r:[{d:CHER,k:.9,c:'#E0303F'},{d:CHER,k:0,c:'#5A0712',g:[200,76,218,90,.8]},{d:'M206 67 Q210 50 226 42 L228 44 Q212 52 208 67 Z',k:.8,c:'#5A7A2A'}]},
+ {type:'fine',t:'Sprinkles',h:'Short dashes in lots of colours.',d:SPR,cs:SPR.map((_,i)=>['#F7C71E','#2E86DE','#FFFFFF','#2EAD5B','#F06AA0'][i%5]),w:3,o:1},
+ {type:'blend',t:'Blend',h:'Blend the scoops so they look creamy.'},
+ {type:'light',t:'Highlights',h:'Shine on the cherry and soft light on the top-left of each scoop.',r:[{d:ell(201,75,4,3),o:1},{d:'M160 140 C160 116 176 100 196 96 C180 106 170 122 168 142 Z',o:.4},{d:'M148 206 C146 184 158 170 176 166 C162 178 156 192 156 208 Z',o:.5}]}
+]};
+
+Object.assign(LESSONS,{grapes:GRAPES,cactus:CACTUS,balloon:BALLOON,boat:SAILBOAT,lighthouse:LIGHTHOUSE,candle:CANDLE,gem:GEM,snail:SNAIL,icecream:ICECREAM});
+ORDER.push('grapes','cactus','balloon','boat','lighthouse','candle','gem','snail','icecream');
+
+let custom=null;
+
+/* ---------- renderer ---------- */
+let uid=0;
+function el(tag,parent,attrs){const e=document.createElementNS(NS,tag);if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function makeRenderer(svg,lesson){
+  const p='r'+(uid++)+'-';svg.innerHTML='';
+  const defs=el('defs',svg);
+  defs.innerHTML=`<filter id="${p}grain" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.45" result="a"/><feComposite in="SourceGraphic" in2="a" operator="in"/></filter>
+  <filter id="${p}blur" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="0"/></filter>
+  <filter id="${p}soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <filter id="${p}graph" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.4"/></filter>`;
+  for(const k in (lesson.clips||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clips[k]});}
+  for(const k in (lesson.clipsEO||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:lesson.clipsEO[k],'clip-rule':'evenodd'});}
+  for(const k in (lesson.clipsOut||{})){const c=el('clipPath',defs,{id:p+'clip-'+k});el('path',c,{d:'M-20 -20 H420 V420 H-20 Z '+lesson.clipsOut[k],'clip-rule':'evenodd'});}
+  const ctx={svg,p,defs,lesson,gi:0,mi:0};
+  ctx.guide=el('g',svg,{fill:'none',stroke:'#A3A8C0','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round'});
+  ctx.tone=el('g',svg);
+  ctx.line=el('g',svg,{fill:'none',stroke:'#30303B','stroke-width':lesson.lw||2.4,'stroke-linecap':'round','stroke-linejoin':'round',filter:`url(#${p}graph)`});
+  ctx.fine=el('g',svg,{fill:'none',stroke:'#2E2E38','stroke-width':1.1,'stroke-linecap':'round','stroke-linejoin':'round'});
+  ctx.light=el('g',svg,{fill:'#FFFEFA',filter:`url(#${p}soft)`});
+  ctx.tool=el('g',svg);
+  return ctx;
+}
+function clipAttr(ctx,step){return step.clip?{'clip-path':`url(#${ctx.p}clip-${step.clip})`}:{};}
+function addStrokes(ctx,step,i){
+  const parent= step.type==='guide'?ctx.guide : step.type==='fine'?ctx.fine : ctx.line;
+  return (step.d||[]).map((d,j)=>{const a={d,'data-s':i,...clipAttr(ctx,step)};if(step.w)a['stroke-width']=step.w;if(step.o)a['stroke-opacity']=step.o;const c=(step.cs&&step.cs[j])||step.c;if(c)a.stroke=c;return el('path',parent,a);});
+}
+function addTones(ctx,step,i){
+  const g=el('g',ctx.tone,{'data-s':i});
+  step.r.forEach(reg=>{const col=reg.c||'#34343F';let fill=col,op=reg.k;
+    if(reg.g){const id=ctx.p+'g'+(ctx.gi++);const lg=el('linearGradient',ctx.defs,{id,gradientUnits:'userSpaceOnUse',x1:reg.g[0],y1:reg.g[1],x2:reg.g[2],y2:reg.g[3]});
+      el('stop',lg,{offset:0,'stop-color':col,'stop-opacity':reg.k});el('stop',lg,{offset:1,'stop-color':col,'stop-opacity':reg.g[4]});fill=`url(#${id})`;op=1;}
+    el('path',g,{d:reg.d,fill,'fill-opacity':op,style:'mix-blend-mode:multiply','fill-rule':reg.rule?'evenodd':'nonzero',filter:`url(#${ctx.p}grain)`,...clipAttr(ctx,step)});});
+  return g;
+}
+function addLights(ctx,step){return step.r.map(reg=>el('path',ctx.light,{d:reg.d,'fill-opacity':reg.o==null?1:reg.o}));}
+function eraseGuides(ctx,i){[...ctx.guide.querySelectorAll('path')].filter(p=>+p.dataset.s<i).forEach(p=>p.remove());}
+function setBlend(ctx,v){ctx.tone.setAttribute('filter',`url(#${ctx.p}blur)`);ctx.defs.querySelector(`#${CSS.escape(ctx.p+'blur')} feGaussianBlur`).setAttribute('stdDeviation',v);}
+function applyStatic(ctx,step,i){
+  if(step.type==='guide'||step.type==='line'||step.type==='fine') addStrokes(ctx,step,i);
+  else if(step.type==='tone') addTones(ctx,step,i);
+  else if(step.type==='light') addLights(ctx,step);
+  else if(step.type==='erase') eraseGuides(ctx,i);
+  else if(step.type==='blend') setBlend(ctx,0.9);
+}
+function renderTo(svg,lesson,upto,final){
+  const ctx=makeRenderer(svg,lesson);
+  lesson.steps.slice(0,upto).forEach((s,i)=>applyStatic(ctx,s,i));
+  if(final) ctx.guide.innerHTML='';
+  return ctx;
+}
+function finalSvg(lesson,attrs){const s=el('svg',null,{viewBox:'0 0 400 400',...(attrs||{})});renderTo(s,lesson,lesson.steps.length,true);return s;}
+function putFinal(container,lesson,attrs){container.innerHTML='';container.appendChild(finalSvg(lesson,attrs));}
+
+/* ---------- home ---------- */
+putFinal($('todayThumb'),REDAPPLE);
+const LV=['','Starter','Explorer','Artist'];
+const grid=$('lessonGrid');
+grid.innerHTML=ORDER.map(id=>{const L=LESSONS[id];return `
+  <button class="card" type="button" data-lesson="${id}">
+    <div class="art" data-thumb="${id}"></div>
+    <b>${L.name}</b>
+    <div class="meta"><span>${L.steps.length} steps · ${L.mins} min</span>${L.pick?'<span class="lvl pick">Your pick</span>':`<span class="lvl l${L.lvl}">${LV[L.lvl]}</span>`}</div>
+  </button>`}).join('');
+grid.querySelectorAll('[data-thumb]').forEach(d=>putFinal(d,LESSONS[d.dataset.thumb]));
+
+/* ---------- navigation ---------- */
+let current='home', lessonId=null;
+const VIEWS=['home','watch','done','stickers'];
+function go(v){
+  current=v;
+  VIEWS.forEach(n=>$('v-'+n).hidden = n!==v);
+  document.querySelectorAll('.jump button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.go===v)));
+  if(v!=='watch') stopAnim();
+  if(v==='done') showDone();
+  if(v==='stickers') renderStickers();
+}
+document.addEventListener('click',e=>{
+  const l=e.target.closest('[data-lesson]'); if(l){ openLesson(l.dataset.lesson); return; }
+  const b=e.target.closest('[data-go]'); if(!b) return;
+  if(b.dataset.go==='watch'){ openLesson(lessonId||ORDER[0], !!lessonId); return; }
+  go(b.dataset.go);
+});
+let htT; function soon(msg){const t=$('homeToast');t.textContent=msg+' (In the full app.)';t.classList.add('show');clearTimeout(htT);htT=setTimeout(()=>t.classList.remove('show'),2400);}
+document.querySelectorAll('[data-soon]').forEach(b=>b.addEventListener('click',()=>soon(b.dataset.soon)));
+
+/* ---------- pencil player ---------- */
+let L=null, step=0, speed=1, token=0, ctx=null;
+const stage=$('stage');
+const TAGS={guide:'Light line',line:'Draw it',fine:'Fine detail',tone:'Shade',erase:'Erase',blend:'Blend',light:'Highlight'};
+const isColour=s=>!!(s.c||(s.r&&s.r.some(x=>x.c)));
+function lessonById(id){ return LESSONS[id]; }
+function openLesson(id, resume){
+  const lesson=lessonById(id); if(!lesson) return;
+  lessonId=id; L=lesson; if(!resume) step=0;
+  putFinal($('peekSvg'),L,{width:'100%',height:'100%'}); putFinal($('bigPeekSvg'),L,{width:'100%',height:'100%'}); $('bigPeek').hidden=true;
+  go('watch'); enterStep(step);
+}
+function enterStep(i){
+  step=i; const s=L.steps[i];
+  $('stepTag').textContent=isColour(s)&&s.type!=='light'?'Colour':TAGS[s.type]; $('stepTag').className='tag '+(isColour(s)&&s.type!=='light'?'colour':s.type);
+  $('stepTitle').textContent=s.t; $('stepHint').textContent=s.h;
+  $('stepLbl').textContent=(i+1)+'/'+L.steps.length;
+  $('stepBar').innerHTML=L.steps.map((_,k)=>`<i class="${k<i?'done':k===i?'now':''}"></i>`).join('');
+  $('prev').disabled = i===0;
+  $('next').textContent = i===L.steps.length-1 ? "I finished!" : 'I drew it!';
+  play();
+}
+function stopAnim(){ token++; }
+function tween(ms,fn){const my=token;return new Promise(res=>{const t0=performance.now();
+  (function fr(now){ if(my!==token) return res(false); const k=Math.min(1,Math.max(0,(now-t0)/ms)); fn(k); if(k<1) requestAnimationFrame(fr); else res(true); })(t0); });}
+const wait=ms=>tween(ms,()=>{});
+let tool=null;
+function pencilG(c){const g=el('g',null);g.innerHTML=`<g transform="rotate(32)"><path d="M0 0 L-3 -8 L3 -8z" fill="${c||'#2E2E36'}"/><path d="M-3 -8 L-9 -24 L9 -24 L3 -8z" fill="#F2D3A6" stroke="#2B2A4C" stroke-width="1.6" stroke-linejoin="round"/><path d="M-3 -8 L3 -8 L1.5 -12 L-1.5 -12z" fill="${c||'#2E2E36'}"/><rect x="-9" y="-96" width="18" height="72" fill="${c||'#FFC93C'}" stroke="#2B2A4C" stroke-width="1.6"/><path d="M-3 -96 V-24 M3 -96 V-24" stroke="rgba(0,0,0,.18)" stroke-width="1.4"/>${c?`<rect x="-9" y="-104" width="18" height="8" fill="#FFFEFA" stroke="#2B2A4C" stroke-width="1.6"/><circle cx="0" cy="-100" r="2.5" fill="${c}"/>`:`<rect x="-9.5" y="-108" width="19" height="12" fill="#BFC3D4" stroke="#2B2A4C" stroke-width="1.6"/><rect x="-9" y="-121" width="18" height="13" rx="4" fill="#F08BA6" stroke="#2B2A4C" stroke-width="1.6"/>`}</g>`;return g;}
+let toolColor=null;
+function placeTool(kind,x,y,lift){
+  const key=kind+(kind==='pencil'?(toolColor||''):'');
+  if(!tool||tool.dataset.kind!==key){ ctx.tool.innerHTML=''; if(kind==='pencil'){tool=pencilG(toolColor);ctx.tool.appendChild(tool);} else tool=el('use',ctx.tool,{href:kind==='erase'?'#eraserTool':'#stumpTool'}); tool.dataset.kind=key; }
+  tool.setAttribute('transform',`translate(${f(x)} ${f(y-(lift||0))})`);
+}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+async function travel(from,to,my){ if(!from) return true; const ok=await tween(reduce?10:Math.min(360,110+Math.hypot(to.x-from.x,to.y-from.y)*1.1),k=>placeTool('pencil',from.x+(to.x-from.x)*k,from.y+(to.y-from.y)*k,Math.sin(k*Math.PI)*10)); return ok&&my===token; }
+function zigzag(b,gap){let d='';let row=0;for(let y=b.y-gap/2;y<=b.y+b.height+gap;y+=gap,row++){const a=row%2?[b.x+b.width+6,b.x-6]:[b.x-6,b.x+b.width+6];d+=(d?'L':'M')+f(a[0])+' '+f(y)+' L'+f(a[1])+' '+f(y+gap*0.6)+' ';}return d;}
+async function play(){
+  stopAnim(); const my=token; tool=null;
+  $('nowTry').classList.remove('show'); $('next').classList.remove('pulse');
+  ctx=renderTo(stage,L,step,false);
+  const s=L.steps[step]; let pos=null;
+  toolColor = s.c || (s.r&&s.r.find(x=>x.c)&&s.r.find(x=>x.c).c) || null;
+  const sp=speed*(L.pace||1);
+  if(s.type==='guide'||s.type==='line'||s.type==='fine'){
+    const els=addStrokes(ctx,s,step).map(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len+' '+len;p.style.strokeDashoffset=len;return [p,len];});
+    const total=els.reduce((a,x)=>a+x[1],0);
+    let rate=(s.type==='fine'?0.6:s.type==='guide'?0.32:0.24)*sp; const cap=(s.type==='fine'?9000:12000)/speed;
+    if(total/rate>cap) rate=total/cap;
+    for(const [p,len] of els){
+      const st=p.getPointAtLength(0); if(!await travel(pos,st,my)) return;
+      const ok=await tween(reduce?40:Math.max(120,len/rate),k=>{p.style.strokeDashoffset=len*(1-k);const pt=p.getPointAtLength(len*k);placeTool('pencil',pt.x,pt.y,0);pos=pt;});
+      if(!ok||my!==token) return; p.style.strokeDasharray='none';
+    }
+  } else if(s.type==='tone'){
+    const g=addTones(ctx,s,step); const b=g.getBBox();
+    const mid=ctx.p+'m'+(ctx.mi++); const m=el('mask',ctx.defs,{id:mid,maskUnits:'userSpaceOnUse',x:0,y:0,width:400,height:400});
+    const gap=Math.max(9,Math.min(16,b.height/10)); const zp=el('path',m,{d:zigzag(b,gap),fill:'none',stroke:'#fff','stroke-width':gap*1.9,'stroke-linecap':'round','stroke-linejoin':'round'});
+    g.setAttribute('mask',`url(#${mid})`);
+    const len=zp.getTotalLength(); zp.style.strokeDasharray=len+' '+len; zp.style.strokeDashoffset=len;
+    const dur=Math.min(7000,Math.max(1200,len/(1.1*speed)))/(reduce?50:1);
+    if(!await travel(pos,zp.getPointAtLength(0),my)) return;
+    const ok=await tween(dur,k=>{zp.style.strokeDashoffset=len*(1-k);const pt=zp.getPointAtLength(len*k);placeTool('pencil',pt.x,pt.y,0);});
+    if(!ok||my!==token) return; g.removeAttribute('mask'); m.remove();
+  } else if(s.type==='erase'){
+    const paths=[...ctx.guide.querySelectorAll('path')];
+    const totalLen=paths.reduce((a,p)=>a+p.getTotalLength(),0); const rate=Math.max(0.6*speed,totalLen/(4500/speed));
+    for(const p of paths){
+      const len=p.getTotalLength(); p.style.strokeDasharray=len+' '+len; p.style.strokeDashoffset=0;
+      const ok=await tween(reduce?40:Math.max(300,len/rate),k=>{const pt=p.getPointAtLength(len*k);p.style.strokeDashoffset=-len*k;placeTool('erase',pt.x+Math.sin(k*60)*4,pt.y,0);});
+      if(!ok||my!==token) return; p.remove();
+    }
+  } else if(s.type==='blend'){
+    const b=ctx.tone.getBBox(); const cx=b.x+b.width/2, cy=b.y+b.height/2;
+    const ok=await tween(reduce?50:2400/speed,k=>{setBlend(ctx,0.9*k);const a=k*Math.PI*8;placeTool('blend',cx+Math.cos(a)*b.width*0.35*(1-k*0.4),cy+Math.sin(a)*b.height*0.3*(1-k*0.4),0);});
+    if(!ok||my!==token) return;
+  } else if(s.type==='light'){
+    const els=addLights(ctx,s); els.forEach(e=>e.style.opacity=0);
+    for(const e of els){const b=e.getBBox();const pt={x:b.x+b.width/2,y:b.y+b.height/2};
+      const ok=await tween(reduce?40:900/speed,k=>{e.style.opacity=k;placeTool('erase',pt.x+Math.sin(k*30)*3,pt.y+Math.cos(k*30)*2,0);}); if(!ok||my!==token) return; }
+  }
+  await wait(400); if(my!==token) return;
+  ctx.tool.innerHTML=''; tool=null;
+  const msg={guide:'Your turn! Draw it lightly on your paper.',line:'Your turn! Draw this on your paper.',fine:'Your turn! Small careful strokes on your paper.',tone:'Your turn! Shade softly. Build it up slowly.',erase:'Your turn! Erase the light lines on your paper.',blend:'Your turn! Blend gently with a tissue.',light:'Your turn! Dab with your eraser.'};
+  $('nowTry').textContent=msg[s.type]; $('nowTry').classList.add('show'); $('next').classList.add('pulse');
+}
+$('replay').addEventListener('click',play);
+document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{speed=+b.dataset.speed;
+  document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('on',x===b)); play();}));
+$('next').addEventListener('click',()=>{ if(step<L.steps.length-1) enterStep(step+1); else finished(); });
+$('prev').addEventListener('click',()=>{ if(step>0) enterStep(step-1); });
+$('peekBtn').addEventListener('click',()=>{$('bigPeek').hidden=false;});
+$('bigPeek').addEventListener('click',()=>{$('bigPeek').hidden=true;});
+
+/* ---------- done ---------- */
+const unlocked=new Set();
+function finished(){ unlocked.add(lessonId); $('starCount').textContent=String(14+unlocked.size*3); go('done'); }
+function showDone(){
+  const lesson=L||LESSONS[ORDER[0]];
+  putFinal($('doneRef'),lesson); putFinal($('doneSticker'),lesson,{width:46,height:46});
+  $('stars').innerHTML='<svg viewBox="0 0 24 24"><use href="#star"/></svg>'.repeat(3);
+  confetti();
+}
+$('photoIn').addEventListener('change',e=>{const fl=e.target.files&&e.target.files[0]; if(!fl) return;
+  const url=URL.createObjectURL(fl); const ph=$('donePhoto'); ph.querySelector('label').hidden=true;
+  let img=ph.querySelector('img'); if(!img){img=document.createElement('img');img.alt='Photo of her drawing';ph.appendChild(img);} img.src=url;});
+function confetti(){
+  const c=$('confetti'); const r=c.getBoundingClientRect(); c.width=r.width; c.height=r.height;
+  if(reduce||!r.width) return;
+  const x=c.getContext('2d'); const cols=['#FF7F3F','#FFC93C','#3BB273','#4D8DF7','#E8507A','#B59CFF'];
+  const bits=Array.from({length:90},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*1.5,vy:2+Math.random()*2.5,r:Math.random()*3,s:5+Math.random()*6,c:cols[Math.floor(Math.random()*6)]}));
+  const t0=performance.now();
+  (function fr(now){ x.clearRect(0,0,c.width,c.height);
+    bits.forEach(b=>{b.x+=b.vx;b.y+=b.vy;b.r+=.08; x.save();x.translate(b.x,b.y);x.rotate(b.r);x.fillStyle=b.c;x.fillRect(-b.s/2,-b.s/4,b.s,b.s/2);x.restore();});
+    if(now-t0<3200 && current==='done') requestAnimationFrame(fr); else x.clearRect(0,0,c.width,c.height);
+  })(t0);
+}
+
+/* ---------- stickers ---------- */
+function renderStickers(){
+  const items=ORDER.map(id=>({id,name:LESSONS[id].name,lesson:LESSONS[id]}));
+    while(items.length<9) items.push({id:null});
+  let n=0; const sg=$('sgrid'); sg.innerHTML='';
+  items.forEach(it=>{const have=it.id&&unlocked.has(it.id); if(have)n++;
+    const d=document.createElement('div'); d.className='sticker'+(have?'':' locked');
+    const disc=document.createElement('div'); disc.className='disc'; if(it.lesson) disc.appendChild(finalSvg(it.lesson,{viewBox:'-20 -20 440 440'}));
+    d.appendChild(disc); d.appendChild(document.createTextNode(it.id?(have?it.name:'Draw to unlock'):'?')); sg.appendChild(d);});
+  $('stickCount').textContent=n;
+}
+
+/* ---------- change requests (shared db) ---------- */
+const form=$('reqForm'), list=$('reqList'), status=$('reqStatus');
+let db=null, reqs=[];
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+function renderReqs(){
+  list.innerHTML = reqs.length ? reqs.map(r=>`<li><span class="where">${esc(r.screen||'')}</span><span>${esc(r.text||'')}</span><span class="st ${r.status==='done'?'done':''}">${r.status==='done'?'Done':r.status==='in progress'?'In progress':'Waiting for Claude'}</span></li>`).join('')
+    : '<li class="status" style="border-style:dashed">No requests yet. Your first one will appear here.</li>';
+}
+renderReqs();
+status.textContent='Connecting…';
+(async()=>{
+  try{ db = window.claude ? await window.claude.use('db') : null; }catch(e){ db=null; }
+  if(!db){ status.textContent='Saving needs you to be signed in to claude.ai. You can also reply in the chat.'; return; }
+  status.textContent='';
+  const t=setTimeout(()=>{status.textContent='Requests are taking a while to load.';},10000);
+  db.collection('requests').orderBy('createdAt','desc').onSnapshot(snap=>{
+    if(!snap.metadata || !snap.metadata.fromCache){ clearTimeout(t); if(status.textContent.startsWith('Requests are')) status.textContent=''; }
+    reqs=snap.docs.map(d=>d.data()); renderReqs();
+  },err=>{clearTimeout(t); status.textContent='Could not load saved requests ('+(err&&err.code||'error')+').';});
+})();
+form.addEventListener('submit',async e=>{
+  e.preventDefault(); const text=$('reqText').value.trim(); if(!text){status.textContent='Write what you want changed first.';return;}
+  if(!db){status.textContent='Not connected, so this was not saved. Please send it to me in the chat.';return;}
+  $('reqSend').disabled=true; status.textContent='Saving…';
+  try{ await db.collection('requests').add({text,screen:$('reqScreen').value,status:'new',createdAt:new Date().toISOString()});
+    $('reqText').value=''; status.textContent='Saved. I will see it next time I check.'; }
+  catch(err){ status.textContent='Not saved ('+(err&&err.code||'error')+'). Try again, or tell me in the chat.'; }
+  finally{ $('reqSend').disabled=false; }
+});
+})();
+
+</script>
