@@ -28,18 +28,18 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
-          cp app/build/outputs/apk/release/app-release.apk SketchSprout.apk
+          cp app/build/outputs/apk/release/app-release.apk SketchDraw.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SketchSprout-apk
-          path: SketchSprout.apk
+          name: SketchDraw.apk
+          path: SketchDraw.apk
 
       - name: Publish a download on the Releases page
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: Sketch Sprout 1.0.${{ github.run_number }}
-          body: Download SketchSprout.apk on the Android phone or tablet and open it to install.
-          files: SketchSprout.apk
+          name: Sketch Draw 1.0.${{ github.run_number }}
+          body: Download SketchDraw.apk on the Android phone or tablet and open it to install.
+          files: SketchDraw.apk
           make_latest: true

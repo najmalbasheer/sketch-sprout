@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -17,7 +19,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-/** Shows the Sketch Sprout lessons, which live in assets/index.html and work offline. */
+/** Shows the Sketch Draw lessons, which live in assets/index.html and work offline. */
 public class MainActivity extends Activity {
     private static final int PICK_PHOTO = 7;
     private WebView web;
@@ -47,6 +49,12 @@ public class MainActivity extends Activity {
         });
         web.setWebChromeClient(new WebChromeClient() {
             @Override
+            public boolean onConsoleMessage(ConsoleMessage m) {
+                Log.i("SKTEST", m.message() + " @" + m.sourceId() + ":" + m.lineNumber());
+                return true;
+            }
+
+            @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (pendingPhoto != null) pendingPhoto.onReceiveValue(null);
                 pendingPhoto = callback;
@@ -65,6 +73,7 @@ public class MainActivity extends Activity {
 
         setContentView(web);
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
+        else if (getIntent().getBooleanExtra("autotest", false)) web.loadUrl("file:///android_asset/index.html#autotest");
         else web.loadUrl("file:///android_asset/index.html");
         hideSystemBars();
     }

@@ -1,10 +1,10 @@
-# Sketch Sprout
+# Sketch Draw
 
 A drawing-lesson app for Dua. An animated pencil shows each step on screen, she copies it on real paper, then taps "I drew it!". There are 35 lessons in coloured pencil.
 
 ## Getting the app
 
-Every push to `main` builds a new APK on GitHub Actions. Download `SketchSprout.apk` from the latest release on the Releases page, open it on the Android device and allow "install unknown apps" when asked.
+Every push to `main` builds a new APK on GitHub Actions. Download `SketchDraw.apk` from the latest release on the Releases page, open it on the Android device and allow "install unknown apps" when asked.
 
 ## How it is put together
 

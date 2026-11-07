@@ -124,6 +124,39 @@ window.appBack=function(){
   go('home'); return true;
 };
 refreshHome();
+
+/* ---------- device test mode: walks every lesson step and asks the test runner for a screenshot ---------- */
+if(location.hash==='#autotest'){
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const shot=async name=>{ await sleep(250); console.log('SSHOT:'+name); await sleep(1600); };
+  const until=async (fn,ms)=>{ const t0=Date.now(); while(!fn()){ if(Date.now()-t0>ms) return false; await sleep(100);} return true; };
+  (async()=>{
+    try{ localStorage.clear(); }catch(e){}
+    unlocked.clear(); refreshHome();
+    await sleep(3000);
+    await shot('000_home');
+    const sc=document.querySelector('#v-home .scroll');
+    for(let k=1;k<=6;k++){ sc.scrollTop=k*sc.clientHeight*0.9; await shot('001_home_scroll'+k); }
+    sc.scrollTop=0;
+    speed=3;
+    for(let n=0;n<ORDER.length;n++){
+      const id=ORDER[n], les=LESSONS[id], pre=String(n+1).padStart(2,'0')+'_'+id;
+      openLesson(id);
+      for(let i=0;i<les.steps.length;i++){
+        if(i>0) $('next').click();
+        const ok=await until(()=>$('nowTry').classList.contains('show'),60000);
+        await shot(pre+'_s'+String(i+1).padStart(2,'0')+(ok?'':'_TIMEOUT'));
+      }
+      $('peekBtn').click(); await shot(pre+'_zfinal'); $('bigPeek').click();
+      if(n===0){ $('next').click(); await sleep(1500); await shot('002_done'); }
+      else { unlocked.add(id); store.set('done',[...unlocked]); }
+    }
+    go('home'); await shot('003_home_after');
+    go('stickers'); await shot('004_stickers');
+    go('art'); await shot('005_art');
+    console.log('SSHOT:END');
+  })();
+}
 """
 rep("/*APP_JS*/\n", APP_JS)
 
@@ -161,7 +194,7 @@ body{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-selec
 head = (
     '<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8">'
     '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">'
-    "<title>Sketch Sprout</title><style>" + FONTS + "</style></head><body>\n"
+    "<title>Sketch Draw</title><style>" + FONTS + "</style></head><body>\n"
 )
 # Append the app CSS after the page's first stylesheet.
 i = h.index("</style>")
