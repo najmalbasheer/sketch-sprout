@@ -1752,7 +1752,7 @@ refreshHome();
 /* ---------- device test mode: walks every lesson step and asks the test runner for a screenshot ---------- */
 if(location.hash==='#autotest'){
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  const shot=async name=>{ await sleep(250); console.log('SSHOT:'+name); await sleep(1600); };
+  const shot=async name=>{ await sleep(200); console.log('SSHOT:'+name); await sleep(1300); };
   const until=async (fn,ms)=>{ const t0=Date.now(); while(!fn()){ if(Date.now()-t0>ms) return false; await sleep(100);} return true; };
   (async()=>{
     try{ localStorage.clear(); }catch(e){}
@@ -1762,7 +1762,7 @@ if(location.hash==='#autotest'){
     const sc=document.querySelector('#v-home .scroll');
     for(let k=1;k<=6;k++){ sc.scrollTop=k*sc.clientHeight*0.9; await shot('001_home_scroll'+k); }
     sc.scrollTop=0;
-    speed=3;
+    speed=5;
     for(let n=0;n<ORDER.length;n++){
       const id=ORDER[n], les=LESSONS[id], pre=String(n+1).padStart(2,'0')+'_'+id;
       openLesson(id);
